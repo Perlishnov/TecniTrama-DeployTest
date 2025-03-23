@@ -1,3 +1,4 @@
+// TODO: Revisar esto que hizo irving
 const passport = require("passport");
 const MicrosoftStrategy = require("passport-microsoft").Strategy;
 require("dotenv").config();
