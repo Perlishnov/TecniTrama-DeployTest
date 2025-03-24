@@ -1,4 +1,5 @@
-const bcrypt = require('bcryptjs');
+// const bcrypt = require('bcryptjs'); // Removed in favor of hash utility
+const hash = require('../utils/hash')
 const jwt = require('jsonwebtoken');
 const prisma = require('../models/prismaClient');
 
@@ -104,9 +105,9 @@ const registerUser = async (req, res) => {
       return res.status(400).json({ message: 'Invalid user type selected' });
     }
 
-    // Hash password
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+    
+    // Hash password using utility
+    const hashedPassword = await hash.hashPassword(password);
 
     // Create new user
     const newUser = await prisma.users.create({
@@ -168,8 +169,8 @@ const loginUser = async (req, res) => {
       return res.status(400).json({ message: 'Account is inactive' });
     }
 
-    // Verify password
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    // Verify password using utility
+    const isPasswordValid = await hash.comparePassword(password, user.password);
     if (!isPasswordValid) {
       return res.status(400).json({ message: 'Invalid email or password' });
     }
