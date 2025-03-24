@@ -12,7 +12,6 @@ require('dotenv').config();
 
 // Import routes
 const usersRouter = require('./src/routes/users');
-const userTypesRouter = require('./src/routes/userTypes');
 
 // Initialize Express app
 const app = express();
@@ -38,7 +37,6 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Routes
 app.use('/api/users', usersRouter);
-app.use('/api/user-types', userTypesRouter);
 
 // Catch 404 and forward to error handler
 app.use((req, res, next) => {

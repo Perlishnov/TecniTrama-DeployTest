@@ -102,10 +102,21 @@ const registerUser = async (req, res) => {
     });
 
     if (!userTypeExists) {
-      return res.status(400).json({ message: 'Invalid user type selected' });
+      // Fetch all valid user types to include in the error message
+      const validUserTypes = await prisma.user_types.findMany({
+        select: {
+          user_type_id: true,
+          type: true
+        }
+      });
+
+      return res.status(400).json({ 
+        message: 'Invalid user type selected', 
+        validUserTypes: validUserTypes 
+      });
     }
 
-    
+
     // Hash password using utility
     const hashedPassword = await hash.hashPassword(password);
 
