@@ -4,5 +4,5 @@ Proyecto del grupo de TecniTrama
 
 Diagrama de la BD
 
-![TecniTrama ](https://github.com/user-attachments/assets/403294d3-05f6-4449-a932-821825d8bf0f)
+![TecniTrama ](https://github.com/user-attachments/assets/044f40ac-f84e-46c7-9775-be2ce997bf80)
 
