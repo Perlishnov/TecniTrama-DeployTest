@@ -213,7 +213,7 @@ const loginUser = async (req, res) => {
 const updateUser = async (req, res) => {
   try {
     const userId = parseInt(req.params.id);
-    const { first_name, last_name, email, phone_num, is_active, user_type_id } = req.body;
+    const { first_name, last_name, email, phone_num, is_active, user_type_id, password } = req.body;
 
     // Check if user exists
     const existingUser = await prisma.users.findUnique({
@@ -233,7 +233,8 @@ const updateUser = async (req, res) => {
         email: email || existingUser.email,
         phone_num: phone_num || existingUser.phone_num,
         is_active: is_active !== undefined ? is_active : existingUser.is_active,
-        user_type_id: user_type_id ? parseInt(user_type_id) : existingUser.user_type_id
+        user_type_id: user_type_id ? parseInt(user_type_id) : existingUser.user_type_id,
+        password: password ? await hash.hashPassword(password) : existingUser.password
       }
     });
 
@@ -244,7 +245,9 @@ const updateUser = async (req, res) => {
         first_name: updatedUser.first_name,
         last_name: updatedUser.last_name,
         email: updatedUser.email,
-        is_active: updatedUser.is_active
+        is_active: updatedUser.is_active,
+        password: updatedUser.password,
+        user_type_id: updatedUser.user_type_id
       }
     });
   } catch (error) {
