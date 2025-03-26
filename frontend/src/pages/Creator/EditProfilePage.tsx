@@ -123,6 +123,7 @@ const EditProfilePage: React.FC = () => {
               />
             </div>
             <div className="flex flex-col items-center w-1/2">
+
               <label
                 htmlFor="experience"
                 className="text-Base-Negro text-xs font-medium font-barlow leading-tight"

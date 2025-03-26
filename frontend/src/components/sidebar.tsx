@@ -10,6 +10,7 @@ import NotificationIcon from "@/assets/icons/bell.svg";
 import SettingsIcon from "@/assets/icons/settings.svg";
 import Logo from "./logo";
 
+
 function Sidebar() {
   return (
     <aside className="w-80 h-screen pt-4 bg-rose-100 flex flex-col justify-between items-center overflow-hidden">

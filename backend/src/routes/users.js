@@ -3,7 +3,7 @@ const router = express.Router();
 const userController = require('../controllers/userController');
 
 // Import middleware
-const { authenticateToken } = userController;
+const { authenticateToken } = require('../controllers/authController');
 
 /**
  * @swagger
