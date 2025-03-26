@@ -1,23 +1,311 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const projectController = require("../controllers/projectController");
+const projectController = require('../controllers/projectController');
+const { authenticateToken } = require('../controllers/authController');
 
-// Create a new project
-router.post("/", projectController.createProject);
+/**
+ * @swagger
+ * /api/projects:
+ *   get:
+ *     summary: Get all projects
+ *     description: Retrieve a list of all projects. Public endpoint.
+ *     tags: [Projects]
+ *     responses:
+ *       200:
+ *         description: A list of projects
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Project'
+ *       500:
+ *         description: Server error
+ */
+router.get('/', projectController.getAllProjects);
 
-// Get all projects
-router.get("/", projectController.getAllProjects);
+/**
+ * @swagger
+ * /api/projects/{id}:
+ *   get:
+ *     summary: Get project by ID
+ *     description: Retrieve a specific project by its ID. Public endpoint.
+ *     tags: [Projects]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Project ID
+ *     responses:
+ *       200:
+ *         description: Project details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Project'
+ *       404:
+ *         description: Project not found
+ *       500:
+ *         description: Server error
+ */
+router.get('/:id', projectController.getProjectById);
 
-// Get a single project by ID
-router.get("/:id", projectController.getProjectById);
+/**
+ * @swagger
+ * /api/projects:
+ *   post:
+ *     summary: Create a new project
+ *     description: Create a new project. Requires authentication.
+ *     tags: [Projects]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/ProjectInput'
+ *     responses:
+ *       201:
+ *         description: Project created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Project'
+ *       400:
+ *         description: Bad request - Missing required fields
+ *       401:
+ *         description: Unauthorized - No token provided
+ *       403:
+ *         description: Forbidden - Invalid token
+ *       500:
+ *         description: Server error
+ */
+router.post('/', authenticateToken, projectController.createProject);
 
-// Update a project
-router.put("/:id", projectController.updateProject);
+/**
+ * @swagger
+ * /api/projects/{id}:
+ *   put:
+ *     summary: Update project
+ *     description: Update project information. Requires authentication.
+ *     tags: [Projects]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Project ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/ProjectInput'
+ *     responses:
+ *       200:
+ *         description: Project updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Project'
+ *       401:
+ *         description: Unauthorized - No token provided
+ *       403:
+ *         description: Forbidden - Invalid token or not project owner
+ *       404:
+ *         description: Project not found
+ *       500:
+ *         description: Server error
+ */
+router.put('/:id', authenticateToken, projectController.updateProject);
 
-// Delete a project
-router.delete("/:id", projectController.deleteProject);
+/**
+ * @swagger
+ * /api/projects/{id}:
+ *   delete:
+ *     summary: Delete project
+ *     description: Delete a project by ID. Requires authentication.
+ *     tags: [Projects]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Project ID
+ *     responses:
+ *       204:
+ *         description: Project deleted successfully
+ *       401:
+ *         description: Unauthorized - No token provided
+ *       403:
+ *         description: Forbidden - Invalid token or not project owner
+ *       404:
+ *         description: Project not found
+ *       500:
+ *         description: Server error
+ */
+router.delete('/:id', authenticateToken, projectController.deleteProject);
 
-// Toggle project active status
-router.patch("/:id/status", projectController.toggleProjectStatus);
+/**
+ * @swagger
+ * /api/projects/{id}/status:
+ *   patch:
+ *     summary: Toggle project status
+ *     description: Toggle project active/inactive status. Requires authentication.
+ *     tags: [Projects]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Project ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               is_active:
+ *                 type: boolean
+ *                 example: false
+ *     responses:
+ *       200:
+ *         description: Project status updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Project'
+ *       401:
+ *         description: Unauthorized - No token provided
+ *       403:
+ *         description: Forbidden - Invalid token or not project owner
+ *       404:
+ *         description: Project not found
+ *       500:
+ *         description: Server error
+ */
+router.patch('/:id/status', authenticateToken, projectController.toggleProjectStatus);
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Project:
+ *       type: object
+ *       properties:
+ *         project_id:
+ *           type: integer
+ *           description: The auto-generated ID of the project
+ *         creator_id:
+ *           type: integer
+ *           description: ID of the user who created the project
+ *         title:
+ *           type: string
+ *           description: Title of the project
+ *         banner:
+ *           type: string
+ *           description: URL of the project banner image
+ *         description:
+ *           type: string
+ *           description: Detailed description of the project
+ *         attachmenturl:
+ *           type: string
+ *           description: URL of any attachment
+ *         publication_date:
+ *           type: string
+ *           format: date-time
+ *           description: Date when project was published
+ *         budget:
+ *           type: number
+ *           format: float
+ *           description: Project budget
+ *         sponsors:
+ *           type: string
+ *           description: Project sponsors
+ *         estimated_start:
+ *           type: string
+ *           format: date-time
+ *           description: Estimated start date
+ *         estimated_end:
+ *           type: string
+ *           format: date-time
+ *           description: Estimated end date
+ *         is_active:
+ *           type: boolean
+ *           description: Whether the project is active
+ *         is_published:
+ *           type: boolean
+ *           description: Whether the project is published
+ *         format_id:
+ *           type: integer
+ *           description: ID of the project format
+ *         created_at:
+ *           type: string
+ *           format: date-time
+ *           description: Date when project was created
+ *     ProjectInput:
+ *       type: object
+ *       required:
+ *         - title
+ *         - description
+ *         - creator_id
+ *       properties:
+ *         title:
+ *           type: string
+ *           example: "My Awesome Project"
+ *         description:
+ *           type: string
+ *           example: "Detailed description of my project"
+ *         creator_id:
+ *           type: integer
+ *           example: 1
+ *         banner:
+ *           type: string
+ *           example: "https://example.com/banner.jpg"
+ *         attachmenturl:
+ *           type: string
+ *           example: "https://example.com/attachment.pdf"
+ *         budget:
+ *           type: number
+ *           example: 5000.50
+ *         sponsors:
+ *           type: string
+ *           example: "Company A, Company B"
+ *         estimated_start:
+ *           type: string
+ *           format: date-time
+ *           example: "2023-12-01T00:00:00Z"
+ *         estimated_end:
+ *           type: string
+ *           format: date-time
+ *           example: "2024-06-01T00:00:00Z"
+ *         is_published:
+ *           type: boolean
+ *           example: true
+ *         format_id:
+ *           type: integer
+ *           example: 1
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
+ *   tags:
+ *     - name: Projects
+ *       description: Project management API
+ */
 
 module.exports = router;
