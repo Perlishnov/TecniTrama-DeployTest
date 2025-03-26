@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 
 export const useAuth = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(
+    !!localStorage.getItem("token") // Estado inicial desde localStorage
+  );
 
   useEffect(() => {
-    // Por ejemplo, revisamos si existe un token en localStorage
     const token = localStorage.getItem("token");
+    console.log("Token", token);
     setIsAuthenticated(!!token);
   }, []);
 

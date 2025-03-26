@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Checkbox } from "@heroui/checkbox";
-import { useNavigate } from "react-router-dom";
+import { redirect, useNavigate } from "react-router-dom";
 import bannerImg from "../assets/loginSignupBanner.png";
 import Logo from "@/components/logo";
 import InputField from "@/components/input";
@@ -49,10 +49,7 @@ export const Login = (): JSX.Element => {
 
       // Handle successful login
       const responseData = await response.json();
-      console.log('Login successful', responseData);
-      
-      // Optional: Store token, user info, etc.
-      // localStorage.setItem('token', responseData.token);
+      localStorage.setItem('token', responseData.token);
       
       // Redirect to dashboard or home page
       navigate('/dashboard');
