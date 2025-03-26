@@ -13,6 +13,8 @@ export default {
     extend: {
       colors: {
         "rojo-intec-50": "#FDE8E8",
+        "rojo-intec-100": "#FFEAE6",
+        "rojo-intec-400": "#FF9A8C",
       },
       fontFamily: {
         barlow: ["Barlow", "sans-serif"],
