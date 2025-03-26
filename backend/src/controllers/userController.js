@@ -1,25 +1,7 @@
 // const bcrypt = require('bcryptjs'); // Removed in favor of hash utility
 const hash = require('../utils/hash')
-const jwt = require('jsonwebtoken');
+const { generateToken } = require('../services/authService');
 const prisma = require('../models/prismaClient');
-
-// Middleware to verify JWT token
-const authenticateToken = (req, res, next) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
-
-  if (!token) {
-    return res.status(401).json({ message: 'Access denied. No token provided.' });
-  }
-
-  jwt.verify(token, process.env.JWT_SECRET || 'tecnitrama_jwt_secret', (err, user) => {
-    if (err) {
-      return res.status(403).json({ message: 'Invalid token.' });
-    }
-    req.user = user;
-    next();
-  });
-};
 
 // Get all users
 const getAllUsers = async (req, res) => {
@@ -134,11 +116,7 @@ const registerUser = async (req, res) => {
     });
 
     // Create JWT token
-    const token = jwt.sign(
-      { id: newUser.user_id, email: newUser.email },
-      process.env.JWT_SECRET || 'tecnitrama_jwt_secret',
-      { expiresIn: '1d' }
-    );
+    const token = generateToken({ id: newUser.user_id, email: newUser.email });
 
     res.status(201).json({
       message: 'User registered successfully',
@@ -187,11 +165,7 @@ const loginUser = async (req, res) => {
     }
 
     // Create JWT token
-    const token = jwt.sign(
-      { id: user.user_id, email: user.email },
-      process.env.JWT_SECRET || 'tecnitrama_jwt_secret',
-      { expiresIn: '1d' }
-    );
+    const token = generateToken({ id: user.user_id, email: user.email });
 
     res.json({
       message: 'Login successful',
@@ -283,7 +257,7 @@ const deleteUser = async (req, res) => {
 };
 
 module.exports = {
-  authenticateToken,
+
   getAllUsers,
   getUserById,
   registerUser,
