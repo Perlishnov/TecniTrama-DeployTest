@@ -149,7 +149,6 @@ model projects {
   description       String
   attachmenturl     String?             @db.VarChar(255)
   publication_date  DateTime            @default(now()) @db.Timestamp(6)
-  format            String?             @db.VarChar(50)
   budget            Decimal?            @db.Decimal(7, 2)
   sponsors          String?
   estimated_start   DateTime?           @db.Timestamp(6)
@@ -157,10 +156,12 @@ model projects {
   is_active         Boolean
   created_at        DateTime            @default(now()) @db.Timestamp(6)
   is_published      Boolean
+  format_id         Int?
   class_projects    class_projects[]
   comments_projects comments_projects[]
   crew              crew[]
   project_genres    project_genres[]
+  project_formats   project_formats?    @relation(fields: [format_id], references: [format_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_projects_format")
   users             users               @relation(fields: [creator_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
   vacancies         vacancies[]
 }
@@ -223,4 +224,10 @@ model vacancies {
   applications applications[]
   projects     projects       @relation(fields: [project_id], references: [project_id], onDelete: NoAction, onUpdate: NoAction)
   roles        roles          @relation(fields: [role_id], references: [role_id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model project_formats {
+  format_id   Int        @id @default(autoincrement())
+  format_name String     @db.VarChar(50)
+  projects    projects[]
 }

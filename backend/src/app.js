@@ -12,6 +12,7 @@ require('dotenv').config();
 
 // Import routes
 const usersRouter = require('./src/routes/users');
+const projectsRouter = require('./src/routes/projects');
 
 // Initialize Express app
 const app = express();
