@@ -122,7 +122,8 @@ const EditProfilePage: React.FC = () => {
                 onChange={(e) => setBiography(e.target.value)}
               />
             </div>
-            <div className="flex flex-col items-center">
+            <div className="flex flex-col items-center w-1/2">
+
               <label
                 htmlFor="experience"
                 className="text-Base-Negro text-xs font-medium font-barlow leading-tight"

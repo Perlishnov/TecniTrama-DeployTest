@@ -8,15 +8,16 @@ import ProjectIcon from "@/assets/icons/file-text.svg";
 import ChatIcon from "@/assets/icons/message-circle.svg";
 import NotificationIcon from "@/assets/icons/bell.svg";
 import SettingsIcon from "@/assets/icons/settings.svg";
+import Logo from "./logo";
+
 
 function Sidebar() {
   return (
     <aside className="w-80 h-screen pt-4 bg-rose-100 flex flex-col justify-between items-center overflow-hidden">
       <div className="w-full px-4">
         {/* Logo */}
-        <div className="flex items-center gap-2 mb-6">
-          <span className="text-3xl">🍓</span>
-          <span className="text-2xl font-semibold">Logo</span>
+        <div className="flex items-center">
+          <Logo/>
         </div>
         {/* Search Bar */}
         <SearchBar placeholder="Buscar" className="mb-4" />
