@@ -13,6 +13,7 @@ require('dotenv').config();
 // Import routes
 const usersRouter = require('./src/routes/users');
 const projectsRouter = require('./src/routes/projectRoutes');
+const profilesRouter = require('./src/routes/profiles');
 
 // Initialize Express app
 const app = express();
@@ -20,6 +21,8 @@ const app = express();
 // Middleware setup
 app.use(logger('dev'));
 app.use(express.json());
+
+// Mount other routers here
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
@@ -39,6 +42,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 // Routes
 app.use('/api/users', usersRouter);
 app.use('/api/projects', projectsRouter);
+app.use('/api/profiles', profilesRouter);
 
 // Catch 404 and forward to error handler
 app.use((req, res, next) => {
