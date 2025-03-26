@@ -3,6 +3,7 @@ const router = express.Router();
 const projectController = require('../controllers/projectController');
 const { authenticateToken } = require('../controllers/authController');
 
+// Get all projects
 /**
  * @swagger
  * /api/projects:
@@ -24,6 +25,7 @@ const { authenticateToken } = require('../controllers/authController');
  */
 router.get('/', projectController.getAllProjects);
 
+// Get project by ID
 /**
  * @swagger
  * /api/projects/{id}:
@@ -52,6 +54,7 @@ router.get('/', projectController.getAllProjects);
  */
 router.get('/:id', projectController.getProjectById);
 
+// Create a new project
 /**
  * @swagger
  * /api/projects:
@@ -85,6 +88,7 @@ router.get('/:id', projectController.getProjectById);
  */
 router.post('/', authenticateToken, projectController.createProject);
 
+// Update project
 /**
  * @swagger
  * /api/projects/{id}:
@@ -125,6 +129,7 @@ router.post('/', authenticateToken, projectController.createProject);
  */
 router.put('/:id', authenticateToken, projectController.updateProject);
 
+// Delete project
 /**
  * @swagger
  * /api/projects/{id}:
@@ -155,6 +160,7 @@ router.put('/:id', authenticateToken, projectController.updateProject);
  */
 router.delete('/:id', authenticateToken, projectController.deleteProject);
 
+// Toggle project status
 /**
  * @swagger
  * /api/projects/{id}/status:
