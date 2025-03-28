@@ -98,34 +98,49 @@ const registerUser = async (req, res) => {
       });
     }
 
-
     // Hash password using utility
     const hashedPassword = await hash.hashPassword(password);
 
-    // Create new user
-    const newUser = await prisma.users.create({
-      data: {
-        first_name,
-        last_name,
-        email,
-        password: hashedPassword,
-        phone_num,
-        user_type_id: parseInt(user_type_id),
-        is_active: true
-      }
+    // Use transaction to create user and profile atomically
+    const result = await prisma.$transaction(async (prisma) => {
+      // Create new user
+      const newUser = await prisma.users.create({
+        data: {
+          first_name,
+          last_name,
+          email,
+          password: hashedPassword,
+          phone_num,
+          user_type_id: parseInt(user_type_id),
+          is_active: true
+        }
+      });
+
+      // Create empty profile for the new user
+      await prisma.profiles.create({
+        data: {
+          user_id: newUser.user_id,
+          experience: null,
+          carreer: null,
+          bio: null,
+          profile_image: null
+        }
+      });
+
+      return newUser;
     });
 
     // Create JWT token
-    const token = generateToken({ id: newUser.user_id, email: newUser.email });
+    const token = generateToken({ id: result.user_id, email: result.email });
 
     res.status(201).json({
-      message: 'User registered successfully',
+      message: 'User registered successfully with empty profile',
       token,
       user: {
-        user_id: newUser.user_id,
-        first_name: newUser.first_name,
-        last_name: newUser.last_name,
-        email: newUser.email
+        user_id: result.user_id,
+        first_name: result.first_name,
+        last_name: result.last_name,
+        email: result.email
       }
     });
   } catch (error) {

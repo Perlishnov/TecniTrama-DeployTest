@@ -36,61 +36,16 @@ const getProfileById = async (req, res) => {
   }
 };
 
-const createProfile = async (req, res) => {
-  try {
-    const { user_id, experience, carreer, bio, profile_image } = req.body;
-    
-    if (!user_id) {
-      return res.status(400).json({ error: 'User ID is required' });
-    }
-    
-    // Check if user exists
-    const userExists = await prisma.users.findUnique({
-      where: { user_id: Number(user_id) }
-    });
-    
-    if (!userExists) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-    
-    // Check if profile already exists for this user
-    const existingProfile = await prisma.profiles.findUnique({
-      where: { user_id: Number(user_id) }
-    });
-    
-    if (existingProfile) {
-      return res.status(409).json({ error: 'Profile already exists for this user' });
-    }
-
-    const newProfile = await prisma.profiles.create({
-      data: {
-        user_id: Number(user_id),
-        experience: experience || null,
-        carreer: carreer || null,
-        bio: bio || null,
-        profile_image: profile_image || null
-      },
-      include: {
-        users: true
-      }
-    });
-
-    res.status(201).json(newProfile);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-};
-
 const updateProfile = async (req, res) => {
   try {
     const { id } = req.params;
     const { experience, carreer, bio, profile_image } = req.body;
-    
+
     // Check if profile exists
     const profileExists = await prisma.profiles.findUnique({
       where: { profile_id: Number(id) }
     });
-    
+
     if (!profileExists) {
       return res.status(404).json({ error: 'Profile not found' });
     }
@@ -141,7 +96,6 @@ const deleteProfile = async (req, res) => {
 module.exports = {
   getAllProfiles,
   getProfileById,
-  createProfile,
   updateProfile,
   deleteProfile
 };
