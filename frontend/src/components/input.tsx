@@ -1,6 +1,7 @@
 import React from "react";
 
 export interface InputFieldProps {
+  name: string,
   type?: string;
   placeholder?: string;
   pattern?: string;
@@ -12,6 +13,7 @@ export interface InputFieldProps {
 }
 
 const InputField: React.FC<InputFieldProps> = ({
+  name = "",
   type = "text",
   placeholder = "",
   pattern,
@@ -33,6 +35,7 @@ const InputField: React.FC<InputFieldProps> = ({
 
   return (
     <input
+      name={name}
       type={type}
       placeholder={placeholder}
       pattern={pattern}
