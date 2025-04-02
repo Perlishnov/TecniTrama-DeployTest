@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, Outlet } from "react-router-dom";
 import Login from "./pages/login";
 import Register from "./pages/register";
 import Home from "./pages/home";
@@ -7,6 +7,8 @@ import { useAuth } from "./hooks/auth";
 import CreatorLayout from "./layouts/default";
 import CreatorProfilePage from "./pages/Creator/creatorProfilePage";
 import EditProfilePage from "./pages/Creator/EditProfilePage";
+import ProjectPreview from "./pages/Creator/ProjectPreview";
+import EditProject from "./pages/Creator/editProjectView";
 
 const App = () => {
   const { isAuthenticated } = useAuth();
@@ -50,13 +52,15 @@ const App = () => {
         path="/projects"
         element={
           <ProtectedRoute isAuthenticated={isAuthenticated}>
-            <Home />
+            <Outlet />
           </ProtectedRoute>
         }
       >
-        <Route path="view/:projectId" element={<Home />} />
+        <Route path=":projectId" element={<ProjectPreview />} />
+        <Route path=":projectId/edit" element={<EditProject />} />
         <Route path="my" element={<Home />} />
       </Route>
+
 
       <Route
         path="/notifications"
