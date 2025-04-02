@@ -42,10 +42,12 @@ const ProfileWidget: React.FC<ProfileWidgetProps> = ({
             </div>
           </div>
         </Link>
-        <Link to="/login">
-          <Button onClick={handleLogout} className="px-2 py-2 bg-rojo-intec-400 text-white rounded-full flex justify-center gap-1">
-            <img src={ExitIcon} alt="Exit Icon" className="w-1/3 h-1/3 "/>
-          </Button>
+        <Link to="/login" onClick={handleLogout}>
+            <img
+              src={ExitIcon}
+              alt="Exit Icon"
+              className="w-full h-full"
+            />
         </Link> 
       </div>
     </div>

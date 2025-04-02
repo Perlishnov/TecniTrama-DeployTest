@@ -99,7 +99,7 @@ export const Register = (): JSX.Element => {
       <div className="w-1/2 min-h-screen flex items-center justify-center bg-rojo-intec-50">
         <div className="w-3/4 m-0">
           {/* Logo */}
-          <Logo />
+          <Logo  className="w-1/2"/>
 
           {/* Título */}
           <h1 className="text-2xl font-bold text-black mb-2 text-center">
