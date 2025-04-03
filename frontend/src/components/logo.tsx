@@ -1,17 +1,16 @@
 import React from "react";
-
+import LogoIcon from "@/assets/icons/Logo Tecnitrama.svg"
 interface LogoProps {
   text?: string;
   emoji?: string;
+  className?: string;
 }
 
-const Logo: React.FC<LogoProps> = ({ text = "Logo", emoji = "🍓" }) => {
+const Logo: React.FC<LogoProps> = ({ text = "ecnitrama", className }) => {
   return (
-    <div className="text-center text-4xl font-bold mb-4">
-      <span role="img" aria-label="Logo">
-        {emoji}
-      </span>{" "}
-      {text}
+    <div className={`flex text-2xl font-bold place-items-center ${className}`}>
+      <img src={LogoIcon} alt="Logo Icon" className="" />
+      <span>{text}</span>
     </div>
   );
 };

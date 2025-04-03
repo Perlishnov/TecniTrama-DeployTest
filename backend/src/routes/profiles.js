@@ -104,60 +104,6 @@ router.get('/', authenticateToken, profileController.getAllProfiles);
  */
 router.get('/:id', authenticateToken, profileController.getProfileById);
 
-// Create new profile
-/**
- * @swagger
- * /api/profiles:
- *   post:
- *     security:
- *       - bearerAuth: []
- *     summary: Create a profile
- *     description: Create a new user profile with professional information
- *     tags: [Profiles]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - user_id
- *             properties:
- *               user_id:
- *                 type: integer
- *               experience:
- *                 type: string
- *               carreer:
- *                 type: string
- *               bio:
- *                 type: string
- *               profile_image:
- *                 type: string
- *     responses:
- *       201:
- *         description: Profile created successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Profile'
- *       400:
- *         description: Bad request - Missing or invalid parameters
- *       401:
- *         description: Unauthorized - No token provided
- *       409:
- *         description: Profile already exists
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: string
- *       500:
- *         description: Server error
- */
-router.post('/', authenticateToken, profileController.createProfile);
-
 // Update existing profile
 /**
  * @swagger

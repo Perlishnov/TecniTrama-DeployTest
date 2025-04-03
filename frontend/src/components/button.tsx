@@ -5,6 +5,7 @@ export interface CustomButtonProps {
   onClick?: () => void;
   children: React.ReactNode;
   className?: string;
+  disabled?: boolean;
 }
 
 const CustomButton: React.FC<CustomButtonProps> = ({
@@ -12,12 +13,14 @@ const CustomButton: React.FC<CustomButtonProps> = ({
   onClick,
   children,
   className = "",
+  disabled = false,
 }) => {
   return (
     <button
+      disabled={disabled}
       type={type}
       onClick={onClick}
-      className={`col-span-2 bg-red-500 text-black py-2 rounded-full border-2 border-black ${className}`}
+      className={`col-span-2 bg-rojo-intec-400 text-black py-2 rounded-full border-2 border-black ${className}`}
     >
       {children}
     </button>
