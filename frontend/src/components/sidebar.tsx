@@ -11,11 +11,11 @@ import Logo from "./logo";
 
 function Sidebar() {
   const menuItems = [
-    { icon: HomeIcon, label: "Home", href: "#" },
-    { icon: ProjectIcon, label: "Proyectos", href: "#" },
+    { icon: HomeIcon, label: "Home", href: "/" },
+    { icon: ProjectIcon, label: "Proyectos", href: "/projects" },
     { icon: ChatIcon, label: "Chats", href: "#" },
     { icon: NotificationIcon, label: "Notificaciones", href: "#" },
-    { icon: SettingsIcon, label: "Configuración", href: "#" },
+    { icon: SettingsIcon, label: "Configuración", href: "/profile" },
   ];
 
   return (
