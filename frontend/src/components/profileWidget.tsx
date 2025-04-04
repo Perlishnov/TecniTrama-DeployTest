@@ -34,10 +34,10 @@ const ProfileWidget: React.FC<ProfileWidgetProps> = ({
             )}
           </div>
           <div className="inline-flex flex-col justify-start items-start">
-            <div className="text-black text-base font-semibold font-['Barlow'] leading-tight">
+            <div className="text-black text-base font-semibold font-barlow leading-tight">
               {name}
             </div>
-            <div className="text-black text-xs font-medium font-['Barlow'] leading-tight">
+            <div className="text-black text-xs font-medium font-barlow leading-tight">
               {email}
             </div>
           </div>
