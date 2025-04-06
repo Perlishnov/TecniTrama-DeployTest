@@ -3,7 +3,7 @@ const router = express.Router();
 const userController = require('../controllers/userController');
 
 // Import middleware
-const { authenticateToken } = require('../controllers/authController');
+const { verifyJWTAndAdmin } = require('../middleware/authMiddleware');
 
 /**
  * @swagger
@@ -48,7 +48,7 @@ const { authenticateToken } = require('../controllers/authController');
  *       500:
  *         description: Server error
  */
-router.get('/', authenticateToken, userController.getAllUsers);
+router.get('/', verifyJWTAndAdmin, userController.getAllUsers);
 
 /**
  * @swagger
@@ -101,7 +101,7 @@ router.get('/', authenticateToken, userController.getAllUsers);
  *         description: Server error
  */
 // Get user by ID
-router.get('/:id', authenticateToken, userController.getUserById);
+router.get('/:id', verifyJWTAndAdmin, userController.getUserById);
 
 /**
  * @swagger
@@ -292,7 +292,7 @@ router.post('/login', userController.loginUser);
  *         description: Server error
  */
 // Update user
-router.put('/:id', authenticateToken, userController.updateUser);
+router.put('/:id', verifyJWTAndAdmin, userController.updateUser);
 
 /**
  * @swagger
@@ -330,7 +330,7 @@ router.put('/:id', authenticateToken, userController.updateUser);
  *         description: Server error
  */
 // Delete user
-router.delete('/:id', authenticateToken, userController.deleteUser);
+router.delete('/:id', verifyJWTAndAdmin, userController.deleteUser);
 
 /**
  * @swagger
