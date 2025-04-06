@@ -12,9 +12,18 @@ const verifyJWTAndAdmin = (req, res, next) => {
       return res.status(401).json({ message: 'Invalid token' });
     }
 
-    // Check if user is admin (user_type_id = 2)
+    // Get the target user ID from the request parameters
+    const targetUserId = parseInt(req.params.id);
+
+    // If the user is modifying their own data, allow it
+    if (targetUserId === decoded.id) {
+      req.user = decoded;
+      return next();
+    }
+
+    // If modifying another user's data, check for admin privileges
     if (decoded.user_type_id !== 2) {
-      return res.status(403).json({ message: 'Access denied. Admin privileges required.' });
+      return res.status(403).json({ message: 'Access denied. Admin privileges required to modify other users.' });
     }
 
     req.user = decoded;
