@@ -187,6 +187,22 @@ const getProjectFormats = async (req, res) => {
   }
 };
 
+// Checks if a user is the owner of a project
+// GET /projects/:id/isOwner
+const isOwner = async (req, res) => {
+  try {
+    const project = await projectService.getProjectById(req.params.id);
+    if (!project) {
+      return res.status(404).json({ error: "Project not found" });
+    }
+
+    const isOwner = await projectService.isProjectOwner(req.params.id, req.user.id);
+    res.status(200).json({ isOwner });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports = {
   createProject,
   getAllProjects,
@@ -196,5 +212,6 @@ module.exports = {
   toggleProjectStatus,
   getProjectGenres,
   getProjectClasses,
-  getProjectFormats
+  getProjectFormats,
+  isOwner
 };

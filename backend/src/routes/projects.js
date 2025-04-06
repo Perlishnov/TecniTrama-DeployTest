@@ -289,6 +289,74 @@ router.get('/:id/genres', authenticateToken, projectController.getProjectGenres)
  */
 router.get('/:id/classes', authenticateToken, projectController.getProjectClasses);
 
+// Check if user is project owner
+/**
+ * @swagger
+ * /api/projects/{id}/isOwner:
+ *   get:
+ *     summary: Check if user is project owner
+ *     description: Verify if the authenticated user is the owner of a specific project
+ *     tags: [Projects]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Project ID
+ *     responses:
+ *       200:
+ *         description: Ownership verification result
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 isOwner:
+ *                   type: boolean
+ *                   description: True if user is the owner, false otherwise
+ *       401:
+ *         description: Unauthorized - No token provided
+ *       403:
+ *         description: Forbidden - Invalid token
+ *       404:
+ *         description: Project not found
+ *       500:
+ *         description: Server error
+ */
+router.get('/:id/isOwner', authenticateToken, projectController.isProjectOwner);
+
+// Get project formats
+/**
+ * @swagger
+ * /api/projects/formats:
+ *   get:
+ *     summary: Get all project formats
+ *     description: Retrieve a list of all available project formats
+ *     tags: [Projects]
+ *     responses:
+ *       200:
+ *         description: List of project formats
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   format_id:
+ *                     type: integer
+ *                     description: Format identifier
+ *                   name:
+ *                     type: string
+ *                     description: Format name
+ *       500:
+ *         description: Server error
+ */
+router.get('/formats', projectController.getProjectFormats);
+
 /**
  * @swagger
  * components:
