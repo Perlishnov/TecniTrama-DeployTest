@@ -4,6 +4,7 @@ import ProfileWidget from "./profileWidget";
 import AvatarUrl from "@/assets/avatar.png";
 import HomeIcon from "@/assets/icons/home.svg";
 import ProjectIcon from "@/assets/icons/file-text.svg";
+import ClipboardIcon from "@/assets/icons/Clipboard.png"
 import ChatIcon from "@/assets/icons/message-circle.svg";
 import NotificationIcon from "@/assets/icons/bell.svg";
 import SettingsIcon from "@/assets/icons/settings.svg";
@@ -13,6 +14,7 @@ function Sidebar() {
   const menuItems = [
     { icon: HomeIcon, label: "Home", href: "/" },
     { icon: ProjectIcon, label: "Proyectos", href: "/projects" },
+    { icon: ClipboardIcon, label: "Solicitudes", href: "/applications"},
     { icon: ChatIcon, label: "Chats", href: "#" },
     { icon: NotificationIcon, label: "Notificaciones", href: "#" },
     { icon: SettingsIcon, label: "Configuración", href: "/profile" },
@@ -44,7 +46,7 @@ function Sidebar() {
       {/* Footer */}
       <div className="w-full flex flex-col items-center gap-4">
         <Button className="w-60 font-barlow rounded-full bg-rose-500 text-white py-2 hover:bg-rose-600">
-          Crear Proyecto
+          Crear Proyecto +
         </Button>
         <ProfileWidget avatarUrl={AvatarUrl} name="Nombre del Usuario" email="correo@example.com" />
       </div>
