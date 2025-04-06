@@ -1,4 +1,5 @@
 const projectService = require("../services/projectService");
+const prisma = require("../models/prismaClient");
 
 // Creates a new project
 // POST /projects
@@ -87,11 +88,113 @@ const toggleProjectStatus = async (req, res) => {
   }
 };
 
+// Gets all genres associated with a project
+// GET /projects/:id/genres
+const getProjectGenres = async (req, res) => {
+  try {
+    const project = await projectService.getProjectById(req.params.id);
+    if (!project) {
+      return res.status(404).json({ error: "Project not found" });
+    }
+
+    const projectGenres = await prisma.project_genres.findMany({
+      where: { project_id: parseInt(req.params.id) },
+      include: {
+        genres: {
+          select: {
+            genre_id: true,
+            genre: true
+          }
+        }
+      }
+    });
+
+    // Transform the data to a more friendly format
+    const genres = projectGenres.map(pg => ({
+      genre_id: pg.genres.genre_id,
+      genre: pg.genres.genre
+    }));
+
+    res.status(200).json(genres);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Gets all classes associated with a project
+// GET /projects/:id/classes
+const getProjectClasses = async (req, res) => {
+  try {
+    const project = await projectService.getProjectById(req.params.id);
+    if (!project) {
+      return res.status(404).json({ error: "Project not found" });
+    }
+
+    const projectClasses = await prisma.class_projects.findMany({
+      where: { project_id: parseInt(req.params.id) },
+      include: {
+        classes: {
+          select: {
+            class_id: true,
+            class_name: true
+          }
+        }
+      }
+    });
+
+    // Transform the data to a more friendly format
+    const classes = projectClasses.map(pc => ({
+      class_id: pc.classes.class_id,
+      class_name: pc.classes.class_name
+    }));
+
+    res.status(200).json(classes);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Gets all formats associated with a project
+// GET /projects/:id/formats
+const getProjectFormats = async (req, res) => {
+  try {
+    const project = await projectService.getProjectById(req.params.id);
+    if (!project) {
+      return res.status(404).json({ error: "Project not found" });
+    }
+
+    const projectFormats = await prisma.project_formats.findMany({
+      where: { project_id: parseInt(req.params.id) },
+      include: {
+        formats: {
+          select: {
+            format_id: true,
+            format: true
+          }
+        }
+      }
+    });
+
+    // Transform the data to a more friendly format
+    const formats = projectFormats.map(pf => ({
+      format_id: pf.formats.format_id,
+      format: pf.formats.format
+    }));
+
+    res.status(200).json(formats);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports = {
   createProject,
   getAllProjects,
   getProjectById,
   updateProject,
   deleteProject,
-  toggleProjectStatus
+  toggleProjectStatus,
+  getProjectGenres,
+  getProjectClasses,
+  getProjectFormats
 };

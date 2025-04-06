@@ -205,6 +205,90 @@ router.delete('/:id', authenticateToken, projectController.deleteProject);
  */
 router.patch('/:id/status', authenticateToken, projectController.toggleProjectStatus);
 
+// Get project genres
+/**
+ * @swagger
+ * /api/projects/{id}/genres:
+ *   get:
+ *     summary: Get project genres
+ *     description: Retrieve all genres associated with a specific project. Requires authentication.
+ *     tags: [Projects]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Project ID
+ *     responses:
+ *       200:
+ *         description: List of project genres
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   genre_id:
+ *                     type: integer
+ *                   genre:
+ *                     type: string
+ *       401:
+ *         description: Unauthorized - No token provided
+ *       403:
+ *         description: Forbidden - Invalid token
+ *       404:
+ *         description: Project not found
+ *       500:
+ *         description: Server error
+ */
+router.get('/:id/genres', authenticateToken, projectController.getProjectGenres);
+
+// Get project classes
+/**
+ * @swagger
+ * /api/projects/{id}/classes:
+ *   get:
+ *     summary: Get project classes
+ *     description: Retrieve all classes associated with a specific project. Requires authentication.
+ *     tags: [Projects]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Project ID
+ *     responses:
+ *       200:
+ *         description: List of project classes
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   class_id:
+ *                     type: string
+ *                   class_name:
+ *                     type: string
+ *       401:
+ *         description: Unauthorized - No token provided
+ *       403:
+ *         description: Forbidden - Invalid token
+ *       404:
+ *         description: Project not found
+ *       500:
+ *         description: Server error
+ */
+router.get('/:id/classes', authenticateToken, projectController.getProjectClasses);
+
 /**
  * @swagger
  * components:
