@@ -328,6 +328,33 @@ router.get('/:id/classes', authenticateToken, projectController.getProjectClasse
  */
 router.get('/:id/isOwner', authenticateToken, projectController.isProjectOwner);
 
+// Get all project formats
+/**
+ * @swagger
+ * /api/projects/formats:
+ *   get:
+ *     summary: Get all project formats
+ *     description: Retrieve a list of all available project formats.
+ *     tags: [Projects]
+ *     responses:
+ *       200:
+ *         description: A list of project formats
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   format_id:
+ *                     type: integer
+ *                   format_name:
+ *                     type: string
+ *       500:
+ *         description: Server error
+ */
+router.get('/formats', projectController.getAllFormats);
+
 // Get project formats
 /**
  * @swagger
@@ -465,5 +492,104 @@ router.get('/formats', projectController.getProjectFormats);
  *     - name: Projects
  *       description: Project management API
  */
+
+/**
+ * @swagger
+ * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
+ *   schemas:
+ *     Genre:
+ *       type: object
+ *       properties:
+ *         genre_id:
+ *           type: integer
+ *         genre:
+ *           type: string
+ *       example:
+ *         genre_id: 1
+ *         genre: "Drama"
+ */
+
+// Get all genres
+/**
+ * @swagger
+ * /api/genres:
+ *   get:
+ *     security:
+ *       - bearerAuth: []
+ *     summary: Get all genres
+ *     description: Retrieve a list of all genres. Requires authentication.
+ *     tags: [Genres]
+ *     responses:
+ *       200:
+ *         description: A list of genres
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Genre'
+ *       401:
+ *         description: Unauthorized - No token provided
+ *       403:
+ *         description: Forbidden - Invalid token
+ *       500:
+ *         description: Server error
+ */
+router.get('/', authenticateToken, projectController.getAllGenres);
+
+/**
+ * @swagger
+ * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
+ *   schemas:
+ *     Class:
+ *       type: object
+ *       properties:
+ *         class_id:
+ *           type: string
+ *         class_name:
+ *           type: string
+ *       example:
+ *         class_id: "CLS001"
+ *         class_name: "Film Production"
+ */
+
+// Get all classes
+/**
+ * @swagger
+ * /api/classes:
+ *   get:
+ *     security:
+ *       - bearerAuth: []
+ *     summary: Get all classes
+ *     description: Retrieve a list of all classes. Requires authentication.
+ *     tags: [Classes]
+ *     responses:
+ *       200:
+ *         description: A list of classes
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Class'
+ *       401:
+ *         description: Unauthorized - No token provided
+ *       403:
+ *         description: Forbidden - Invalid token
+ *       500:
+ *         description: Server error
+ */
+router.get('/', authenticateToken, projectController.getAllClasses);
+
 
 module.exports = router;

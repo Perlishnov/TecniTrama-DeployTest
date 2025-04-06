@@ -88,6 +88,38 @@ const toggleProjectStatus = async (req, res) => {
   }
 };
 
+// Get all classes
+const getAllClasses = async (req, res) => {
+  try {
+    const classes = await prisma.classes.findMany({
+      select: {
+        class_id: true,
+        class_name: true
+      }
+    });
+    res.json(classes);
+  } catch (error) {
+    console.error('Error fetching classes:', error);
+    res.status(500).json({ message: 'Error fetching classes', error: error.message });
+  }
+};
+
+// Get all genres
+const getAllGenres = async (req, res) => {
+  try {
+    const genres = await prisma.genres.findMany({
+      select: {
+        genre_id: true,
+        genre: true
+      }
+    });
+    res.json(genres);
+  } catch (error) {
+    console.error('Error fetching genres:', error);
+    res.status(500).json({ message: 'Error fetching genres', error: error.message });
+  }
+};
+
 // Gets all genres associated with a project
 // GET /projects/:id/genres
 const getProjectGenres = async (req, res) => {
@@ -154,6 +186,21 @@ const getProjectClasses = async (req, res) => {
   }
 };
 
+
+const getAllFormats = async (req, res) => {
+  try {
+    const formats = await prisma.project_formats.findMany({
+      select: {
+        format_id: true,
+        format_name: true
+      }
+    });
+    res.status(200).json(formats);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // Gets all formats associated with a project
 // GET /projects/:id/formats
 const getProjectFormats = async (req, res) => {
@@ -213,5 +260,8 @@ module.exports = {
   getProjectGenres,
   getProjectClasses,
   getProjectFormats,
+  getAllFormats,
+  getAllGenres,
+  getAllClasses,
   isOwner
 };
