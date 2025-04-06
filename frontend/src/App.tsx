@@ -89,6 +89,15 @@ const App = () => {
         }
       />
 
+      <Route
+        path="/applications"
+        element={
+          <ProtectedRoute isAuthenticated={isAuthenticated}>
+            <Home />
+          </ProtectedRoute>
+        }
+      />
+
       {/* Redirecciona a Home para rutas no definidas */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
