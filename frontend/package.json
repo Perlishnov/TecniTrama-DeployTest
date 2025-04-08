@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@adobe/react-spectrum": "^3.40.1",
     "@heroui/button": "^2.2.16",
     "@heroui/calendar": "^2.2.16",
     "@heroui/card": "^2.2.15",
@@ -29,6 +30,7 @@
     "@heroui/use-theme": "2.1.6",
     "@internationalized/date": "^3.7.0",
     "@react-aria/visually-hidden": "3.8.20",
+    "@react-spectrum/calendar": "^3.6.2",
     "@react-types/shared": "3.28.0",
     "clsx": "2.1.1",
     "framer-motion": "11.15.0",

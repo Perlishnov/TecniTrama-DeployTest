@@ -8,7 +8,6 @@ import CustomButton from "@/components/button";
 import { Link } from "react-router-dom";
 
 export const Login = (): JSX.Element => {
-  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: "",
     password: ""
@@ -52,7 +51,7 @@ export const Login = (): JSX.Element => {
       localStorage.setItem('token', responseData.token);
       
       // Redirect to dashboard or home page
-      navigate('/dashboard');
+      redirect("/dashboard");
     } catch (err) {
       // Handle login error
       setError(err instanceof Error ? err.message : 'Error desconocido');
@@ -64,7 +63,7 @@ export const Login = (): JSX.Element => {
   return (
     <div className="flex min-h-screen min-w-max items-center justify-center relative">
       {/* Columna izquierda con la imagen */}
-      <div className="w-1/2 min-h-screen">
+      <div className="w-1/2">
         <img
           src={bannerImg}
           alt="Banner"
