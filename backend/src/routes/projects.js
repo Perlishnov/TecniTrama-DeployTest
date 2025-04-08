@@ -3,6 +3,33 @@ const router = express.Router();
 const projectController = require('../controllers/projectController');
 const { authenticateToken } = require('../controllers/authController');
 
+// Get all project formats
+/**
+ * @swagger
+ * /api/projects/formats:
+ *   get:
+ *     summary: Get all project formats
+ *     description: Retrieve a list of all available project formats.
+ *     tags: [Projects]
+ *     responses:
+ *       200:
+ *         description: A list of project formats
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   format_id:
+ *                     type: integer
+ *                   format_name:
+ *                     type: string
+ *       500:
+ *         description: Server error
+ */
+router.get('/formats', projectController.getAllFormats);
+
 // Get all projects
 /**
  * @swagger
@@ -326,7 +353,7 @@ router.get('/:id/classes', authenticateToken, projectController.getProjectClasse
  *       500:
  *         description: Server error
  */
-router.get('/:id/isOwner', authenticateToken, projectController.isProjectOwner);
+router.get('/:id/isOwner', authenticateToken, projectController.isOwner);
 
 // Get all project formats
 /**
@@ -354,35 +381,6 @@ router.get('/:id/isOwner', authenticateToken, projectController.isProjectOwner);
  *         description: Server error
  */
 router.get('/formats', projectController.getAllFormats);
-
-// Get project formats
-/**
- * @swagger
- * /api/projects/formats:
- *   get:
- *     summary: Get all project formats
- *     description: Retrieve a list of all available project formats
- *     tags: [Projects]
- *     responses:
- *       200:
- *         description: List of project formats
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   format_id:
- *                     type: integer
- *                     description: Format identifier
- *                   name:
- *                     type: string
- *                     description: Format name
- *       500:
- *         description: Server error
- */
-router.get('/formats', projectController.getProjectFormats);
 
 /**
  * @swagger
@@ -540,7 +538,7 @@ router.get('/formats', projectController.getProjectFormats);
  *       500:
  *         description: Server error
  */
-router.get('/', authenticateToken, projectController.getAllGenres);
+router.get('/genres', authenticateToken, projectController.getAllGenres);
 
 /**
  * @swagger
@@ -589,7 +587,7 @@ router.get('/', authenticateToken, projectController.getAllGenres);
  *       500:
  *         description: Server error
  */
-router.get('/', authenticateToken, projectController.getAllClasses);
+router.get('/classes', authenticateToken, projectController.getAllClasses);
 
 
 module.exports = router;

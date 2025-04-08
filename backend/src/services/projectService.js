@@ -45,7 +45,7 @@ const getProjectById = async (id) => {
 // Updates Project
 const updateProject = async (id, projectData) => {
   const existingProject = await getProjectById(id);
-  
+
   return await prisma.projects.update({
     where: { project_id: parseInt(id) },
     data: {
