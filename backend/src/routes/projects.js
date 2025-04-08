@@ -3,6 +3,33 @@ const router = express.Router();
 const projectController = require('../controllers/projectController');
 const { authenticateToken } = require('../controllers/authController');
 
+// Get all project formats
+/**
+ * @swagger
+ * /api/projects/formats:
+ *   get:
+ *     summary: Get all project formats
+ *     description: Retrieve a list of all available project formats.
+ *     tags: [Projects]
+ *     responses:
+ *       200:
+ *         description: A list of project formats
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   format_id:
+ *                     type: integer
+ *                   format_name:
+ *                     type: string
+ *       500:
+ *         description: Server error
+ */
+router.get('/formats', projectController.getAllFormats);
+
 // Get all projects
 /**
  * @swagger
@@ -205,6 +232,156 @@ router.delete('/:id', authenticateToken, projectController.deleteProject);
  */
 router.patch('/:id/status', authenticateToken, projectController.toggleProjectStatus);
 
+// Get project genres
+/**
+ * @swagger
+ * /api/projects/{id}/genres:
+ *   get:
+ *     summary: Get project genres
+ *     description: Retrieve all genres associated with a specific project. Requires authentication.
+ *     tags: [Projects]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Project ID
+ *     responses:
+ *       200:
+ *         description: List of project genres
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   genre_id:
+ *                     type: integer
+ *                   genre:
+ *                     type: string
+ *       401:
+ *         description: Unauthorized - No token provided
+ *       403:
+ *         description: Forbidden - Invalid token
+ *       404:
+ *         description: Project not found
+ *       500:
+ *         description: Server error
+ */
+router.get('/:id/genres', authenticateToken, projectController.getProjectGenres);
+
+// Get project classes
+/**
+ * @swagger
+ * /api/projects/{id}/classes:
+ *   get:
+ *     summary: Get project classes
+ *     description: Retrieve all classes associated with a specific project. Requires authentication.
+ *     tags: [Projects]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Project ID
+ *     responses:
+ *       200:
+ *         description: List of project classes
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   class_id:
+ *                     type: string
+ *                   class_name:
+ *                     type: string
+ *       401:
+ *         description: Unauthorized - No token provided
+ *       403:
+ *         description: Forbidden - Invalid token
+ *       404:
+ *         description: Project not found
+ *       500:
+ *         description: Server error
+ */
+router.get('/:id/classes', authenticateToken, projectController.getProjectClasses);
+
+// Check if user is project owner
+/**
+ * @swagger
+ * /api/projects/{id}/isOwner:
+ *   get:
+ *     summary: Check if user is project owner
+ *     description: Verify if the authenticated user is the owner of a specific project
+ *     tags: [Projects]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Project ID
+ *     responses:
+ *       200:
+ *         description: Ownership verification result
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 isOwner:
+ *                   type: boolean
+ *                   description: True if user is the owner, false otherwise
+ *       401:
+ *         description: Unauthorized - No token provided
+ *       403:
+ *         description: Forbidden - Invalid token
+ *       404:
+ *         description: Project not found
+ *       500:
+ *         description: Server error
+ */
+router.get('/:id/isOwner', authenticateToken, projectController.isOwner);
+
+// Get all project formats
+/**
+ * @swagger
+ * /api/projects/formats:
+ *   get:
+ *     summary: Get all project formats
+ *     description: Retrieve a list of all available project formats.
+ *     tags: [Projects]
+ *     responses:
+ *       200:
+ *         description: A list of project formats
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   format_id:
+ *                     type: integer
+ *                   format_name:
+ *                     type: string
+ *       500:
+ *         description: Server error
+ */
+router.get('/formats', projectController.getAllFormats);
+
 /**
  * @swagger
  * components:
@@ -313,5 +490,104 @@ router.patch('/:id/status', authenticateToken, projectController.toggleProjectSt
  *     - name: Projects
  *       description: Project management API
  */
+
+/**
+ * @swagger
+ * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
+ *   schemas:
+ *     Genre:
+ *       type: object
+ *       properties:
+ *         genre_id:
+ *           type: integer
+ *         genre:
+ *           type: string
+ *       example:
+ *         genre_id: 1
+ *         genre: "Drama"
+ */
+
+// Get all genres
+/**
+ * @swagger
+ * /api/genres:
+ *   get:
+ *     security:
+ *       - bearerAuth: []
+ *     summary: Get all genres
+ *     description: Retrieve a list of all genres. Requires authentication.
+ *     tags: [Genres]
+ *     responses:
+ *       200:
+ *         description: A list of genres
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Genre'
+ *       401:
+ *         description: Unauthorized - No token provided
+ *       403:
+ *         description: Forbidden - Invalid token
+ *       500:
+ *         description: Server error
+ */
+router.get('/genres', authenticateToken, projectController.getAllGenres);
+
+/**
+ * @swagger
+ * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
+ *   schemas:
+ *     Class:
+ *       type: object
+ *       properties:
+ *         class_id:
+ *           type: string
+ *         class_name:
+ *           type: string
+ *       example:
+ *         class_id: "CLS001"
+ *         class_name: "Film Production"
+ */
+
+// Get all classes
+/**
+ * @swagger
+ * /api/classes:
+ *   get:
+ *     security:
+ *       - bearerAuth: []
+ *     summary: Get all classes
+ *     description: Retrieve a list of all classes. Requires authentication.
+ *     tags: [Classes]
+ *     responses:
+ *       200:
+ *         description: A list of classes
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Class'
+ *       401:
+ *         description: Unauthorized - No token provided
+ *       403:
+ *         description: Forbidden - Invalid token
+ *       500:
+ *         description: Server error
+ */
+router.get('/classes', authenticateToken, projectController.getAllClasses);
+
 
 module.exports = router;
