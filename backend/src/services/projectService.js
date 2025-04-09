@@ -1,4 +1,5 @@
 const prisma = require("../models/prismaClient");
+const { get } = require("../routes/profiles");
 
 // Creates Project
 const createProject = async (projectData) => {
@@ -33,6 +34,19 @@ const getAllProjects = async () => {
 const getProjectById = async (id) => {
   return await prisma.projects.findUnique({
     where: { project_id: parseInt(id) },
+    include: {
+      project_formats: true,
+      users: true,
+      crew: true,
+      project_genres: true
+    }
+  });
+};
+
+// Gets Project by User ID
+const getProjectByCreatorId = async (userId) => {
+  return await prisma.projects.findMany({
+    where: { creator_id: parseInt(userId) },
     include: {
       project_formats: true,
       users: true,
@@ -82,6 +96,7 @@ module.exports = {
   createProject,
   getAllProjects,
   getProjectById,
+  getProjectByCreatorId,
   updateProject,
   deleteProject,
   toggleProjectStatus
