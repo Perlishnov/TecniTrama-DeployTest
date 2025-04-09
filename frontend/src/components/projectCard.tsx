@@ -76,3 +76,5 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
     </Wrapper>
   );
 };
+
+export default ProjectCard;
