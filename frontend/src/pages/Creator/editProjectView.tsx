@@ -1,5 +1,4 @@
 import React, { useRef, useState } from "react";
-import Calendar from "@/components/calendar";
 import CreatorLayout from "@/layouts/default";
 import InfoCard from "@/components/InfoCard";
 import Button from "@/components/button";
@@ -8,8 +7,14 @@ import Modal from "@/components/Modal";
 import VacanteIcon from "@/assets/icons/users.svg";
 import BriefCaseIcon from "@/assets/icons/briefcase.svg";
 import LinkIcon from "@/assets/icons/link.svg";
-import {formatDate} from "@/hooks/formatter";
 import Input from "@/components/input";
+import CustomDatePicker from "@/components/CustomDatePicker";
+import CalendarIcon from "@/assets/icons/calendar.svg";
+import { GenresModal } from "@/components/modals/genreModal";
+import FormatSelector from "@/components/modals/formatModal";
+import { SubjectsModal } from "@/components/modals/subjectModal";
+import  VacantForm  from "@/components/modals/VacantForm";
+import { Link } from "react-router-dom";
 
 // Mock Data
 const formats = ["Corto", "Largo", "Serie", "Documental"];
@@ -107,15 +112,12 @@ const EditProject: React.FC = () => {
   const [formatModalOpen, setFormatModalOpen] = useState(false);
   const [genresModalOpen, setGenresModalOpen] = useState(false);
   const [subjectsModalOpen, setSubjectsModalOpen] = useState(false);
-  const [startDatePickerOpen, setStartDatePickerOpen] = useState(false);
-  const [endDatePickerOpen, setEndDatePickerOpen] = useState(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 
   //Date handlers
-  const [startDate, setStartDate] = useState<Date | null>(null);
-  const [endDate, setEndDate] = useState<Date | null>(null);
-  const [showStartCalendar, setShowStartCalendar] = useState(false);
-  const [showEndCalendar, setShowEndCalendar] = useState(false);
+   const [startDate, setStartDate] = useState<string>("");
+   const [endDate, setEndDate] = useState<string>("");
+   const [openPicker, setOpenPicker] = useState<"start" | "end" | null>(null);
 
 
   // Handlers for selection toggling
@@ -196,7 +198,7 @@ const EditProject: React.FC = () => {
 
   return (
     <CreatorLayout>
-      <div className="w-full max-w-[80rem] mx-auto h-full flex flex-col items-center gap-4 px-4">
+      <div className="w-full h-full flex flex-col items-center gap-4 px-4 bg-rojo-intec-50">
         {/* Banner Image with Edit Option */}
         <div className="relative w-full h-[18.56rem]">
             <img
@@ -233,7 +235,7 @@ const EditProject: React.FC = () => {
         />
 
         {/* Main Content Container */}
-        <div className="w-full max-w-[75rem] flex gap-4 px-8">
+        <div className="w-full max-w-[75rem] flex gap-4 px-8 my-8">
           {/* Left Column: Format, Genres, and Subjects */}
           <div className="w-[12.625rem] flex flex-col gap-[1.563rem]">
             <InfoCard
@@ -282,88 +284,121 @@ const EditProject: React.FC = () => {
 
           {/* Center Column: Description */}
           <div className="flex-1">
-            <InfoCard
-              content={
-                <textarea
+            <label
+                htmlFor="budget"
+                className="text-black text-medium font-barlow font-medium leading-loose"
+            >
+              Descripción  
+            </label>
+            <textarea
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  className="w-full h-40 p-2 border-0 focus:outline-none resize-none bg-transparent"
+                  className="w-full h-full p-2 resize-none border border-gray-300 rounded-md"
                   placeholder="Describe tu proyecto aquí..."
-                />
-              }
-              title="Descripción"
-              headerButton={null}
-              className="flex-1"
-            />
+              />
           </div>
 
           {/* Right Column: Budget, Dates, and Action Buttons */}
-          <div className="w-[16.563rem] flex flex-col justify-between gap-4">
+          <div className="w-[16.563rem] flex flex-col justify-between gap-2">
             {/* Budget Card */}
-            <div className="bg-rojo-intec-200 rounded-t-[1.25rem] outline outline-1 outline-[#63666A]">
-              <InfoCard
-                title="Presupuesto"
-                content={
-                  <Input
-                    name="presupuesto"
-                    type="text"
-                    value={budget}
-                    onChange={(e) => setBudget(e.target.value)}
-                    className="w-full p-2 border-0 focus:outline-none bg-transparent"
-                    placeholder="Presupuesto"
-                  />
-                }
-                headerButton={null}
-              />
+            <div className="flex flex-col justify-start items-start gap-2.5">
+              <label
+                htmlFor="budget"
+                className="text-black text-medium font-barlow font-medium leading-loose"
+              >
+              Presupuesto
+              </label>
+                <Input
+                  name="budget"
+                  type="text"
+                  value={budget}
+                  onChange={(e) => setBudget(e.target.value)}
+                  placeholder="0.0$"
+                  className="min-w-full"
+                />
             </div>
 
             {/* Dates Row */}
-            <div className="flex gap-[2.625rem] relative">
-              <div className="relative flex-1">
-                <InfoCard
-                  title="Inicio"
-                  content={formatDate(startDate)}
-                  headerButton={
-                    <button 
-                      onClick={() => setShowStartCalendar(true)}
-                      className="text-black text-[1.25rem] font-barlow font-medium"
-                    >
-                      📅
-                    </button>
-                  }
-                />
-                <Calendar
-                  isOpen={showStartCalendar}
-                  onClose={() => setShowStartCalendar(false)}
-                  onDateSelect={(date) => setStartDate(date)}
-                  selectedDate={startDate || undefined}
-                />
-              </div>
+            <div className="flex flex-col relative">
+             <div className="flex gap-4 w-full">
+      {/* Start Date Input */}
+      <div className="flex-1 relative">
+        <p className="block text-sm font-medium text-gray-700 mb-1">
+          Fecha de inicio
+        </p>
+        <div className="relative">
+          <input
+            type="text"
+            readOnly
+            placeholder="Seleccionar fecha de inicio"
+            value={startDate}
+            onClick={() => setOpenPicker("start")}
+            className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          />
+          <button
+            type="button"
+            className="absolute right-3 top-1/2 -translate-y-1/2"
+            onClick={() => setOpenPicker("start")}
+          >
+            <img src={CalendarIcon} alt="" />
+          </button>
+        </div>
 
-              <div className="relative flex-1">
-                <InfoCard
-                  title="Final"
-                  content={formatDate(endDate)}
-                  headerButton={
-                    <button
-                      onClick={() => setShowEndCalendar(true)}
-                      className="text-black text-[1.25rem] font-barlow font-medium"
-                    >
-                      📅
-                    </button>
-                  }
-                />
-                <Calendar
-                  isOpen={showEndCalendar}
-                  onClose={() => setShowEndCalendar(false)}
-                  onDateSelect={(date) => setEndDate(date)}
-                  selectedDate={endDate || undefined}
-                />
-              </div>
+        {openPicker === "start" && (
+          <div className="absolute z-10 mt-2">
+            <CustomDatePicker
+              selectedDate={startDate}
+              onSelect={(date) => {
+                setStartDate(date);
+                setOpenPicker(null);
+              }}
+              onClose={() => setOpenPicker(null)}
+            />
+          </div>
+        )}
+      </div>
+
+      {/* End Date Input */}
+      <div className="flex-1 relative">
+          <p className="block text-sm font-medium text-gray-700 mb-1">
+            Fecha de fin
+          </p>
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Seleccionar fecha de fin"
+              value={endDate}
+              onClick={() => setOpenPicker("end")}
+              className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            />
+            <button
+              type="button"
+              className="absolute right-3 top-1/2 -translate-y-1/2"
+              onClick={() => setOpenPicker("end")}
+            >
+              <img src={CalendarIcon} alt="" />
+            </button>
+          </div>
+
+          {openPicker === "end" && (
+            <div className="absolute z-10 mt-2">
+              <CustomDatePicker
+                selectedDate={endDate}
+                onSelect={(date) => {
+                  setEndDate(date);
+                  setOpenPicker(null);
+                }}
+                onClose={() => setOpenPicker(null)}
+              />
+            </div>
+          )}
+        </div>
+      </div>
+  
             </div>
 
             {/* Action Buttons: Show Publish and Edit if user is not owner */}            
-            <div className="flex flex-col gap-4 items-center">
+            <div className="flex flex-col gap-2 items-center">
               <Button className="w-[11.063rem] p-[0.625rem] bg-rojo-intec-400 rounded-[2.813rem] outline outline-1 outline-black">
                 <span className="text-black text-[1.125rem] font-barlow font-medium leading-[1.75rem]">
                   Publicar proyecto
@@ -379,84 +414,23 @@ const EditProject: React.FC = () => {
         </div>
 
         {/* Vacancies (Crew) Table */}
-        {crewModalOpen && (
-            <Modal 
-                title="Gestionar Miembros del Crew" 
-                onClose={() => setCrewModalOpen(false)}
-                className=""
-                >
-                <div className="flex flex-col gap-4 h-full">
-                    <div className="grid grid-cols-2 gap-4 h-full">
-                    {/* Selected Crew Section */}
-                    <div className="border-r pr-4 flex flex-col">
-                        <h3 className="font-barlow font-medium mb-2">Miembros Seleccionados</h3>
-                        <div className="flex-1 overflow-y-auto">
-                        {selectedCrew.map(member => (
-                            <div
-                            key={member.id}
-                            className="flex items-center justify-between p-2 hover:bg-gray-100 rounded"
-                            >
-                            <div className="min-w-0">
-                                <div className="font-medium truncate">{member.name}</div>
-                                <div className="text-sm text-gray-600 truncate">{member.role}</div>
-                            </div>
-                            <button
-                                onClick={() => handleRemoveCrew(member)}
-                                className="text-red-500 hover:text-red-700 px-2 py-1"
-                            >
-                                ✕
-                            </button>
-                            </div>
-                        ))}
-                        </div>
-                    </div>
-
-                    {/* Available Crew Section */}
-                    <div className="flex flex-col">
-                        <div className="mb-4">
-                        <Input
-                            name="Buscar crew"
-                            type="text"
-                            placeholder="Buscar miembros..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full p-2 border rounded"
-                        />
-                        </div>
-                        <div className="flex-1 overflow-y-auto">
-                        {availableCrew
-                            .filter(member => 
-                            member.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                            member.role.toLowerCase().includes(searchQuery.toLowerCase())
-                            )
-                            .map(member => (
-                            <div
-                                key={member.id}
-                                className="flex items-center justify-between p-2 hover:bg-gray-100 rounded cursor-pointer"
-                                onClick={() => handleAddCrew(member)}
-                            >
-                                <div className="min-w-0">
-                                <div className="font-medium truncate">{member.name}</div>
-                                <div className="text-sm text-gray-600 truncate">{member.role}</div>
-                                </div>
-                                <button className="text-rojo-intec-400 px-2 py-1">+</button>
-                            </div>
-                            ))}
-                        </div>
-                    </div>
-                    </div>
-                    
-                    <div className="border-t pt-4">
-                    <Button 
-                        onClick={() => setCrewModalOpen(false)}
-                        className="w-full"
-                    >
-                        Cerrar
-                    </Button>
-                    </div>
-                </div>
-                </Modal>
-        )}
+        {/* {crewModalOpen && 
+          <VacantModal
+            isOpen={modalOpen}
+            onClose={() => setModalOpen(false)}
+            departments={departments}
+            positions={positions}
+            selectedDepartment={selectedDepartment}
+            selectedPosition={selectedPosition}
+            onDepartmentChange={setSelectedDepartment}
+            onPositionChange={setSelectedPosition}
+            description={description}
+            setDescription={setDescription}
+            requirements={requirements}
+            setRequirements={setRequirements}
+            onSubmit={handleSubmit}
+          />
+        } */}
 
         
         <ReusableTable
@@ -508,7 +482,7 @@ const EditProject: React.FC = () => {
             className="p-4 bg-red-500 text-white"
             onClick={() => setDeleteConfirmOpen(true)}
           >
-            Eliminar Proyecto
+            <Link to="/dashboard">Eliminar Proyecto</Link>
           </Button>
           <div className="flex gap-4">
             <Button className="p-4 bg-gray-200">Cancelar</Button>
@@ -516,80 +490,38 @@ const EditProject: React.FC = () => {
           </div>
         </div>
       </div>
+      {formatModalOpen && 
+          <FormatSelector
+          isOpen={formatModalOpen}
+          formats={formats}
+          selectedFormat={selectedFormat}
+          onSelect={(format) => {
+            setSelectedFormat(format);
+            setFormatModalOpen(false);
+          }}
+          onClose={() => setFormatModalOpen(false)}
+      />      
+      }       
 
-      {/* Modals */}
-      {formatModalOpen && (
-        <Modal title="Seleccionar Formato" onClose={() => setFormatModalOpen(false)}>
-          <div className="grid grid-cols-2 gap-3">
-            {formats.map((format) => (
-              <button
-                key={format}
-                className={`p-3 rounded border cursor-pointer ${
-                  selectedFormat === format ? "bg-blue-100 border-blue-500" : "border-gray-300"
-                }`}
-                onClick={() => {
-                  setSelectedFormat(format);
-                  setFormatModalOpen(false);
-                }}
-              >
-                {format}
-              </button>
-            ))}
-          </div>
-        </Modal>
-      )}
+      {genresModalOpen && 
+            <GenresModal
+        isOpen={genresModalOpen}
+        onClose={() => setGenresModalOpen(false)}
+        selectedGenres={selectedGenres}
+        toggleGenre={toggleGenre}
+        genres={genres}
+      />
+      }
 
-      {genresModalOpen && (
-        <Modal title="Seleccionar Géneros" onClose={() => setGenresModalOpen(false)}>
-          <div className="grid grid-cols-2 gap-3">
-            {genres.map((genre) => (
-              <button
-                key={genre}
-                type="button"
-                className={`p-3 rounded border cursor-pointer ${
-                  selectedGenres.includes(genre)
-                    ? "bg-blue-100 border-blue-500"
-                    : "border-gray-300"
-                }`}
-                onClick={() => toggleGenre(genre)}
-              >
-                {genre}
-              </button>
-            ))}
-          </div>
-          <div className="flex justify-end mt-4">
-            <Button className="px-4 py-2" onClick={() => setGenresModalOpen(false)}>
-              Confirmar
-            </Button>
-          </div>
-        </Modal>
-      )}
-
-      {subjectsModalOpen && (
-        <Modal title="Seleccionar Materias" onClose={() => setSubjectsModalOpen(false)}>
-          <div className="grid grid-cols-2 gap-3">
-            {subjects.map((subject) => (
-              <button
-                key={subject}
-                type="button"
-                className={`p-3 rounded border cursor-pointer ${
-                  selectedSubjects.includes(subject)
-                    ? "bg-blue-100 border-blue-500"
-                    : "border-gray-300"
-                }`}
-                onClick={() => toggleSubject(subject)}
-              >
-                {subject}
-              </button>
-            ))}
-          </div>
-          <div className="flex justify-end mt-4">
-            <Button className="px-4 py-2" onClick={() => setSubjectsModalOpen(false)}>
-              Confirmar
-            </Button>
-          </div>
-        </Modal>
-      )}
+      {subjectsModalOpen && 
+        <SubjectsModal
+          isOpen={subjectsModalOpen}
+          onClose={() => setSubjectsModalOpen(false)}
+          selectedSubjects={selectedSubjects}
+          toggleSubject={toggleSubject}
+          subjects={subjects}
+        />
+        }
 
       {deleteConfirmOpen && (
         <Modal title="Confirmar Eliminación" onClose={() => setDeleteConfirmOpen(false)}>

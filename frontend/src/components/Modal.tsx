@@ -9,10 +9,10 @@ export interface ModalProps {
 
 const Modal: React.FC<ModalProps> = ({ title, onClose, children, className }) => {
   return (
-    <div className={`fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 ${className}`}>
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-lg p-6">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-bold">{title}</h2>
+    <div className={`fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 `}>
+      <div className={`rounded-lg shadow-xl w-full max-w-lg p-4 ${className}`}>
+        <div className="flex justify-between items-center">
+          <h2 className="text-medium font-bold">{title}</h2>
           <button 
             onClick={onClose} 
             className="text-gray-500 hover:text-gray-700 text-3xl focus:outline-none"
