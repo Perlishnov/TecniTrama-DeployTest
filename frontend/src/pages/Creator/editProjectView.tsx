@@ -196,7 +196,7 @@ const EditProject: React.FC = () => {
 
   return (
     <CreatorLayout>
-      <div className="w-full h-full flex flex-col items-center gap-4">
+      <div className="w-full max-w-[80rem] mx-auto h-full flex flex-col items-center gap-4 px-4">
         {/* Banner Image with Edit Option */}
         <div className="relative w-full h-[18.56rem]">
             <img
@@ -233,7 +233,7 @@ const EditProject: React.FC = () => {
         />
 
         {/* Main Content Container */}
-        <div className="w-full flex gap-4 px-[3.375rem]">
+        <div className="w-full max-w-[75rem] flex gap-4 px-8">
           {/* Left Column: Format, Genres, and Subjects */}
           <div className="w-[12.625rem] flex flex-col gap-[1.563rem]">
             <InfoCard
