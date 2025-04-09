@@ -14,7 +14,6 @@ require('dotenv').config();
 const usersRouter = require('./src/routes/users');
 const projectsRouter = require('./src/routes/projects');
 const profilesRouter = require('./src/routes/profiles');
-
 // Initialize Express app
 const app = express();
 

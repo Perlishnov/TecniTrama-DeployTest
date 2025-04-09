@@ -1,3 +1,4 @@
+import { Link } from "react-aria-components";
 import React from "react";
 
 export interface ProjectCardProps {
@@ -6,38 +7,73 @@ export interface ProjectCardProps {
   description: string;
   imageUrl: string;
   filters: string[];
-  Completado: boolean;
+  completado: boolean;
+  onClick?: () => void; // para navegación manual si se desea
+  href?: string;        // para navegación por enlace
 }
 
 const ProjectCard: React.FC<ProjectCardProps> = ({
   title,
   description,
   imageUrl,
-  filters
+  filters,
+  completado,
+  href,
+  onClick,
 }) => {
+  const Wrapper = href
+    ? ({ children }: { children: React.ReactNode }) => (
+        <Link href={href} className="block w-full">
+          {children}
+        </Link>
+      )
+    : onClick
+    ? ({ children }: { children: React.ReactNode }) => (
+        <div onClick={onClick} className="cursor-pointer w-full">
+          {children}
+        </div>
+      )
+    : ({ children }: { children: React.ReactNode }) => <>{children}</>;
+
   return (
-    <div className="w-[471px] h-56 pr-4 bg-Rojo---Intec-100 rounded-[20px] outline outline-[1.50px] outline-offset-[-1.50px] outline-black flex justify-center items-center gap-5 flex-wrap content-center overflow-hidden">
-      <div className="w-48 h-64 bg-white flex flex-col justify-center items-center">
-        <img src={imageUrl} alt={title} className="object-cover w-full h-full" />
-      </div>
-      <div className="flex-1 max-w-96 min-w-56 px-1 py-5 flex flex-col justify-center items-start gap-7">
-        <div className="w-48 flex justify-start items-start gap-2.5">
-          <div className="text-black text-2xl font-medium font-['Barlow'] leading-loose">
-            {title}
-          </div>
+    <Wrapper>
+      <div
+        className="w-full max-w-[471px] h-56 bg-red-100 rounded-2xl border border-black flex overflow-hidden hover:shadow-lg transition-shadow"
+        aria-label={`Proyecto: ${title}`}
+      >
+        {/* Imagen */}
+        <div className="w-48 h-full bg-white shrink-0">
+          <img
+            src={imageUrl}
+            alt={`Imagen del proyecto ${title}`}
+            className="object-cover w-full h-full rounded-l-2xl"
+          />
         </div>
-        <div className="w-full flex justify-center items-center gap-2.5">
-          <div className="flex-1 text-justify text-black text-sm font-normal font-['Barlow'] leading-tight">
+
+        {/* Contenido */}
+        <div className="flex flex-col justify-between p-4 flex-1">
+          {/* Título */}
+          <h3 className="text-xl font-semibold text-black font-barlow">{title}</h3>
+
+          {/* Descripción */}
+          <p className="text-sm text-black font-barlow text-justify line-clamp-3">
             {description}
+          </p>
+
+          {/* Filtros */}
+          <div className="flex flex-wrap gap-2 mt-2">
+            {filters.map((filter) => (
+              <span
+                key={filter}
+                className="bg-white text-xs px-3 py-1 rounded-full font-medium font-barlow border"
+              >
+                {filter}
+              </span>
+            ))}
           </div>
-          { filters.map((filter) => (
-            <div key={filter} className="px-2 py-1 bg-white rounded-full text-xs font-medium font-['Barlow']">
-              {filter}
-            </div>
-          ))}
         </div>
       </div>
-    </div>
+    </Wrapper>
   );
 };
 
