@@ -43,7 +43,7 @@ const CreatorProfilePage: React.FC = () => {
           Authorization: `Bearer ${token}`,
         };
 
-        const profileRes = await fetch(`http://localhost:3000/api/profiles/${userId}`, {
+        const profileRes = await fetch(`http://localhost:3000/api/profiles/user/${userId}`, {
           headers,
         });
 
