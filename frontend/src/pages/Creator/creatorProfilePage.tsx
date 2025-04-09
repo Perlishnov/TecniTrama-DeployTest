@@ -5,6 +5,7 @@ import ProjectCard from "@/components/projectCard"
 import Button from "@/components/button";
 import ChangePasswordModal from "@/components/ChangePasswordModal";
 import { Link } from "react-router-dom";
+import { useDecodeJWT } from "@/hooks/useDecodeJWT";
 
 interface Project {
   id: number;
@@ -27,24 +28,41 @@ const CreatorProfilePage: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [profile, setProfile] = useState<CreatorProfile | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
+  const decodedToken = useDecodeJWT();
+  const userId = decodedToken?.id;
 
   useEffect(() => {
-    async function fetchData() {
+    if (!userId) return;
+
+    const token = localStorage.getItem("token");
+
+    const fetchData = async () => {
       try {
-        const profileRes = await fetch("/api/user/profile");
+        const headers = {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        };
+
+        const profileRes = await fetch(`http://localhost:3000/api/profiles/${userId}`, {
+          headers,
+        });
+
         const profileData = await profileRes.json();
         setProfile(profileData);
 
-        const projectsRes = await fetch("/api/projects");
+        const projectsRes = await fetch("http://localhost:3000/api/projects", {
+          headers,
+        });
+
         const projectsData = await projectsRes.json();
         setProjects(projectsData);
       } catch (error) {
         console.error("Error cargando datos:", error);
       }
-    }
+    };
 
     fetchData();
-  }, []);
+  }, [userId]);
 
   if (!profile) {
     return (
