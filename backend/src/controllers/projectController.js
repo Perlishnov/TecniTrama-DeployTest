@@ -37,6 +37,20 @@ const getProjectById = async (req, res) => {
   }
 };
 
+// Gets projects by user ID
+// GET /projects/user/:id
+const getProjectsByCreatorId = async (req, res) => {
+  try {
+    const projects = await projectService.getProjectByCreatorId(req.params.id);
+    if (!projects) {
+      return res.status(404).json({ error: "No projects found for this user" });
+    }
+    res.status(200).json(projects);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // Updates a project
 // PUT /projects/:id
 const updateProject = async (req, res) => {
@@ -254,6 +268,7 @@ module.exports = {
   createProject,
   getAllProjects,
   getProjectById,
+  getProjectsByCreatorId,
   updateProject,
   deleteProject,
   toggleProjectStatus,

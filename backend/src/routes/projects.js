@@ -30,6 +30,7 @@ const { authenticateToken } = require('../controllers/authController');
  */
 router.get('/formats', projectController.getAllFormats);
 
+
 // Get all projects
 /**
  * @swagger
@@ -51,6 +52,7 @@ router.get('/formats', projectController.getAllFormats);
  *         description: Server error
  */
 router.get('/', projectController.getAllProjects);
+
 
 // Get project by ID
 /**
@@ -80,6 +82,39 @@ router.get('/', projectController.getAllProjects);
  *         description: Server error
  */
 router.get('/:id', projectController.getProjectById);
+
+
+// Get projects by creator ID
+/**
+ * @swagger
+ * /api/projects/creator/{id}:
+ *   get:
+ *     summary: Get projects by creator ID
+ *     description: Retrieve a list of all projects by its creator Id. Public endpoint.
+ *     tags: [Projects]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Creator ID
+ *     responses:
+ *       200:
+ *         description: A list of projects
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Project'
+ *       404:
+ *         description: No projects found for this user 
+ *       500:
+ *         description: Server error
+ */
+router.get('/creator/:id', projectController.getProjectsByCreatorId);
+
 
 // Create a new project
 /**
@@ -114,6 +149,7 @@ router.get('/:id', projectController.getProjectById);
  *         description: Server error
  */
 router.post('/', authenticateToken, projectController.createProject);
+
 
 // Update project
 /**
@@ -156,6 +192,7 @@ router.post('/', authenticateToken, projectController.createProject);
  */
 router.put('/:id', authenticateToken, projectController.updateProject);
 
+
 // Delete project
 /**
  * @swagger
@@ -186,6 +223,7 @@ router.put('/:id', authenticateToken, projectController.updateProject);
  *         description: Server error
  */
 router.delete('/:id', authenticateToken, projectController.deleteProject);
+
 
 // Toggle project status
 /**
@@ -382,6 +420,7 @@ router.get('/:id/isOwner', authenticateToken, projectController.isOwner);
  */
 router.get('/formats', projectController.getAllFormats);
 
+// Swagger schemas and security definitions
 /**
  * @swagger
  * components:

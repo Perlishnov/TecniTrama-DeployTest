@@ -104,6 +104,35 @@ router.get('/', authenticateToken, profileController.getAllProfiles);
  */
 router.get('/:id', authenticateToken, profileController.getProfileById);
 
+// Get profile by user ID
+/**
+ * @swagger
+ * /profiles/user/{id}:
+ *   get:
+ *     summary: Get profile by user ID
+ *     description: Retrieve a profile based on the user's ID. Includes associated user information.
+ *     tags: [Profiles]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: ID of the user whose profile you want to retrieve.
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Profile retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Profile'
+ *       404:
+ *         description: Profile not found
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/user/:id', authenticateToken, profileController.getProfileByUserId);
+
 // Update existing profile
 /**
  * @swagger

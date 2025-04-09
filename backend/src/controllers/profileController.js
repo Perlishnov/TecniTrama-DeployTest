@@ -36,6 +36,25 @@ const getProfileById = async (req, res) => {
   }
 };
 
+const getProfileByUserId = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const profile = await prisma.profiles.findUnique({
+      where: { user_id: Number(id) },
+      include: {
+        users: true
+      }
+    });
+
+    if (!profile) {
+      return res.status(404).json({ error: 'Profile not found' });
+    }
+    res.json(profile);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
 const updateProfile = async (req, res) => {
   try {
     const { id } = req.params;
@@ -96,6 +115,7 @@ const deleteProfile = async (req, res) => {
 module.exports = {
   getAllProfiles,
   getProfileById,
+  getProfileByUserId,
   updateProfile,
   deleteProfile
 };
