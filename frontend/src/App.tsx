@@ -10,6 +10,8 @@ import EditProfilePage from "./pages/Creator/EditProfilePage";
 import ProjectPreview from "./pages/Creator/ProjectPreview";
 import EditProject from "./pages/Creator/editProjectView";
 import NewProject from "./pages/Creator/newProject";
+import RequestPage from "./pages/Applicant/requestPage";
+import ProjectsPage from "./pages/projects";
 
 const App = () => {
   const { isAuthenticated } = useAuth();
@@ -57,6 +59,7 @@ const App = () => {
           </ProtectedRoute>
         }
       >
+        <Route path="" element={<ProjectsPage />} />
         <Route path=":projectId" element={<ProjectPreview />} />
         <Route path="new-project" element={<NewProject />} />
         <Route path=":projectId/edit" element={<EditProject />} />
@@ -95,7 +98,7 @@ const App = () => {
         path="/applications"
         element={
           <ProtectedRoute isAuthenticated={isAuthenticated}>
-            <Home />
+            <RequestPage />
           </ProtectedRoute>
         }
       />

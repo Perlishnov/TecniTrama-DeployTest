@@ -12,11 +12,11 @@ import Logo from "./logo";
 
 function Sidebar() {
   const menuItems = [
-    { icon: HomeIcon, label: "Home", href: "/" },
+    { icon: HomeIcon, label: "Home", href: "/dashboard" },
     { icon: ProjectIcon, label: "Proyectos", href: "/projects" },
     { icon: ClipboardIcon, label: "Solicitudes", href: "/applications"},
-    { icon: ChatIcon, label: "Chats", href: "#" },
-    { icon: NotificationIcon, label: "Notificaciones", href: "#" },
+    { icon: ChatIcon, label: "Chats", href: "/chats/*" },
+    { icon: NotificationIcon, label: "Notificaciones", href: "/notifications" },
     { icon: SettingsIcon, label: "Configuración", href: "/profile" },
   ];
 
@@ -45,7 +45,7 @@ function Sidebar() {
       </div>
       {/* Footer */}
       <div className="w-full flex flex-col items-center gap-4">
-        <Button className="w-60 font-barlow rounded-full bg-rose-500 text-white py-2 hover:bg-rose-600">
+        <Button className="w-60 font-barlow rounded-full bg-rojo-intec-400 text-white py-2 hover:bg-rojo-intec-400">
           <Link to ="/projects/new-project">Crear Proyecto +</Link>
         </Button>
         <ProfileWidget avatarUrl={AvatarUrl} name="Nombre del Usuario" email="correo@example.com" />
