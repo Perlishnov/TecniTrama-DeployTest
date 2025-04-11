@@ -12,6 +12,7 @@ import EditProject from "./pages/Creator/editProjectView";
 import NewProject from "./pages/Creator/newProject";
 import RequestPage from "./pages/Applicant/requestPage";
 import ProjectsPage from "./pages/projects";
+import NotificationsPage from "./pages/notificacion";
 
 const App = () => {
   const { isAuthenticated } = useAuth();
@@ -71,7 +72,7 @@ const App = () => {
         path="/notifications"
         element={
           <ProtectedRoute isAuthenticated={isAuthenticated}>
-            <Home />
+            <NotificationsPage />
           </ProtectedRoute>
         }
       />

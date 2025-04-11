@@ -1,50 +1,48 @@
-// CustomTabs.tsx
-import {
-  Tabs,
-  TabList,
-  Tab,
-  TabPanel,
-} from 'react-aria-components';
-import { ReactElement } from 'react';
+import React, { useState, Children, isValidElement, cloneElement } from 'react';
 
-interface CustomTabProps {
+export interface CustomTabProps {
   label: string;
   children: React.ReactNode;
 }
 
-export function CustomTab({ children }: CustomTabProps) {
-  return <TabPanel className="p-4 border rounded-lg">{children}</TabPanel>;
+export const CustomTab: React.FC<CustomTabProps> = ({ children }) => {
+  return <>{children}</>;
+};
+
+export interface CustomTabsProps {
+  children: React.ReactElement<CustomTabProps>[];
 }
 
-interface CustomTabsProps {
-  children: ReactElement<CustomTabProps>[]; // o ReactNode si quieres permitir mezcla más libre
-}
+const CustomTabs: React.FC<CustomTabsProps> = ({ children }) => {
+  const [activeIndex, setActiveIndex] = useState(0);
 
-export default function CustomTabs({ children }: CustomTabsProps) {
-  const labels = children.map((child) => child.props.label);
+  const tabLabels = Children.map(children, (child) => {
+    if (isValidElement(child)) {
+      return child.props.label;
+    }
+    return null;
+  });
 
   return (
-    <Tabs className="w-full">
-      <TabList
-        aria-label="Secciones de proyectos"
-        className="flex justify-center gap-6 border-b border-gray-300"
-      >
-        {labels.map((label, index) => (
-          <Tab
+    <div className="w-full">
+      {/* Tabs Header */}
+      <div className="flex border-b mb-4">
+        {tabLabels?.map((label, index) => (
+          <button
             key={index}
-            className={({ isSelected }) =>
-              `px-1 pb-2 text-sm font-medium border-b-2 transition-colors duration-200 ${isSelected
-                ? 'border-black text-black'
-                : 'border-transparent text-gray-500 hover:text-black'
-              }`
-            }
+            onClick={() => setActiveIndex(index)}
+            className={`px-4 py-2 font-medium focus:outline-none ${
+              activeIndex === index ? "border-b-2 border-black" : "text-gray-500"
+            }`}
           >
             {label}
-          </Tab>
+          </button>
         ))}
-      </TabList>
-
-      {children}
-    </Tabs>
+      </div>
+      {/* Active Tab Content */}
+      <div>{children[activeIndex]}</div>
+    </div>
   );
-}
+};
+
+export default CustomTabs;
