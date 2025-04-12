@@ -25,12 +25,12 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
 }) => {
   const Wrapper = href
     ? ({ children }: { children: React.ReactNode }) => (
-        <Link to={href} className="block w-full">
-          {children}
-        </Link>
-      )
+      <Link to={href} className="block w-full">
+        {children}
+      </Link>
+    )
     : onClick
-    ? ({ children }: { children: React.ReactNode }) => (
+      ? ({ children }: { children: React.ReactNode }) => (
         <div
           onClick={onClick}
           role="button"
@@ -45,37 +45,42 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
           {children}
         </div>
       )
-    : ({ children }: { children: React.ReactNode }) => <>{children}</>;
+      : ({ children }: { children: React.ReactNode }) => <>{children}</>;
 
   return (
     <Wrapper>
       <div
-        className={`w-full max-w-[471px] h-56 ${
-          completado ? "bg-gray-100" : "bg-red-100"
-        } rounded-2xl border border-black flex overflow-hidden hover:shadow-lg transition-shadow ${className}`}
+        className={`flex w-full max-w-[600px] h-48 ${completado ? "bg-gray-100" : "bg-red-100"
+          } border border-gray-300 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300 ${className}`}
         aria-label={`Proyecto: ${title}`}
       >
-        {/* Image Section */}
-        <div className="w-48 h-full bg-white shrink-0">
+
+        {/* Imagen */}
+        <div className="w-48 h-full">
           <img
             src={imageUrl}
             alt={`Imagen del proyecto ${title}`}
-            className="object-cover w-full h-full rounded-l-2xl"
+            className="w-full h-full object-cover"
           />
         </div>
-        {/* Content Section */}
+
+        {/* Contenido */}
         <div className="flex flex-col justify-between p-4 flex-1">
-          <h3 className="text-xl font-semibold text-black font-barlow">
-            {title}
-          </h3>
-          <p className="text-sm text-black font-barlow text-justify line-clamp-3">
-            {description}
-          </p>
-          <div className="flex flex-wrap gap-2 mt-2">
+          <div>
+            <h3 className="text-lg font-semibold text-black font-barlow mb-1 line-clamp-2">
+              {title}
+            </h3>
+            <p className="text-sm text-gray-700 font-barlow line-clamp-2">
+              {description}
+            </p>
+          </div>
+
+          {/* Filtros */}
+          <div className="flex flex-wrap gap-2 mt-3">
             {filters.map((filter) => (
               <span
                 key={filter}
-                className="bg-white text-xs px-3 py-1 rounded-full font-medium font-barlow border"
+                className="bg-gray-100 text-xs px-3 py-1 rounded-full font-medium font-barlow border border-gray-300"
               >
                 {filter}
               </span>
@@ -84,6 +89,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
         </div>
       </div>
     </Wrapper>
+
   );
 };
 

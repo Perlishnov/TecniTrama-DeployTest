@@ -50,12 +50,22 @@ const CreatorProfilePage: React.FC = () => {
         const profileData = await profileRes.json();
         setProfile(profileData);
 
-        const projectsRes = await fetch("http://localhost:3000/api/projects", {
+        const projectsRes = await fetch(`http://localhost:3000/api/projects/creator/${userId}`, {
           headers,
         });
 
         const projectsData = await projectsRes.json();
-        setProjects(projectsData);
+
+        const sanitizedProjects: Project[] = projectsData.map((p: any) => ({
+          id: p.id ?? 0,
+          title: p.title ?? "Sin titulo",
+          description: p.description ?? "Sin descripcion",
+          imageUrl: p.imageUrl ?? "https://placehold.co/400x300",
+          filters: Array.isArray(p.filters) ? p.filters : [],
+          completado: !!p.completado,
+        }));
+        setProjects(sanitizedProjects);
+
       } catch (error) {
         console.error("Error cargando datos:", error);
       }

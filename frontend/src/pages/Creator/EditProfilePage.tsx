@@ -16,7 +16,6 @@ interface Profile {
 }
 
 const EditProfilePage: React.FC = () => {
-  // Local state for profile fields (mapped to API fields)
   const [career, setCareer] = useState("");
   const [biography, setBiography] = useState("");
   const [experience, setExperience] = useState("");
@@ -39,7 +38,7 @@ const EditProfilePage: React.FC = () => {
   // Retrieve userId and token from localStorage
   const token = localStorage.getItem("token") || "";
   const decoded = useDecodeJWT();
-  const userId = decoded?.id;  
+  const userId = decoded?.id;
 
   // Local state for the entire profile
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -50,7 +49,7 @@ const EditProfilePage: React.FC = () => {
     const fetchProfile = async () => {
       try {
         setIsLoading(true);
-        const res = await fetch("http://localhost:3000/api/profiles", {
+        const res = await fetch(`http://localhost:3000/api/profiles/user/${userId}`, {
           method: "GET",
           headers: {
             "accept": "application/json",
@@ -60,21 +59,13 @@ const EditProfilePage: React.FC = () => {
         if (!res.ok) {
           throw new Error("Failed to fetch profiles");
         }
-        const data: Profile[] = await res.json();
-        // Find profile by matching profile_id with userId (assuming they match)
-        const currentProfile = data.find(
-          (p) => p.profile_id.toString() === userId
-        );
-        if (currentProfile) {
-          setProfile(currentProfile);
-          // Set local fields from the fetched profile
-          setCareer(currentProfile.carreer || "");
-          setBiography(currentProfile.bio || "");
-          setExperience(currentProfile.experience || "");
-          setProfilePhoto(currentProfile.profile_image || AvatarUrl);
-        } else {
-          setApiError("Profile not found for current user");
-        }
+        const data: Profile = await res.json();
+        setProfile(data);
+        setCareer(data.carreer || "");
+        setBiography(data.bio || "");
+        setExperience(data.experience || "");
+        setProfilePhoto(data.profile_image || AvatarUrl);
+
       } catch (err: any) {
         setApiError(err.message);
       } finally {
@@ -100,7 +91,6 @@ const EditProfilePage: React.FC = () => {
     }
   };
 
-  // Handler for form submission (update profile via PUT)
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!profile) return;
@@ -206,7 +196,7 @@ const EditProfilePage: React.FC = () => {
                   type="text"
                   value={phoneNumber}
                   onChange={(e) => setPhoneNumber(e.target.value)}
-                  disabled={()=>true}
+                  disabled={true}
                 />
               </div>
             </div>
