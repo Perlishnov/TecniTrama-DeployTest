@@ -3,22 +3,49 @@ const { get } = require("../routes/profiles");
 
 // Creates Project
 const createProject = async (projectData) => {
-  return await prisma.projects.create({
-    data: {
-      creator_id: parseInt(projectData.creator_id),
-      title: projectData.title,
-      description: projectData.description,
-      banner: projectData.banner || null,
-      attachmenturl: projectData.attachmenturl || null,
-      budget: projectData.budget ? parseFloat(projectData.budget) : null,
-      sponsors: projectData.sponsors || null,
-      estimated_start: projectData.estimated_start ? new Date(projectData.estimated_start) : null,
-      estimated_end: projectData.estimated_end ? new Date(projectData.estimated_end) : null,
-      is_published: projectData.is_published || false,
-      format_id: projectData.format_id ? parseInt(projectData.format_id) : null
+  return await prisma.$transaction(async (tx) => {
+    // Creates the project
+    const newProject = await tx.projects.create({
+      data: {
+        creator_id: parseInt(projectData.creator_id),
+        title: projectData.title,
+        description: projectData.description,
+        banner: projectData.banner || null,
+        attachmenturl: projectData.attachmenturl || null,
+        budget: projectData.budget ? parseFloat(projectData.budget) : null,
+        sponsors: projectData.sponsors || null,
+        estimated_start: projectData.estimated_start ? new Date(projectData.estimated_start) : null,
+        estimated_end: projectData.estimated_end ? new Date(projectData.estimated_end) : null,
+        is_published: projectData.is_published || false,
+        format_id: projectData.format_id ? parseInt(projectData.format_id) : null
+      }
+    });
+
+    // Associates the genres with the project
+    if (Array.isArray(projectData.genre_ids) && projectData.genre_ids.length > 0) {
+      await tx.project_genres.createMany({
+        data: projectData.genre_ids.map((genreId) => ({
+          project_id: newProject.project_id,
+          genre_id: genreId
+        }))
+      });
     }
+
+    // Associates the classes with the project
+    if (Array.isArray(projectData.class_ids) && projectData.class_ids.length > 0) {
+      await tx.project_classes.createMany({
+        data: projectData.class_ids.map((classId) => ({
+          project_id: newProject.project_id,
+          class_id: classId
+        }))
+      });
+    }
+
+    return newProject;
   });
 };
+
+
 
 // Gets all Projects
 const getAllProjects = async () => {
@@ -58,24 +85,67 @@ const getProjectByCreatorId = async (userId) => {
 
 // Updates Project
 const updateProject = async (id, projectData) => {
-  const existingProject = await getProjectById(id);
+  const projectId = parseInt(id);
 
-  return await prisma.projects.update({
-    where: { project_id: parseInt(id) },
-    data: {
-      title: projectData.title || existingProject.title,
-      description: projectData.description || existingProject.description,
-      banner: projectData.banner !== undefined ? projectData.banner : existingProject.banner,
-      attachmenturl: projectData.attachmenturl !== undefined ? projectData.attachmenturl : existingProject.attachmenturl,
-      budget: projectData.budget !== undefined ? parseFloat(projectData.budget) : existingProject.budget,
-      sponsors: projectData.sponsors !== undefined ? projectData.sponsors : existingProject.sponsors,
-      estimated_start: projectData.estimated_start ? new Date(projectData.estimated_start) : existingProject.estimated_start,
-      estimated_end: projectData.estimated_end ? new Date(projectData.estimated_end) : existingProject.estimated_end,
-      is_published: projectData.is_published !== undefined ? projectData.is_published : existingProject.is_published,
-      format_id: projectData.format_id ? parseInt(projectData.format_id) : existingProject.format_id
+  return await prisma.$transaction(async (tx) => {
+    // Get Existing project data
+    const existingProject = await tx.projects.findUnique({
+      where: { project_id: projectId }
+    });
+
+    if (!existingProject) {
+      throw new Error('Project not found');
     }
+
+    // Update project data
+    const updatedProject = await tx.projects.update({
+      where: { project_id: projectId },
+      data: {
+        title: projectData.title || existingProject.title,
+        description: projectData.description || existingProject.description,
+        banner: projectData.banner !== undefined ? projectData.banner : existingProject.banner,
+        attachmenturl: projectData.attachmenturl !== undefined ? projectData.attachmenturl : existingProject.attachmenturl,
+        budget: projectData.budget !== undefined ? parseFloat(projectData.budget) : existingProject.budget,
+        sponsors: projectData.sponsors !== undefined ? projectData.sponsors : existingProject.sponsors,
+        estimated_start: projectData.estimated_start ? new Date(projectData.estimated_start) : existingProject.estimated_start,
+        estimated_end: projectData.estimated_end ? new Date(projectData.estimated_end) : existingProject.estimated_end,
+        is_published: projectData.is_published !== undefined ? projectData.is_published : existingProject.is_published,
+        format_id: projectData.format_id ? parseInt(projectData.format_id) : existingProject.format_id
+      }
+    });
+
+    // Update genres
+    if (Array.isArray(projectData.genre_ids)) {
+      await tx.project_genres.deleteMany({ where: { project_id: projectId } });
+
+      if (projectData.genre_ids.length > 0) {
+        await tx.project_genres.createMany({
+          data: projectData.genre_ids.map((genreId) => ({
+            project_id: projectId,
+            genre_id: genreId
+          }))
+        });
+      }
+    }
+
+    // Update classes
+    if (Array.isArray(projectData.class_ids)) {
+      await tx.project_classes.deleteMany({ where: { project_id: projectId } });
+
+      if (projectData.class_ids.length > 0) {
+        await tx.project_classes.createMany({
+          data: projectData.class_ids.map((classId) => ({
+            project_id: projectId,
+            class_id: classId
+          }))
+        });
+      }
+    }
+
+    return updatedProject;
   });
 };
+
 
 // Deletes Project
 const deleteProject = async (id) => {

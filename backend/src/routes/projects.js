@@ -481,45 +481,55 @@ router.get('/formats', projectController.getAllFormats);
  *     ProjectInput:
  *       type: object
  *       required:
- *         - title
- *         - description
- *         - creator_id
+ *           - title
+ *           - description
+ *           - creator_id
  *       properties:
- *         title:
- *           type: string
- *           example: "My Awesome Project"
- *         description:
- *           type: string
- *           example: "Detailed description of my project"
- *         creator_id:
- *           type: integer
- *           example: 1
- *         banner:
- *           type: string
- *           example: "https://example.com/banner.jpg"
- *         attachmenturl:
- *           type: string
- *           example: "https://example.com/attachment.pdf"
- *         budget:
- *           type: number
- *           example: 5000.50
- *         sponsors:
- *           type: string
- *           example: "Company A, Company B"
- *         estimated_start:
- *           type: string
- *           format: date-time
- *           example: "2023-12-01T00:00:00Z"
- *         estimated_end:
- *           type: string
- *           format: date-time
- *           example: "2024-06-01T00:00:00Z"
- *         is_published:
- *           type: boolean
- *           example: true
- *         format_id:
- *           type: integer
- *           example: 1
+ *           title:
+ *              type: string
+ *              example: "My Awesome Project"
+ *           description:
+ *              type: string
+ *              example: "Detailed description of my project"
+ *           creator_id:
+ *              type: integer
+ *              example: 1
+ *           banner:
+ *              type: string
+ *              example: "https://example.com/banner.jpg"
+ *           attachmenturl:
+ *              type: string
+ *              example: "https://example.com/attachment.pdf"
+ *           budget:
+ *              type: number
+ *              example: 5000.50
+ *           sponsors:
+ *              type: string
+ *              example: "Company A, Company B"
+ *           estimated_start:
+ *              type: string
+ *              format: date-time
+ *              example: "2023-12-01T00:00:00Z"
+ *           estimated_end:
+ *              type: string
+ *              format: date-time
+ *              example: "2024-06-01T00:00:00Z"
+ *           is_published:
+ *              type: boolean
+ *              example: true
+ *           format_id:
+ *              type: integer
+ *              example: 1
+ *           genre_ids:
+ *              type: array
+ *              items:
+ *                  type: integer
+ *              example: [1, 3, 5]
+ *           class_ids:
+ *              type: array
+ *              items:
+ *                  type: string
+ *              example: ["LCS202", "LCS203"]
  *   securitySchemes:
  *     bearerAuth:
  *       type: http
