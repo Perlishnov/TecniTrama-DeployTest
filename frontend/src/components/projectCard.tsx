@@ -80,7 +80,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
             {filters.map((filter) => (
               <span
                 key={filter}
-                className="bg-gray-100 text-xs px-3 py-1 rounded-full font-medium font-barlow border border-gray-300"
+                className="bg-white text-xs px-3 py-1 rounded-full font-medium font-barlow border border-black"
               >
                 {filter}
               </span>

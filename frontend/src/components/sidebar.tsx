@@ -1,16 +1,18 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button, Input } from "react-aria-components";
 import ProfileWidget from "./profileWidget";
 import AvatarUrl from "@/assets/avatar.png";
 import HomeIcon from "@/assets/icons/home.svg";
 import ProjectIcon from "@/assets/icons/file-text.svg";
-import ClipboardIcon from "@/assets/icons/Clipboard.png"
+import ClipboardIcon from "@/assets/icons/clipboard.svg"
 import ChatIcon from "@/assets/icons/message-circle.svg";
 import NotificationIcon from "@/assets/icons/bell.svg";
 import SettingsIcon from "@/assets/icons/settings.svg";
 import Logo from "./logo";
 
 function Sidebar() {
+  const location = useLocation();
+  const navigate = useNavigate();
   const menuItems = [
     { icon: HomeIcon, label: "Home", href: "/dashboard" },
     { icon: ProjectIcon, label: "Proyectos", href: "/projects" },
@@ -21,7 +23,7 @@ function Sidebar() {
   ];
 
   return (
-    <aside className="w-80 h-screen fixed left-0 top-0 bg-rose-100 flex flex-col justify-between p-4 z-50">
+    <aside className="w-80 h-screen fixed left-0 top-0 bg-rojo-intec-100 flex flex-col justify-between p-4 z-50">
       <div className="w-full">
         {/* Logo */}
         <div className="flex items-center">
@@ -35,7 +37,8 @@ function Sidebar() {
             <Link
               key={item.label}
               to={item.href}
-              className="block px-4 py-3 rounded-lg text-neutral-700 hover:bg-rose-200 flex items-center gap-2"
+              state={item.label === "Notificaciones" ? { backgroundLocation: location } : undefined}
+              className="block px-4 py-3 rounded-lg text-neutral-700 hover:bg-rojo-intec-200 flex items-center gap-2"
             >
               <img src={item.icon} alt={item.label} className="w-6 h-6" />
               <span className="text-neutral-500 font-barlow font-medium">{item.label}</span>

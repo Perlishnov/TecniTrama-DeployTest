@@ -1,7 +1,7 @@
-import { Routes, Route, Navigate, Outlet } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import Login from "./pages/login";
 import Register from "./pages/register";
-import Home from "./pages/home";
+import DashboardPage from "./pages/dashboard";
 import ProtectedRoute from "./components/protectedRoute";
 import { useAuth } from "./hooks/auth";
 import CreatorLayout from "./layouts/default";
@@ -13,100 +13,68 @@ import NewProject from "./pages/Creator/newProject";
 import RequestPage from "./pages/Applicant/requestPage";
 import ProjectsPage from "./pages/projects";
 import NotificationsPage from "./pages/notificacion";
+import { Outlet } from "react-router-dom";
+import ChatPage from "./pages/chatPage";
+import { useDecodeJWT } from "./hooks/useDecodeJWT";
 
 const App = () => {
   const { isAuthenticated } = useAuth();
+  const location = useLocation();
+  const state = location.state as { backgroundLocation?: Location };
+  const user = useDecodeJWT();
 
   return (
-    <Routes>
-      {/* Rutas públicas */}
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/" element={<Home />} />
+    <>
+      <Routes>
+        {/* Rutas públicas */}
+        <Route path="/login" element={isAuthenticated ? <Navigate to='/dashboard'/>  :<Login />} />
+        <Route path="/register" element={isAuthenticated ? <Navigate to='/dashboard'/>  :<Register />} />
+        <Route path="/" element={<Navigate to='/login'/>} />
 
-      {/* Rutas protegidas */}
-      <Route
-        path="/dashboard"
-        element={
-          <ProtectedRoute isAuthenticated={isAuthenticated}>
-            <CreatorLayout >
-              <h1>Hola</h1>
-            </CreatorLayout>
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/profile"
-        element={
-          <ProtectedRoute isAuthenticated={isAuthenticated}>
-            <CreatorProfilePage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/profile/edit-profile"
-        element={
-          <ProtectedRoute isAuthenticated={isAuthenticated}>
-              <EditProfilePage />
-          </ProtectedRoute>
-        }
-      />
+        {/* Rutas protegidas con layout */}
+        <Route
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <CreatorLayout>
+                <Outlet />
+              </CreatorLayout>
+            </ProtectedRoute>
+          }
+        >
+          <Route path="/dashboard" element={<DashboardPage/>} />
+          <Route path="/profile" element={<CreatorProfilePage />} />
+          <Route path="/profile/edit-profile" element={<EditProfilePage />} />
 
-      <Route
-        path="/projects"
-        element={
-          <ProtectedRoute isAuthenticated={isAuthenticated}>
-            <Outlet />
-          </ProtectedRoute>
-        }
-      >
-        <Route path="" element={<ProjectsPage />} />
-        <Route path=":projectId" element={<ProjectPreview />} />
-        <Route path="new-project" element={<NewProject />} />
-        <Route path=":projectId/edit" element={<EditProject />} />
-        <Route path="my" element={<Home />} />
-      </Route>
+          <Route path="/projects" element={<ProjectsPage />} />
+          <Route path="/projects/new-project" element={<NewProject />} />
+          <Route path="/projects/:projectId" element={<ProjectPreview />} />
+          <Route path="/projects/:projectId/edit" element={<EditProject />} />
+
+          <Route path="/notifications" element={<NotificationsPage />} />
+          <Route path="/chats/*" element={<ChatPage user={user}/>} />
+          <Route path="/applications" element={<RequestPage />} />
+          <Route path="/settings" element={<CreatorProfilePage />} />
+        </Route>
+
+        {/* Ruta no encontrada */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
 
 
-      <Route
-        path="/notifications"
-        element={
-          <ProtectedRoute isAuthenticated={isAuthenticated}>
-            <NotificationsPage />
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/settings"
-        element={
-          <ProtectedRoute isAuthenticated={isAuthenticated}>
-            <Home />
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/chats/*"
-        element={
-          <ProtectedRoute isAuthenticated={isAuthenticated}>
-            <Home />
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/applications"
-        element={
-          <ProtectedRoute isAuthenticated={isAuthenticated}>
-            <RequestPage />
-          </ProtectedRoute>
-        }
-      />
-
-      {/* Redirecciona a Home para rutas no definidas */}
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+      {/* Modal para notificaciones si hay background */}
+      {state?.backgroundLocation && (
+        <Routes>
+          <Route
+            path="/notifications"
+            element={
+              <ProtectedRoute isAuthenticated={isAuthenticated}>
+                <NotificationsPage />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      )}
+    </>
   );
 };
 
