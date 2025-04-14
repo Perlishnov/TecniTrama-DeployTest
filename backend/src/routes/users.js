@@ -294,6 +294,50 @@ router.post('/login', userController.loginUser);
 // Update user
 router.put('/:id', verifyJWTAndAdmin, userController.updateUser);
 
+
+/**
+ * @swagger
+ * /api/users/change-password:
+ *   put:
+ *     summary: Change user password
+ *     description: Change the password of the authenticated user. Requires authentication.
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               old_password:
+ *                 type: string
+ *                 format: password
+ *               new_password:
+ *                 type: string
+ *                 format: password
+ *     responses:
+ *       200:
+ *         description: Password changed successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *       401:
+ *         description: Unauthorized - No token provided or invalid token
+ *       403:
+ *         description: Forbidden - Invalid password
+ *       500:
+ *         description: Server error
+ */
+// Change password
+router.put('/change-password', userController.changePassword);
+
+
 /**
  * @swagger
  * /api/users/{id}:

@@ -198,6 +198,48 @@ const loginUser = async (req, res) => {
   }
 };
 
+// Change password
+const changePassword = async (req, res) => {
+  try {
+    const userId = parseInt(req.params.id);
+    const { oldPassword, newPassword } = req.body;
+
+    // Validate required fields
+    if (!oldPassword || !newPassword) {
+      return res.status(400).json({ message: 'Old and new passwords are required' });
+    }
+
+    // Find user by ID
+    const user = await prisma.users.findUnique({
+      where: { user_id: userId }
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Verify old password using utility
+    const isOldPasswordValid = await hash.comparePassword(oldPassword, user.password);
+    if (!isOldPasswordValid) {
+      return res.status(400).json({ message: 'Invalid old password' });
+    }
+
+    // Hash new password using utility
+    const hashedNewPassword = await hash.hashPassword(newPassword);
+
+    // Update password
+    await prisma.users.update({
+      where: { user_id: userId },
+      data: { password: hashedNewPassword }
+    });
+
+    res.json({ message: 'Password changed successfully' });
+  } catch (error) {
+    console.error('Error changing password:', error);
+    res.status(500).json({ message: 'Error changing password', error: error.message });
+  }
+}
+
 // Update user
 const updateUser = async (req, res) => {
   try {
@@ -278,5 +320,6 @@ module.exports = {
   registerUser,
   loginUser,
   updateUser,
+  changePassword,
   deleteUser
 };
