@@ -9,7 +9,7 @@ interface LogoProps {
 const Logo: React.FC<LogoProps> = ({ text = "ecnitrama", className }) => {
   return (
     <div className={`flex text-2xl font-bold place-items-center ${className}`}>
-      <img src={LogoIcon} alt="Logo Icon" className="" />
+      <img src={LogoIcon} alt="Logo Icon" className="aspect-square" />
       <span>{text}</span>
     </div>
   );

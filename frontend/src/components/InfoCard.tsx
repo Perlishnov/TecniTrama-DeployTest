@@ -16,8 +16,8 @@ const InfoCard: React.FC<InfoCardProps> = ({
   className = "",
 }) => {
   return (
-    <div className={`w-full rounded-[10px] outline outline-1 outline-[#63666A] flex flex-col ${className}`}>
-      <div className={`bg-rojo-intec-200 flex justify-between items-center p-2.5`}>
+    <div className={`w-full rounded-[10px] outline outline-1 outline-[#63666A] flex flex-col overflow-hidden ${className}`}>
+      <div className={`bg-rojo-intec-200 flex justify-between items-center p-2.5 ${headerColor}`}>
         <h3 className="text-black text-xl font-barlow font-medium leading-[26px]">
           {title}
         </h3>

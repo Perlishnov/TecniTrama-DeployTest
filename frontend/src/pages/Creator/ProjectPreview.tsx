@@ -47,7 +47,7 @@ const vacanciesData = [
 
 // Sample data for extra tables
 const dataPatrocinadores = [
-  { Sponsors: "Ejemplo", contribucion: "Lorem Ipsum..." }
+  { Sponsors: "Ejemplo",  }
 ];
 
 const columnsLinks = [
@@ -109,14 +109,14 @@ const ProjectPreview: React.FC = () => {
           {/* Right Column: Budget, Dates, and Action Buttons */}
           <div className="w-[16.563rem] flex flex-col justify-between">
             {/* Budget Card */}
-            <div className="bg-rojo-intec-200 rounded-t-[1.25rem] outline outline-1 outline-[#63666A]">
-              <InfoCard title="Presupuesto" content="2.00$" headerButton={null} />
+            <div className="bg-rojo-intec-200 rounded-t-[1.25rem] outline outline-1 outline-[#63666A] overflow-hidden">
+              <InfoCard title="Presupuesto" content="2.00$" headerButton={null} headerColor="bg-rojo-intec-300" className="rounded-b-none" />
             </div>
 
             {/* Dates Row */}
             <div className="flex gap-[2.625rem]">
-              <InfoCard title="Inicio" content="XX/XX/20XX" headerButton={null} />
-              <InfoCard title="Final" content="XX/XX/20XX" headerButton={null} />
+              <InfoCard title="Inicio" content="XX/XX/20XX" headerButton={null} className="rounded-br-none" />
+              <InfoCard title="Final" content="XX/XX/20XX" headerButton={null} className="rounded-bl-none" />
             </div>
 
             {/* Action Buttons: Show report button for owner, or publish and edit for non-owner */}
@@ -158,13 +158,13 @@ const ProjectPreview: React.FC = () => {
           </Button>
         )}
 
-        {/* Additional Data Section: Two Column Layout for Patrocinadores and Links */}
+        {/* Additional Data Section: Tw`o Column Layout for Patrocinadores and Links */}
         <div className="w-full flex flex-col justify-start items-center gap-6">
           <div className="w-full flex gap-9">
             <ReusableTable
               title="Patrocinadores"
               titleIcon={BriefCaseIcon}
-              columns={[{ key: "Sponsors", label: "Patrocinadores" }, { key: "contribucion", label: "Contribución" }]}
+              columns={[{ key: "Sponsors", label: "Patrocinadores" }]}
               data={dataPatrocinadores}
               onAction={(row) => console.log("Action on patrocinador row:", row)}
             />
