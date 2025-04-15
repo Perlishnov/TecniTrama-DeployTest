@@ -2,6 +2,11 @@
 const hash = require('../utils/hash')
 const { generateToken } = require('../services/authService');
 const prisma = require('../models/prismaClient');
+const { StreamChat } = require('stream-chat');
+
+const streamApiKey = process.env.STREAM_API_KEY;
+const streamApiSecret = process.env.STREAM_API_SECRET;
+const streamClient = StreamChat.getInstance(streamApiKey, streamApiSecret);
 
 // Get all users
 const getAllUsers = async (req, res) => {
@@ -165,10 +170,11 @@ const registerUser = async (req, res) => {
 
     // Create JWT token
     const token = generateToken({ id: result.user_id, email: result.email });
-
+    const streamToken = streamClient.createToken(user.user_id.toString());
     res.status(201).json({
       message: 'User registered successfully with empty profile',
       token,
+      streamToken,
       user: {
         user_id: result.user_id,
         first_name: result.first_name,
@@ -214,10 +220,11 @@ const loginUser = async (req, res) => {
 
     // Create JWT token
     const token = generateToken({ id: user.user_id, email: user.email, user_type_id: user.user_type_id });
-
+    const streamToken = streamClient.createToken(user.user_id.toString());
     res.json({
       message: 'Login successful',
       token,
+      streamToken,
       user: {
         user_id: user.user_id,
         first_name: user.first_name,

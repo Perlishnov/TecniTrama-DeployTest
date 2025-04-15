@@ -7,7 +7,7 @@ const { authenticateToken } = require('../controllers/authController');
 
 /**
  * @swagger
- * /vacancies:
+ * /api/vacancies:
  *   get:
  *     summary: Get all vacancies
  *     description: Returns a list of all available vacancies.
@@ -22,7 +22,7 @@ router.get('/', vacancyController.getAllVacancies);
 
 /**
  * @swagger
- * /vacancies/project/{project_id}:
+ * /api/vacancies/project/{project_id}:
  *   get:
  *     summary: Get vacancies by project ID
  *     description: Returns a list of vacancies associated with a specific project.
@@ -46,7 +46,7 @@ router.get('/project/:project_id', vacancyController.getVacanciesByProjectId);
 
 /**
  * @swagger
- * /vacancies/{id}:
+ * /api/vacancies/{id}:
  *   get:
  *     summary: Get a vacancy by ID
  *     description: Returns the details of a specific vacancy.
@@ -70,7 +70,7 @@ router.get('/:id', vacancyController.getVacancyById);
 
 /**
  * @swagger
- * /vacancies:
+ * /api/vacancies:
  *   post:
  *     summary: Create a new vacancy
  *     description: Adds a new vacancy to the database.
@@ -115,11 +115,11 @@ router.get('/:id', vacancyController.getVacancyById);
  *       500:
  *         description: Internal server error.
  */
-router.post('/', vacancyController.createVacancy);
+router.post('/', authenticateToken, vacancyController.createVacancy);
 
 /**
  * @swagger
- * /vacancies/{id}:
+ * /api/vacancies/{id}:
  *   put:
  *     summary: Update a vacancy by ID
  *     description: Modifies the details of a specific vacancy.
@@ -160,11 +160,11 @@ router.post('/', vacancyController.createVacancy);
  *       500:
  *         description: Internal server error.
  */
-router.put('/:id', vacancyController.updateVacancy);
+router.put('/:id', authenticateToken, vacancyController.updateVacancy);
 
 /**
  * @swagger
- * /vacancies/{id}:
+ * /api/vacancies/{id}:
  *   delete:
  *     summary: Delete a vacancy by ID
  *     description: Removes a specific vacancy from the database.
@@ -184,6 +184,6 @@ router.put('/:id', vacancyController.updateVacancy);
  *       500:
  *         description: Internal server error.
  */
-router.delete('/:id', vacancyController.deleteVacancy);
+router.delete('/:id', authenticateToken, vacancyController.deleteVacancy);
 
 module.exports = router;

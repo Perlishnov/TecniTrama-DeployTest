@@ -132,6 +132,8 @@ router.get('/:id', verifyJWTAndAdmin, userController.getUserById);
  *                   type: string
  *                 token:
  *                   type: string
+ *                 streamToken:
+ *                   type: string
  *                 user:
  *                   type: object
  *                   properties:
@@ -185,6 +187,8 @@ router.post('/register', userController.registerUser);
  *                 message:
  *                   type: string
  *                 token:
+ *                   type: string
+ *                 streamToken:
  *                   type: string
  *                 user:
  *                   type: object
