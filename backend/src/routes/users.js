@@ -55,7 +55,7 @@ router.get('/', verifyJWTAndAdmin, userController.getAllUsers);
  * /api/users/{id}:
  *   get:
  *     summary: Get user by ID
- *     description: Retrieve a specific user by their ID. Requires authentication.
+ *     description: Retrieve a specific user by their ID along with their profile, interests, and roles. Requires authentication.
  *     tags: [Users]
  *     security:
  *       - bearerAuth: []
@@ -68,29 +68,11 @@ router.get('/', verifyJWTAndAdmin, userController.getAllUsers);
  *         description: User ID
  *     responses:
  *       200:
- *         description: User details
+ *         description: User details with profile
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 user_id:
- *                   type: integer
- *                 first_name:
- *                   type: string
- *                 last_name:
- *                   type: string
- *                 email:
- *                   type: string
- *                 phone_num:
- *                   type: string
- *                 registration_date:
- *                   type: string
- *                   format: date-time
- *                 is_active:
- *                   type: boolean
- *                 user_type_id:
- *                   type: integer
+ *               $ref: '#/components/schemas/UserWithProfile'
  *       401:
  *         description: Unauthorized - No token provided
  *       403:
@@ -376,6 +358,7 @@ router.put('/change-password', userController.changePassword);
 // Delete user
 router.delete('/:id', verifyJWTAndAdmin, userController.deleteUser);
 
+//Swagger Schema for User
 /**
  * @swagger
  * components:
@@ -428,5 +411,87 @@ router.delete('/:id', verifyJWTAndAdmin, userController.deleteUser);
  *     - name: Users
  *       description: User management API
  */
+
+//Swagger Schema for User with Profile
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     UserWithProfile:
+ *       type: object
+ *       properties:
+ *         user_id:
+ *           type: integer
+ *         first_name:
+ *           type: string
+ *         last_name:
+ *           type: string
+ *         email:
+ *           type: string
+ *         phone_num:
+ *           type: string
+ *         registration_date:
+ *           type: string
+ *           format: date-time
+ *         is_active:
+ *           type: boolean
+ *         user_type_id:
+ *           type: integer
+ *         profiles:
+ *           $ref: '#/components/schemas/UserProfile'
+ *
+ *     UserProfile:
+ *       type: object
+ *       properties:
+ *         profile_id:
+ *           type: integer
+ *         experience:
+ *           type: string
+ *           nullable: true
+ *         carreer:
+ *           type: string
+ *           nullable: true
+ *         bio:
+ *           type: string
+ *           nullable: true
+ *         profile_image:
+ *           type: string
+ *           nullable: true
+ *         profile_interest:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/ProfileInterest'
+ *         profile_roles:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/ProfileRole'
+ *
+ *     ProfileInterest:
+ *       type: object
+ *       properties:
+ *         interest_id:
+ *           type: integer
+ *         interests:
+ *           type: object
+ *           properties:
+ *             interest_name:
+ *               type: string
+ *
+ *     ProfileRole:
+ *       type: object
+ *       properties:
+ *         role_id:
+ *           type: integer
+ *         roles:
+ *           type: object
+ *           properties:
+ *             role_name:
+ *               type: string
+ *             responsibilities:
+ *               type: string
+ *             department_id:
+ *               type: integer
+ */
+
 
 module.exports = router;
