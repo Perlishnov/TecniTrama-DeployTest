@@ -68,8 +68,20 @@ const deleteVacancy = async (req, res) => {
   }
 };
 
+// Gets all vacancies
+// GET /vacancies
+const getAllVacancies = async (req, res) => {
+  try {
+    const vacancies = await vacancyService.getAllVacancies();
+    res.status(200).json(vacancies);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports = {
   createVacancy,
+  getAllVacancies,
   getVacanciesByProjectId,
   getVacancyById,
   updateVacancy,

@@ -22,7 +22,8 @@ const getVacanciesByProjectId = async (project_id) => {
     where: { project_id: parseInt(project_id) },
     include: {
       projects: true,
-      users: true
+      roles: true,
+      applications: true
     }
   });
 };
@@ -33,7 +34,8 @@ const getVacancyById = async (id) => {
     where: { vacancy_id: parseInt(id) },
     include: {
       projects: true,
-      users: true
+      roles: true,
+      applications: true
     }
   });
 };
@@ -63,8 +65,20 @@ const deleteVacancy = async (id) => {
   });
 };
 
+// Get all vacancies
+const getAllVacancies = async () => {
+  return await prisma.vacancies.findMany({
+    include: {
+      projects: true,
+      roles: true,
+      applications: true
+    }
+  });
+};
+
 module.exports = {
   createVacancy,
+  getAllVacancies,
   getVacanciesByProjectId,
   getVacancyById,
   updateVacancy,
