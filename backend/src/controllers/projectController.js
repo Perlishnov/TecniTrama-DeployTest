@@ -283,6 +283,42 @@ const isOwner = async (req, res) => {
   }
 };
 
+//
+
+const getCrewByProjectId = async (req, res) => {
+  try {
+    const project = await projectService.getProjectById(req.params.id);
+    if (!project) {
+      return res.status(404).json({ error: "Project not found" });
+    }
+
+    const crew = await projectService.getCrewByProjectId(req.params.id);
+    res.status(200).json(crew);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
+// Deletes specific crew members from a project
+// DELETE /projects/:id/crew
+const deleteCrewByProjectId = async (req, res) => {
+  try {
+    const project = await projectService.getProjectById(req.params.id);
+    if (!project) {
+      return res.status(404).json({ error: "Project not found" });
+    }
+
+    if (!req.body.userIds || !Array.isArray(req.body.userIds) || req.body.userIds.length === 0) {
+      return res.status(400).json({ error: "User IDs must be provided as a non-empty array" });
+    }
+
+    await projectService.deleteCrewByProjectId(req.params.id, req.body.userIds);
+    res.status(200).json({ message: "Crew members removed successfully" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
 module.exports = {
   createProject,
   getAllProjects,
@@ -298,5 +334,7 @@ module.exports = {
   getAllFormats,
   getAllGenres,
   getAllClasses,
-  isOwner
+  isOwner,
+  getCrewByProjectId,
+  deleteCrewByProjectId
 };

@@ -683,5 +683,104 @@ router.get('/genres', authenticateToken, projectController.getAllGenres);
  */
 router.get('/classes', authenticateToken, projectController.getAllClasses);
 
+// Get crew by project ID
+/**
+ * @swagger
+ * /api/projects/{id}/crew:
+ *   get:
+ *     summary: Get crew by project ID
+ *     description: Retrieve all crew members associated with a specific project. Requires authentication.
+ *     tags: [Projects]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Project ID
+ *     responses:
+ *       200:
+ *         description: List of project crew members
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   crew_id:
+ *                     type: integer
+ *                   user_id:
+ *                     type: integer
+ *                   role:
+ *                     type: string
+ *       401:
+ *         description: Unauthorized - No token provided
+ *       403:
+ *         description: Forbidden - Invalid token
+ *       404:
+ *         description: Project not found
+ *       500:
+ *         description: Server error
+ */
+router.get('/:id/crew', authenticateToken, projectController.getCrewByProjectId);
+
+// Delete crew by project ID
+/**
+ * @swagger
+ * /api/projects/{id}/crew:
+ *   delete:
+ *     summary: Delete specific crew members by project ID
+ *     description: Delete specific crew members associated with a project based on user IDs. Requires authentication.
+ *     tags: [Projects]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Project ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - userIds
+ *             properties:
+ *               userIds:
+ *                 type: array
+ *                 items:
+ *                   type: integer
+ *                 description: Array of user IDs to remove from the crew
+ *                 example: [1, 2, 3]
+ *     responses:
+ *       200:
+ *         description: Crew members deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Crew members removed successfully"
+ *       400:
+ *         description: Bad request - Missing or invalid userIds
+ *       401:
+ *         description: Unauthorized - No token provided
+ *       403:
+ *         description: Forbidden - Invalid token
+ *       404:
+ *         description: Project not found
+ *       500:
+ *         description: Server error
+ */
+router.delete('/:id/crew', authenticateToken, projectController.deleteCrewByProjectId);
 
 module.exports = router;
