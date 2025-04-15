@@ -162,6 +162,14 @@ const toggleProjectStatus = async (id, is_active) => {
   });
 };
 
+// Toggles Project Publish Status
+const toggleProjectPublishStatus = async (id, is_published) => {
+  return await prisma.projects.update({
+    where: { project_id: parseInt(id) },
+    data: { is_published }
+  });
+};
+
 // Checks if a user is the owner of a project
 const isProjectOwner = async (projectId, userId) => {
   const project = await prisma.projects.findFirst({
@@ -181,5 +189,6 @@ module.exports = {
   updateProject,
   deleteProject,
   toggleProjectStatus,
+  toggleProjectPublishStatus,
   isProjectOwner
 };

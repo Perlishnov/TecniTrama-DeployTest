@@ -270,6 +270,51 @@ router.delete('/:id', authenticateToken, projectController.deleteProject);
  */
 router.patch('/:id/status', authenticateToken, projectController.toggleProjectStatus);
 
+// Toggle project publish status
+/**
+ * @swagger
+ * /api/projects/{id}/publish:
+ *   patch:
+ *     summary: Toggle project publish status
+ *     description: Toggle project publish/unpublish status. Requires authentication.
+ *     tags: [Projects]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Project ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               is_published:
+ *                 type: boolean
+ *                 example: false
+ *     responses:
+ *       200:
+ *         description: Project publish status updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Project'
+ *       401:
+ *         description: Unauthorized - No token provided
+ *       403:
+ *         description: Forbidden - Invalid token or not project owner
+ *       404:
+ *         description: Project not found
+ *       500:
+ *         description: Server error
+ */
+router.patch('/:id/publish', authenticateToken, projectController.toggleProjectPublishStatus);
+
 // Get project genres
 /**
  * @swagger

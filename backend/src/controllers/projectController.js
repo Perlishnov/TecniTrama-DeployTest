@@ -102,6 +102,25 @@ const toggleProjectStatus = async (req, res) => {
   }
 };
 
+// Toggles project publish status
+// PATCH /projects/:id/publish
+const toggleProjectPublishStatus = async (req, res) => {
+  try {
+    const project = await projectService.getProjectById(req.params.id);
+    if (!project) {
+      return res.status(404).json({ error: "Project not found" });
+    }
+
+    const updatedProject = await projectService.toggleProjectPublishStatus(
+      req.params.id, 
+      req.body.is_published
+    );
+    res.status(200).json(updatedProject);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
 // Get all classes
 const getAllClasses = async (req, res) => {
   try {
@@ -272,6 +291,7 @@ module.exports = {
   updateProject,
   deleteProject,
   toggleProjectStatus,
+  toggleProjectPublishStatus,
   getProjectGenres,
   getProjectClasses,
   getProjectFormats,
