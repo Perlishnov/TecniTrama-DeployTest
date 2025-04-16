@@ -15,11 +15,18 @@ export default {
         "rojo-intec-50": "#FDE8E8",
         "rojo-intec-100": "#FFEAE6",
         "rojo-intec-200": "#FFD7CF",
+        "rojo-intec-300": "#FFC2B8",
         "rojo-intec-400": "#FF9A8C",
         "Gris-100": "#EFF0F0",
+        "Gris-500": "#63666A",
       },
       fontFamily: {
         barlow: ["Barlow", "sans-serif"],
+      },
+      fontWeight: {
+        "barlow": "400",
+        "barlow-bold": "700",
+        "barlow-medium": "500",
       },
     },
   },

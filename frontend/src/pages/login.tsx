@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import { Checkbox } from "@heroui/checkbox";
-import { redirect, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import bannerImg from "../assets/loginSignupBanner.png";
 import Logo from "@/components/logo";
 import InputField from "@/components/input";
 import CustomButton from "@/components/button";
-import { Link } from "react-router-dom";
 
 export const Login = (): JSX.Element => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: "",
     password: ""
@@ -51,7 +51,7 @@ export const Login = (): JSX.Element => {
       localStorage.setItem('token', responseData.token);
       
       // Redirect to dashboard or home page
-      redirect("/dashboard");
+      navigate('/dashboard');
     } catch (err) {
       // Handle login error
       setError(err instanceof Error ? err.message : 'Error desconocido');
