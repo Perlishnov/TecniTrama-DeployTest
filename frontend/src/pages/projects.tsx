@@ -1,81 +1,115 @@
-import React from "react";
-import CreatorLayout from "@/layouts/default";
+import React, { useState, useEffect } from "react";
+import { useNavigate }                from "react-router-dom";
+import CreatorLayout                  from "@/layouts/default";
 import ProjectCard, { ProjectCardProps } from "@/components/projectCard";
-import CustomTabs, { CustomTab } from "@/components/tabs";
+import CustomTabs, { CustomTab }      from "@/components/tabs";
 
-const dummyProjects: ProjectCardProps[] = [
-  {
-    id: 1,
-    title: "Proyecto Alpha",
-    description:
-      "Descripción breve del Proyecto Alpha. Es un proyecto de género dramático con toques de acción.",
-    imageUrl: "https://placehold.co/400x300",
-    filters: ["Drama", "Acción"],
-    completado: false, // Activo
-    href: "/projects/1",
-  },
-  {
-    id: 2,
-    title: "Proyecto Beta",
-    description:
-      "Descripción breve del Proyecto Beta. Una propuesta de comedia ligera para televisión.",
-    imageUrl: "https://placehold.co/400x300",
-    filters: ["Comedia", "Romance"],
-    completado: true, // Inactivo
-    href: "/projects/2",
-  },
-  {
-    id: 3,
-    title: "Proyecto Gamma",
-    description:
-      "Descripción breve del Proyecto Gamma. Un documental que analiza la realidad social actual.",
-    imageUrl: "https://placehold.co/400x300",
-    filters: ["Documental"],
-    completado: false, // Activo
-    href: "/projects/3",
-  },
-  {
-    id: 4,
-    title: "Proyecto Delta",
-    description:
-      "Descripción breve del Proyecto Delta. Proyecto experimental con mezclas de géneros.",
-    imageUrl: "https://placehold.co/400x300",
-    filters: ["Experimental"],
-    completado: true, // Inactivo
-    href: "/projects/4",
-  },
-];
+interface BackendProject {
+  project_id: number;
+  title:       string;
+  description: string;
+  banner:      string | null;   // puede venir null
+  is_active:   boolean;
+}
+
+// Helper para convertir el banner de la BD en una URL válida
+function resolveBannerUrl(banner: string | null): string {
+  const PLACEHOLDER = "https://placehold.co/400x300";
+  if (!banner) return PLACEHOLDER;
+
+  // Si ya es una URL completa, la usamos directamente
+  if (banner.startsWith("http://") || banner.startsWith("https://")) {
+    return banner;
+  }
+
+  // Si es ruta relativa, la apuntamos a tu backend
+  return `http://localhost:3000/${banner.replace(/^\/+/,"")}`;
+}
 
 const ProjectsPage: React.FC = () => {
+  const navigate = useNavigate();
+  const [projects, setProjects] = useState<ProjectCardProps[]>([]);
+  const [loading,  setLoading]  = useState(true);
+  const [error,    setError]    = useState<string|null>(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+
+    const headers = {
+      "Content-Type":  "application/json",
+      Authorization:  `Bearer ${token}`,
+    };
+
+    (async () => {
+      try {
+        const resp = await fetch("http://localhost:3000/api/projects", { headers });
+        if (resp.status === 401) throw new Error("No autorizado");
+        if (!resp.ok)        throw new Error(`HTTP ${resp.status}`);
+
+        const data: BackendProject[] = await resp.json();
+
+        const cards = data.map((p) => ({
+          id:          p.project_id,
+          title:       p.title,
+          description: p.description,
+          imageUrl:    resolveBannerUrl(p.banner),
+          filters:     [],                  // si quieres labels, añádelos aquí
+          completado:  !p.is_active,
+          href:        `/projects/${p.project_id}`,
+        }));
+
+        setProjects(cards);
+      } catch (err: any) {
+        console.error("Error cargando proyectos:", err);
+        if (err.message === "No autorizado") {
+          navigate("/login");
+        } else {
+          setError(err.message);
+        }
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [navigate]);
+
+  if (loading) {
+    return (
+      <CreatorLayout>
+        <div className="p-6 text-center">Cargando proyectos…</div>
+      </CreatorLayout>
+    );
+  }
+  if (error) {
+    return (
+      <CreatorLayout>
+        <div className="p-6 text-center text-red-600">
+          Error al cargar proyectos: {error}
+        </div>
+      </CreatorLayout>
+    );
+  }
+
   return (
     <CreatorLayout>
-      <div className="w-full h-full px-12 pb-11 flex flex-col justify-start gap-6">
-        {/* Header */}
-        <div className="w-full h-20 pr-14 inline-flex justify-start items-center">
-          <div className="text-Base-Negro text-6xl font-medium font-barlow leading-[78px]">
-            Proyectos
-          </div>
-        </div>
+      <div className="w-full px-12 pb-11 flex flex-col gap-6">
+        <h1 className="text-6xl font-medium font-barlow">Proyectos</h1>
 
-        {/* Custom Tabs */}
         <CustomTabs>
           <CustomTab label="Activos">
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-2 gap-6">
-              {dummyProjects
-                .filter((p) => !p.completado)
-                .map((project) => (
-                  <ProjectCard key={project.id} {...project} />
-                ))}
+              {projects.filter((p) => !p.completado)
+                       .map((pr) => <ProjectCard key={pr.id} {...pr} />)}
             </div>
           </CustomTab>
 
           <CustomTab label="Inactivos">
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-2 gap-6">
-              {dummyProjects
-                .filter((p) => p.completado)
-                .map((project) => (
-                  <ProjectCard key={project.id} {...project} />
-                ))}
+              {projects.filter((p) => p.completado)
+                       .map((pr) => <ProjectCard key={pr.id} {...pr} />)}
             </div>
           </CustomTab>
         </CustomTabs>
