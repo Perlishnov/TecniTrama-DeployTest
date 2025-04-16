@@ -16,10 +16,10 @@ const ProfileWidget: React.FC<ProfileWidgetProps> = ({
   email,
   className = "",
 }) => {
-  const Navigate = useNavigate();
+  const navigate = useNavigate();
   const handleLogout = () => {
     localStorage.removeItem("token");
-    Navigate("/login");
+    navigate("/login");
   };
 
   return (
