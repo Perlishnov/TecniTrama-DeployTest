@@ -57,7 +57,7 @@ const ProjectsPage: React.FC = () => {
           title:       p.title,
           description: p.description,
           imageUrl:    resolveBannerUrl(p.banner),
-          filters:     [],                  // si quieres labels, añádelos aquí
+          filters:     [],                  // Aquí se pueden agregar los filtros
           completado:  !p.is_active,
           href:        `/projects/${p.project_id}`,
         }));
