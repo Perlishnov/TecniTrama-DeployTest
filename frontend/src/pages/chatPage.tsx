@@ -1,51 +1,91 @@
 import React, { useState, useEffect } from "react";
-import { Chat, Channel, ChannelList, Window, MessageList, MessageInput } from "stream-chat-react";
+import {
+  Chat,
+  Channel,
+  ChannelList,
+  Window,
+  MessageList,
+  MessageInput,
+} from "stream-chat-react";
 import { StreamChat } from "stream-chat";
-//import "stream-chat-react/dist/css/index.css"; // Import Stream Chat CSS
 import CreatorLayout from "@/layouts/default";
-
-// Replace these with your actual API key and dynamic token from your backend.
-const apiKey: string = "";
+import { useStreamToken } from "@/hooks/useStreamToken";
 
 interface ChatPageProps {
   user: {
-    user_id: string;
-    first_name: string;
-    last_name: string;
+    user_id: number;
     email: string;
     streamToken: string;
   };
 }
 
+const apiKey: string = import.meta.env.VITE_STREAM_API_KEY!;
+
 const ChatPanel: React.FC<ChatPageProps> = ({ user }) => {
-  const [chatClient, setChatClient] = useState<StreamChat>();
+  const [chatClient, setChatClient] = useState<StreamChat | null>(null);
+  const [clientReady, setClientReady] = useState(false);
 
   useEffect(() => {
-    // Initialize StreamChat instance
-    const client = StreamChat.getInstance(apiKey);
+    if (!user || !user.streamToken) {
+      console.error("Faltan datos del usuario o streamToken");
+      return;
+    }
 
-    // Connect the user; the token should come from your backend.
-    client.connectUser(
-      {
-        id: user.user_id,
-        name: `${user.first_name} ${user.last_name}`,
-        email: user.email,
-      },
-      user.streamToken // Use the token received from your backend here
-    ).then(() => {
-      setChatClient(client);
-    });
+    const initChat = async () => {
+      const client = StreamChat.getInstance(apiKey);
+    
+      if (client.userID) {
+        console.log("Usuario ya conectado a Stream:", client.userID);
+        setChatClient(client);
+        setClientReady(true);
+        return;
+      }
+    
+      try {
+        console.log("Conectando a Stream con:", user);
+    
+        await client.connectUser(
+          {
+            id: user.user_id.toString(),
+            email: user.email,
+          },
+          user.streamToken
+        );
 
-    // Cleanup on unmount
+        const existingChannels = await client.queryChannels({
+          type: "messaging",
+          members: { $in: [user.user_id.toString()] },
+        });
+        
+        if (existingChannels.length === 0) {
+          const newChannel = client.channel("messaging", {
+            members: [user.user_id.toString()],
+          });
+        
+          await newChannel.create();
+          console.log("Canal creado automáticamente:", newChannel.id);
+        }        
+    
+        setChatClient(client);
+        setClientReady(true);
+      } catch (error) {
+        console.error("Error conectando con Stream Chat:", error);
+      }
+    };
+    
+
+    initChat();
+
     return () => {
-      client.disconnectUser();
+      if (chatClient) chatClient.disconnectUser();
     };
   }, [user]);
 
-  if (!chatClient) return <div className="p-8">Cargando chat...</div>;
+  if (!chatClient || !clientReady) {
+    return <div className="p-8">Conectando al chat...</div>;
+  }
 
-  // Define filters and sort criteria for the ChannelList
-  const filters = { type: "messaging", members: { $in: [user.user_id] } };
+  const filters = { type: "messaging", members: { $in: [user.user_id.toString()] } };
   const sort = { last_message_at: -1 as const };
 
   return (
@@ -55,7 +95,7 @@ const ChatPanel: React.FC<ChatPageProps> = ({ user }) => {
         <Channel>
           <Window>
             <MessageList />
-            <MessageInput focus />
+            <MessageInput />
           </Window>
         </Channel>
       </div>
