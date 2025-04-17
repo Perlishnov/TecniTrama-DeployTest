@@ -16,20 +16,31 @@ import NotificationsPage from "./pages/notificacion";
 import { Outlet } from "react-router-dom";
 import ChatPage from "./pages/chatPage";
 import { useDecodeJWT } from "./hooks/useDecodeJWT";
+import { useStreamToken } from "./hooks/useStreamToken";
 
 const App = () => {
   const { isAuthenticated } = useAuth();
   const location = useLocation();
   const state = location.state as { backgroundLocation?: Location };
-  const user = useDecodeJWT();
+
+  const rawUser = useDecodeJWT();
+  const streamToken = useStreamToken();
+
+  const user = rawUser && streamToken
+    ? {
+      user_id: rawUser.id || rawUser.user_id,
+      email: rawUser.email,
+      streamToken,
+    }
+    : null;
 
   return (
     <>
       <Routes>
         {/* Rutas públicas */}
-        <Route path="/login" element={isAuthenticated ? <Navigate to='/dashboard'/>  :<Login />} />
-        <Route path="/register" element={isAuthenticated ? <Navigate to='/dashboard'/>  :<Register />} />
-        <Route path="/" element={<Navigate to='/login'/>} />
+        <Route path="/login" element={isAuthenticated ? <Navigate to='/dashboard' /> : <Login />} />
+        <Route path="/register" element={isAuthenticated ? <Navigate to='/dashboard' /> : <Register />} />
+        <Route path="/" element={<Navigate to='/login' />} />
 
         {/* Rutas protegidas con layout */}
         <Route
@@ -41,7 +52,7 @@ const App = () => {
             </ProtectedRoute>
           }
         >
-          <Route path="/dashboard" element={<DashboardPage/>} />
+          <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/profile" element={<CreatorProfilePage />} />
           <Route path="/profile/edit-profile" element={<EditProfilePage />} />
 
@@ -51,7 +62,16 @@ const App = () => {
           <Route path="/projects/:projectId/edit" element={<EditProject />} />
 
           <Route path="/notifications" element={<NotificationsPage />} />
-          <Route path="/chats/*" element={<ChatPage user={user}/>} />
+          <Route
+            path="/chats/*"
+            element={
+              user ? (
+                <ChatPage user={user} />
+              ) : (
+                <div className="p-8">Cargando información del usuario...</div>
+              )
+            }
+          />
           <Route path="/applications" element={<RequestPage />} />
           <Route path="/settings" element={<CreatorProfilePage />} />
         </Route>

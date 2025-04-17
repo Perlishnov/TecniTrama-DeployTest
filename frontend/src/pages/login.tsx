@@ -49,6 +49,7 @@ export const Login = (): JSX.Element => {
       // Handle successful login
       const responseData = await response.json();
       localStorage.setItem('token', responseData.token);
+      localStorage.setItem('streamToken', responseData.streamToken)
       
       // Redirect to dashboard or home page
       navigate('/dashboard');
