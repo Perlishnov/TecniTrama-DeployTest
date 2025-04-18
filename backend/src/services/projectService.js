@@ -181,6 +181,45 @@ const isProjectOwner = async (projectId, userId) => {
   return project !== null;
 };
 
+// Gets crew members associated with a project
+const getCrewByProjectId = async (projectId) => {
+  return await prisma.crew.findMany({
+    where: { project_id: parseInt(projectId) },
+    include: {
+      users: {
+        select: {
+          user_id: true,
+          email: true,
+          first_name: true,
+          last_name: true
+        }
+      },
+      roles: {
+        select: {
+          role_id: true,
+          role_name: true
+        }
+      }
+    }
+  });
+};
+
+// Deletes specific crew members from a project
+const deleteCrewByProjectId = async (projectId, userIds) => {
+  if (!Array.isArray(userIds) || userIds.length === 0) {
+    throw new Error('User IDs must be provided as a non-empty array');
+  }
+
+  return await prisma.crew.deleteMany({
+    where: {
+      project_id: parseInt(projectId),
+      user_id: {
+        in: userIds.map(id => parseInt(id))
+      }
+    }
+  });
+};
+
 module.exports = {
   createProject,
   getAllProjects,
@@ -190,5 +229,7 @@ module.exports = {
   deleteProject,
   toggleProjectStatus,
   toggleProjectPublishStatus,
-  isProjectOwner
+  isProjectOwner,
+  getCrewByProjectId,
+  deleteCrewByProjectId
 };
