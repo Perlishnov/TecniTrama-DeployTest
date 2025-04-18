@@ -3,10 +3,11 @@ import React from "react";
 import { useLocale } from "@react-aria/i18n";
 
 interface CustomDatePickerProps {
-  selectedDate: string;
+  selectedDate: Date | null;
   onSelect: (date: string) => void;
   onClose: () => void;
 }
+
 
 const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
   selectedDate,

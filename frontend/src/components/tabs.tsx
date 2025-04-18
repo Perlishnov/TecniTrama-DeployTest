@@ -32,7 +32,7 @@ const CustomTabs: React.FC<CustomTabsProps> = ({ children }) => {
             key={index}
             onClick={() => setActiveIndex(index)}
             className={`px-4 py-2 font-medium focus:outline-none ${
-              activeIndex === index ? "border-b-2 border-black" : "text-gray-500"
+              activeIndex === index ? "border-t-2 border-black" : "text-gray-500"
             }`}
           >
             {label}
