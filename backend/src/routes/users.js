@@ -4,6 +4,7 @@ const userController = require('../controllers/userController');
 
 // Import middleware
 const { verifyJWTAndAdmin } = require('../middleware/authMiddleware');
+const { authenticateToken } = require('../controllers/authController');
 
 /**
  * @swagger
@@ -48,7 +49,7 @@ const { verifyJWTAndAdmin } = require('../middleware/authMiddleware');
  *       500:
  *         description: Server error
  */
-router.get('/', verifyJWTAndAdmin, userController.getAllUsers);
+router.get('/', authenticateToken, userController.getAllUsers);
 
 /**
  * @swagger
@@ -83,7 +84,7 @@ router.get('/', verifyJWTAndAdmin, userController.getAllUsers);
  *         description: Server error
  */
 // Get user by ID
-router.get('/:id', verifyJWTAndAdmin, userController.getUserById);
+router.get('/:id', authenticateToken, userController.getUserById);
 
 /**
  * @swagger
@@ -214,7 +215,7 @@ router.post('/login', userController.loginUser);
  * /api/users/{id}:
  *   put:
  *     summary: Update user
- *     description: Update user information. Requires authentication.
+ *     description: Update user information. Requires admin or own user authentication.
  *     tags: [Users]
  *     security:
  *       - bearerAuth: []
@@ -286,7 +287,7 @@ router.put('/:id', verifyJWTAndAdmin, userController.updateUser);
  * /api/users/change-password:
  *   put:
  *     summary: Change user password
- *     description: Change the password of the authenticated user. Requires authentication.
+ *     description: Change the password of the authenticated user. Requires admin or own user authentication.
  *     tags: [Users]
  *     security:
  *       - bearerAuth: []
@@ -321,7 +322,7 @@ router.put('/:id', verifyJWTAndAdmin, userController.updateUser);
  *         description: Server error
  */
 // Change password
-router.put('/change-password', userController.changePassword);
+router.put('/change-password', verifyJWTAndAdmin, userController.changePassword);
 
 
 /**
@@ -329,7 +330,7 @@ router.put('/change-password', userController.changePassword);
  * /api/users/{id}:
  *   delete:
  *     summary: Delete user
- *     description: Delete a user by ID. Requires authentication.
+ *     description: Delete a user by ID. Requires admin or own user authentication.
  *     tags: [Users]
  *     security:
  *       - bearerAuth: []
