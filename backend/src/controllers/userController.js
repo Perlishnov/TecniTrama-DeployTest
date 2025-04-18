@@ -137,7 +137,9 @@ const registerUser = async (req, res) => {
 
     // Create JWT token
     const token = generateToken({ id: result.user_id, email: result.email });
-    const streamToken = streamClient.createToken(user.user_id.toString());
+    // Create Stream token
+    const streamToken = streamClient.createToken(result.user_id.toString());
+    
     res.status(201).json({
       message: 'User registered successfully with empty profile',
       token,
