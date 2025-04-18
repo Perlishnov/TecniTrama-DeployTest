@@ -51,7 +51,7 @@ export const Login = (): JSX.Element => {
       localStorage.setItem('token', responseData.token);
       
       // Redirect to dashboard or home page
-      navigate('/dashboard');
+      navigate('/dashboard',{replace:true});
     } catch (err) {
       // Handle login error
       setError(err instanceof Error ? err.message : 'Error desconocido');
