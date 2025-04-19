@@ -121,70 +121,38 @@ const toggleProjectPublishStatus = async (req, res) => {
   }
 }
 
-// Get all classes
-const getAllClasses = async (req, res) => {
-  try {
-    const classes = await prisma.classes.findMany({
-      select: {
-        class_id: true,
-        class_name: true
+  // Gets all genres associated with a project
+  // GET /projects/:id/genres
+  const getProjectGenres = async (req, res) => {
+    try {
+      const project = await projectService.getProjectById(req.params.id);
+      if (!project) {
+        return res.status(404).json({ error: "Project not found" });
       }
-    });
-    res.json(classes);
-  } catch (error) {
-    console.error('Error fetching classes:', error);
-    res.status(500).json({ message: 'Error fetching classes', error: error.message });
-  }
-};
-
-// Get all genres
-const getAllGenres = async (req, res) => {
-  try {
-    const genres = await prisma.genres.findMany({
-      select: {
-        genre_id: true,
-        genre: true
-      }
-    });
-    res.json(genres);
-  } catch (error) {
-    console.error('Error fetching genres:', error);
-    res.status(500).json({ message: 'Error fetching genres', error: error.message });
-  }
-};
-
-// Gets all genres associated with a project
-// GET /projects/:id/genres
-const getProjectGenres = async (req, res) => {
-  try {
-    const project = await projectService.getProjectById(req.params.id);
-    if (!project) {
-      return res.status(404).json({ error: "Project not found" });
-    }
-
-    const projectGenres = await prisma.project_genres.findMany({
-      where: { project_id: parseInt(req.params.id) },
-      include: {
-        genres: {
-          select: {
-            genre_id: true,
-            genre: true
+  
+      const projectGenres = await prisma.project_genres.findMany({
+        where: { project_id: parseInt(req.params.id) },
+        include: {
+          genres: {
+            select: {
+              genre_id: true,
+              genre: true
+            }
           }
         }
-      }
-    });
-
-    // Transform the data to a more friendly format
-    const genres = projectGenres.map(pg => ({
-      genre_id: pg.genres.genre_id,
-      genre: pg.genres.genre
-    }));
-
-    res.status(200).json(genres);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
+      });
+  
+      // Transform the data to a more friendly format
+      const genres = projectGenres.map(pg => ({
+        genre_id: pg.genres.genre_id,
+        genre: pg.genres.genre
+      }));
+  
+      res.status(200).json(genres);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  };
 
 // Gets all classes associated with a project
 // GET /projects/:id/classes
@@ -219,7 +187,8 @@ const getProjectClasses = async (req, res) => {
   }
 };
 
-
+// Gets all formats
+// GET /formats?
 const getAllFormats = async (req, res) => {
   try {
     const formats = await prisma.project_formats.findMany({
@@ -332,8 +301,6 @@ module.exports = {
   getProjectClasses,
   getProjectFormats,
   getAllFormats,
-  getAllGenres,
-  getAllClasses,
   isOwner,
   getCrewByProjectId,
   deleteCrewByProjectId

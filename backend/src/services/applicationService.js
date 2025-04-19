@@ -1,4 +1,4 @@
-const prisma = require('../prismaClient');
+const prisma = require("../models/prismaClient");
 
 // Creates Application
 const createApplication = async (applicationData) => {
