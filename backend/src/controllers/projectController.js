@@ -288,6 +288,90 @@ const deleteCrewByProjectId = async (req, res) => {
   }
 }
 
+// Updates a project's format
+// PATCH /projects/:id/format
+const updateProjectFormat = async (req, res) => {
+  try {
+    const project = await projectService.getProjectById(req.params.id);
+    if (!project) {
+      return res.status(404).json({ error: "Project not found" });
+    }
+
+    if (!req.body.format_id) {
+      return res.status(400).json({ error: "Format ID must be provided" });
+    }
+
+    const updatedProject = await projectService.updateProjectFormat(
+      req.params.id,
+      req.body.format_id
+    );
+
+    res.status(200).json(updatedProject);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
+// Updates genres associated with a project
+// PUT /projects/:id/genres
+const updateProjectGenres = async (req, res) => {
+  try {
+    const project = await projectService.getProjectById(req.params.id);
+    if (!project) {
+      return res.status(404).json({ error: "Project not found" });
+    }
+
+    if (!req.body.genre_ids || !Array.isArray(req.body.genre_ids)) {
+      return res.status(400).json({ error: "Genre IDs must be provided as an array" });
+    }
+
+    const updatedProject = await projectService.updateProjectGenres(
+      req.params.id,
+      req.body.genre_ids
+    );
+
+    // Format data to match frontend structure
+    const genres = updatedProject.project_genres.map(pg => ({
+      genre_id: pg.genres.genre_id,
+      genre: pg.genres.genre
+    }));
+
+    res.status(200).json(genres);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
+// Updates classes associated with a project
+// PUT /projects/:id/classes
+const updateProjectClasses = async (req, res) => {
+  try {
+    const project = await projectService.getProjectById(req.params.id);
+    if (!project) {
+      return res.status(404).json({ error: "Project not found" });
+    }
+
+    if (!req.body.class_ids || !Array.isArray(req.body.class_ids)) {
+      return res.status(400).json({ error: "Class IDs must be provided as an array" });
+    }
+
+    const updatedProject = await projectService.updateProjectClasses(
+      req.params.id,
+      req.body.class_ids
+    );
+
+    // Format data to match frontend structure
+    const classes = updatedProject.class_projects.map(pc => ({
+      class_id: pc.classes.class_id,
+      class_name: pc.classes.class_name
+    }));
+
+    res.status(200).json(classes);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
 module.exports = {
   createProject,
   getAllProjects,
@@ -303,5 +387,8 @@ module.exports = {
   getAllFormats,
   isOwner,
   getCrewByProjectId,
-  deleteCrewByProjectId
+  deleteCrewByProjectId,
+  updateProjectFormat,
+  updateProjectGenres,
+  updateProjectClasses
 };
