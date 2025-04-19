@@ -22,7 +22,7 @@ const EditProfilePage: React.FC = () => {
   const [experience, setExperience] = useState("");
   const [profilePhoto, setProfilePhoto] = useState<string>(AvatarUrl);
   const [showToast, setShowToast] = useState(false);
-
+  const apiRoute = import.meta.env.VITE_API_ROUTE;
   const navigate = useNavigate();
 
   const { isUploading, uploadFile, error: uploadError } = useCloudinaryUpload({
@@ -43,7 +43,7 @@ const EditProfilePage: React.FC = () => {
     const fetchProfile = async () => {
       try {
         setIsLoading(true);
-        const res = await fetch(`http://localhost:3000/api/profiles/user/${userId}`, {
+        const res = await fetch(`${apiRoute}profiles/user/${userId}`, {
           method: "GET",
           headers: {
             "accept": "application/json",
@@ -92,7 +92,7 @@ const EditProfilePage: React.FC = () => {
         profile_image: profilePhoto,
       };
       const res = await fetch(
-        `http://localhost:3000/api/profiles/${profile.profile_id}`,
+        `${apiRoute}profiles/${profile.profile_id}`,
         {
           method: "PUT",
           headers: {

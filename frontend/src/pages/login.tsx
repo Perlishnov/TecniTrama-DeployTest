@@ -14,6 +14,7 @@ export const Login = (): JSX.Element => {
   });
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const apiRoute = import.meta.env.VITE_API_ROUTE;
 
   // Handle input changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -32,7 +33,7 @@ export const Login = (): JSX.Element => {
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:3000/api/users/login', {
+      const response = await fetch(`${apiRoute}users/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

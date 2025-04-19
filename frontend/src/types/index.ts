@@ -18,7 +18,7 @@ export interface ProjectLink {
   link: string; // 'link' en vez de 'url'
 }
 export interface Subject {
-  class_id: number;
+  class_id: string;
   class_name: string;
 }
 

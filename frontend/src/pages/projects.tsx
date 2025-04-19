@@ -33,7 +33,9 @@ const ProjectsPage: React.FC = () => {
   const [loading,  setLoading]  = useState(true);
   const [error,    setError]    = useState<string|null>(null);
   const decoded = useDecodeJWT();
-  const userId = decoded?.id; // Se asume que el payload del JWT tiene la propiedad "id"
+  const userId = decoded?.id;
+  const apiRoute = import.meta.env.VITE_API_ROUTE;
+
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -48,7 +50,7 @@ const ProjectsPage: React.FC = () => {
 
     (async () => {
       try {
-        const resp = await fetch(`http://localhost:3000/api/projects/creator/${userId}`, {
+        const resp = await fetch(`${apiRoute}projects/creator/${userId}`, {
           method: "GET",
            headers
            });

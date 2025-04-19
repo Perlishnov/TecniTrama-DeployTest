@@ -4,42 +4,19 @@ import CreatorLayout from "@/layouts/default";
 import InfoCard from "@/components/InfoCard";
 import Button from "@/components/button";
 import Input from "@/components/input";
-import CustomDatePicker from "@/components/CustomDatePicker"; // Your custom date picker component
+import CustomDatePicker from "@/components/CustomDatePicker";
 import CalendarIcon from "@/assets/icons/calendar.svg";
 import FormatSelector from "@/components/modals/formatModal";
 import { GenresModal } from "@/components/modals/genreModal";
 import { SubjectsModal } from "@/components/modals/subjectModal";
-
 import CustomTabs, { CustomTab } from "@/components/tabs";
 import { Department, Genre, ProjectFormat, Role, Subject, Vacancy } from "@/types";
 import ConfirmCancelModal from "@/components/modals/ConfirmCancelModal";
-import VacancyFormModal  from "@/components/modals/VacantModal";
+import VacancyFormModal from "@/components/modals/VacantModal";
 import VacanciesTable from "@/components/VacancyTable";
+import { useDecodeJWT } from "@/hooks/useDecodeJWT";
 
-// Mock formats (ProjectFormat[])
-export const mockFormats: ProjectFormat[] = [
-  { format_id: 1, format_name: "Corto" },
-  { format_id: 2, format_name: "Largo" },
-  { format_id: 3, format_name: "Serie" },
-  { format_id: 4, format_name: "Documental" },
-];
 
-// Mock genres (Genre[])
-export const mockGenres: Genre[] = [
-  { genre_id: 1, genre: "Drama" },
-  { genre_id: 2, genre: "Comedia" },
-  { genre_id: 3, genre: "Acción" },
-  { genre_id: 4, genre: "Ciencia Ficción" },
-  { genre_id: 5, genre: "Terror" },
-];
-
-// Mock subjects (Subject[])
-export const mockSubjects: Subject[] = [
-  { class_id: 1, class_name: "Historia" },
-  { class_id: 2, class_name: "Psicología" },
-  { class_id: 3, class_name: "Sociología" },
-  { class_id: 4, class_name: "Tecnología" },
-];
 export const mockDepartments: Department[] = [
   { department_id: 1, department_name: "Producción" },
   { department_id: 2, department_name: "Dirección" },
@@ -71,19 +48,17 @@ export const mockRoles: Role[] = [
   { role_id: 204, role_name: "Script Supervisor / Continuista", department_id: 2, responsibilities: "Seguimiento de la continuidad y notas del guion." },
 ];
 
-
 const initialVacanciesData = [
   {
-    id: 1,
-    cargo: "Director",
-    descripcion: "Director principal",
-    requerimientos: "Experiencia previa",
-    departamento: "Audiovisual",
-    role_id: 1,
-    department_id: 1,
+    id: "",
+    cargo: "",
+    descripcion: "",
+    requerimientos: "",
+    departamento: "",
+    role_id: "",
+    department_id: "",
   },
 ];
-
 
 const NewProject: React.FC = () => {
   // Project Fields
@@ -92,6 +67,16 @@ const NewProject: React.FC = () => {
   const [description, setDescription] = useState(
     "Lorem ipsum dolor sit amet, consectetur adipiscing elit..."
   );
+  const decodedToken = useDecodeJWT();
+
+  const [formats, setFormats] = useState<ProjectFormat[]>([]);
+  const [genres, setGenres] = useState<Genre[]>([]);
+  const [subjects, setSubjects] = useState<Subject[]>([]);
+
+  const [isLoadingFormats, setIsLoadingFormats] = useState(false);
+  const [isLoadingGenres, setIsLoadingGenres] = useState(false);
+  const [isLoadingSubjects, setIsLoadingSubjects] = useState(false);
+
   const [budget, setBudget] = useState("2.00$");
   const [selectedFormat, setSelectedFormat] = useState<ProjectFormat | null>(null);
   const [selectedGenres, setSelectedGenres] = useState<Genre[]>([]);
@@ -100,8 +85,7 @@ const NewProject: React.FC = () => {
   const [sponsors, setSponsors] = useState("");
   const [attachmentsUrl, setAttachmentsUrl] = useState("");
   const [departments, setDepartments] = useState<Department[]>(mockDepartments);
-  const [roles, setRoles]             = useState<Role[]>(mockRoles);
-  const [genres, setGenres]           = useState<Genre[]>(mockGenres);
+  const [roles, setRoles] = useState<Role[]>(mockRoles);
 
   const [vacancies, setVacancies] = useState<Vacancy[]>(initialVacanciesData); // Empezar vacío
   const [vacancyModalOpen, setVacancyModalOpen] = useState(false);
@@ -130,13 +114,57 @@ const NewProject: React.FC = () => {
     };
     reader.readAsDataURL(file);
   };
-   // Abrir modal (nuevo o edición)
+  // Abrir modal (nuevo o edicion)
   const openVacancyModal = (vacancy: Vacancy | null = null) => {
     setEditingVacancy(vacancy);
     setVacancyModalOpen(true);
   };
 
-    const handleSaveVacancy = (data: {
+  const fetchGenres = async () => {
+    try {
+      setIsLoadingGenres(true);
+      const response = await fetch("http://localhost:3000/api/genres", {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+      const data = await response.json();
+      setGenres(data);
+    } catch (error) {
+      console.error("Error cargando géneros", error);
+    } finally {
+      setIsLoadingGenres(false);
+    }
+  };
+
+  const fetchFormats = async () => {
+    try {
+      setIsLoadingFormats(true);
+      const response = await fetch("http://localhost:3000/api/projects/formats", {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+      const data = await response.json();
+      setFormats(data);
+    } catch (error) {
+      console.error("Error cargando formatos", error);
+    } finally {
+      setIsLoadingFormats(false);
+    }
+  };
+
+  const fetchSubjects = async () => {
+    try {
+      setIsLoadingSubjects(true);
+      const response = await fetch("http://localhost:3000/api/classes", {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+      const data = await response.json();
+      setSubjects(data);
+    } catch (error) {
+      console.error("Error cargando materias", error);
+    } finally {
+      setIsLoadingSubjects(false);
+    }
+  };
+  const handleSaveVacancy = (data: {
     department_id: number;
     role_id: number;
     descripcion: string;
@@ -146,7 +174,7 @@ const NewProject: React.FC = () => {
     const department = departments.find(d => d.department_id === data.department_id);
 
     if (!role || !department) {
-      alert("Departamento o Rol inválido");
+      alert("Departamento o Rol invalido");
       return;
     }
 
@@ -172,35 +200,103 @@ const NewProject: React.FC = () => {
       };
       setVacancies((prev) => [...prev, newVacancy]);
     }
-
     setVacancyModalOpen(false);
     setEditingVacancy(null);
   };
 
-
   const handleDeleteVacancy = (id: string) => {
     setVacancies((prev) => prev.filter((v) => v.id !== id));
-  }; 
+  };
 
-
-  // Date Formatter (simple example)
   const formatDate = (date: string) => (date ? date : "Seleccionar");
 
-  // Form Submission for the project (for demonstration)
-  const handleSubmit = (e:any) => {
-    e.preventDefault();
-    console.log({
-      title,
-      description,
-      budget,
-      selectedFormat,
-      selectedGenres,
-      selectedSubjects,
-      startDate,
-      endDate,
-    });
+  const handleSubmit = async () => {// Form Submission for the project
+
+    if (!decodedToken) {
+      alert("No se pudo decodificar el token. Vuelve a iniciar sesión.");
+      return;
+    }
+
+    const creatorId = decodedToken.id;
+    if (!creatorId) {
+      alert("ID de creador no encontrado en el token.");
+      return;
+    }
+
+    // Validaciones normales
+    if (!title || !selectedFormat || selectedGenres.length === 0 || selectedSubjects.length === 0 ) {
+      alert("Por favor completa todos los campos obligatorios.");
+      return;
+    }
+
+    try {
+      const projectPayload = {
+        title,
+        description,
+        creator_id: creatorId,
+        banner: bannerImage,
+        attachmenturl: attachmentsUrl,
+        budget: parseFloat(budget.replace("$", "").trim()) || 0,
+        sponsors,
+        estimated_start: new Date(startDate),
+        estimated_end: new Date(endDate),
+        is_published: true,
+        //is_active: true,
+        format_id: selectedFormat.format_id,
+        genre_ids: selectedGenres.map(g => g.genre_id),
+        class_ids: selectedSubjects.map(s => s.class_id),
+      };
+
+      const projectResponse = await fetch("http://localhost:3000/api/projects", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify(projectPayload),
+      });
+
+      console.log(projectResponse)
+      if (!projectResponse.ok) {
+        throw new Error("Error al crear el proyecto.");
+      }
+
+      const projectData = await projectResponse.json();
+      const newProjectId = projectData.project_id;
+
+      // Crear vacantes
+      for (const vacancy of vacancies) {
+        const vacancyPayload = {
+          project_id: newProjectId,
+          role_id: vacancy.role_id,
+          description: vacancy.descripcion,
+          requirements: vacancy.requerimientos,
+          is_filled: false,
+          is_visible: true,
+        };
+
+        const vacancyResponse = await fetch("http://localhost:3000/api/vacancies", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          body: JSON.stringify(vacancyPayload),
+        });
+
+        if (!vacancyResponse.ok) {
+          console.error("Error al crear una vacante:", vacancy);
+        }
+      }
+      navigate("/dashboard");
+
+    } catch (error) {
+      console.error("Error en la creación del proyecto o vacantes:", error);
+      alert("Hubo un error al crear el proyecto. Intenta de nuevo.");
+    }
   };
-    const toggleGenre = (genre: Genre) => {
+
+  const toggleGenre = (genre: Genre) => {
     setSelectedGenres(prev =>
       prev.some(g => g.genre === genre.genre)
         ? prev.filter(g => g.genre !== genre.genre)
@@ -255,31 +351,20 @@ const NewProject: React.FC = () => {
           <CustomTab label="General">
             {/* Main Content Container */}
             <div className="w-full max-w-[75rem] flex gap-10 px-8 my-8">
+              
               {/* Left Column: Format, Genres, Subjects */}
               <div className="w-1/4 flex flex-col gap-[1.563rem]">
                 <InfoCard
                   title="Formato"
                   content={
-                      selectedFormat ? 
-                      [selectedFormat] :  // Envuelve en un array si es un objeto
+                    selectedFormat ?
+                      [selectedFormat.format_name] :  // Envuelve en un array si es un objeto
                       "Seleccionar formato"
-                    }                  
-                  headerButton={
-                    <button
-                      className="text-black text-[1.25rem] font-barlow font-medium leading-[1.625rem]"
-                      onClick={() => setFormatModalOpen(true)}
-                    >
-                      +
-                    </button>
                   }
-                />
-                <InfoCard
-                  title="Generos"
-                  content={selectedGenres.length ? selectedGenres : ["Seleccionar géneros"]}
                   headerButton={
                     <button
                       className="text-black text-[1.25rem] font-barlow font-medium leading-[1.625rem]"
-                      onClick={() => setGenresModalOpen(true)}
+                      onClick={() => { if (formats.length === 0) fetchFormats(); setFormatModalOpen(true) }}
                     >
                       +
                     </button>
@@ -288,12 +373,30 @@ const NewProject: React.FC = () => {
                 <InfoCard
                   title="Materias"
                   content={
-                    selectedSubjects.length ? selectedSubjects : ["Seleccionar materias"]
+                    selectedSubjects.length
+                      ? selectedSubjects.map((subject) => subject.class_name)
+                      : ["Seleccionar materias"]
                   }
                   headerButton={
                     <button
                       className="text-black text-[1.25rem] font-barlow font-medium leading-[1.625rem]"
-                      onClick={() => setSubjectsModalOpen(true)}
+                      onClick={() => { if (subjects.length === 0) fetchSubjects(); setSubjectsModalOpen(true) }}
+                    >
+                      +
+                    </button>
+                  }
+                />
+                <InfoCard
+                  title="Géneros"
+                  content={
+                    selectedGenres.length
+                      ? selectedGenres.map((genre) => genre.genre)
+                      : ["Seleccionar géneros"]
+                  }
+                  headerButton={
+                    <button
+                      className="text-black text-[1.25rem] font-barlow font-medium leading-[1.625rem]"
+                      onClick={() => { if (genres.length === 0) fetchGenres(); setGenresModalOpen(true) }}
                     >
                       +
                     </button>
@@ -317,7 +420,6 @@ const NewProject: React.FC = () => {
                   placeholder="Describe tu proyecto aquí..."
                 />
               </div>
-
               {/* Right Column: Budget, Dates, and Action Buttons */}
               <div className="w-[16.563rem] flex flex-col justify-between gap-2">
                 {/* Budget Field */}
@@ -337,7 +439,6 @@ const NewProject: React.FC = () => {
                     className="min-w-full"
                   />
                 </div>
-
                 {/* Dates Section */}
                 <div className="flex flex-col gap-4 relative">
                   {/* Start Date Field */}
@@ -379,7 +480,6 @@ const NewProject: React.FC = () => {
                       </div>
                     )}
                   </div>
-
                   {/* End Date Field */}
                   <div className="flex-1 relative">
                     <label
@@ -396,7 +496,7 @@ const NewProject: React.FC = () => {
                         placeholder="Seleccionar fecha de fin"
                         value={formatDate(endDate)}
                         onClick={() => setOpenPicker("end")}
-                        className="w-full p-2.5 border-2 border-black rounded-lg focus:ring-2"/>
+                        className="w-full p-2.5 border-2 border-black rounded-lg focus:ring-2" />
                       <button
                         type="button"
                         className="absolute right-3 top-1/2 -translate-y-1/2"
@@ -435,7 +535,6 @@ const NewProject: React.FC = () => {
                       className="min-w-full"
                     />
                   </div>
-
                   {/* Attachments URL Field */}
                   <div className="flex flex-col justify-start items-start gap-2.5">
                     <label
@@ -454,48 +553,40 @@ const NewProject: React.FC = () => {
                     />
                   </div>
                 </div>
-                
-                
               </div>
             </div>
           </CustomTab>
           <CustomTab label="Vacantes">
-              <>
+            <>
               {/* Tabla de Vacantes */}
-            <VacanciesTable
-              vacancies={vacancies}
-              onEdit={openVacancyModal}
-              onDelete={handleDeleteVacancy}
-            />
-
-            {/* Botón para añadir */}
-            <div className="mt-4">
-              <Button onClick={() => openVacancyModal(null)}>
-                Agregar Vacante
-              </Button>
-            </div>
-
-            {/* Modal de Formulario */}
-            <VacancyFormModal
-            isOpen={vacancyModalOpen}
-            onClose={() => setVacancyModalOpen(false)}
-            onSave={handleSaveVacancy}
-            initialData={editingVacancy ? {
-              department_id: editingVacancy.department_id,
-              role_id: editingVacancy.role_id,
-              descripcion: editingVacancy.descripcion,
-              requerimientos: editingVacancy.requerimientos
-            } : undefined}
-            departments={departments}
-            roles={roles}
-          />
-          </>           
+              <VacanciesTable
+                vacancies={vacancies}
+                onEdit={openVacancyModal}
+                onDelete={handleDeleteVacancy}
+              />
+              {/* Botón para añadir */}
+              <div className="mt-4">
+                <Button onClick={() => openVacancyModal(null)}>
+                  Agregar Vacante
+                </Button>
+              </div>
+              {/* Modal de Formulario */}
+              <VacancyFormModal
+                isOpen={vacancyModalOpen}
+                onClose={() => setVacancyModalOpen(false)}
+                onSave={handleSaveVacancy}
+                initialData={editingVacancy ? {
+                  department_id: editingVacancy.department_id,
+                  role_id: editingVacancy.role_id,
+                  descripcion: editingVacancy.descripcion,
+                  requerimientos: editingVacancy.requerimientos
+                } : undefined}
+                departments={departments}
+                roles={roles}
+              />
+            </>
           </CustomTab>
-          
         </CustomTabs>
-
-        
-
         {/* Bottom Action Buttons */}
         <div className="w-full flex justify-center px-[3.375rem] mt-8 mb-8 gap-4">
           <Button
@@ -504,8 +595,7 @@ const NewProject: React.FC = () => {
           >
             Cancelar
           </Button>
-  
-            <Button onClick={(e)=> handleSubmit(e)} className="p-4 bg-rojo-intec-400 text-white">Crear Proyecto</Button>
+          <Button onClick={handleSubmit} className="p-4 bg-rojo-intec-400 text-white">Crear Proyecto</Button>
         </div>
       </div>
 
@@ -513,12 +603,9 @@ const NewProject: React.FC = () => {
       {formatModalOpen && (
         <FormatSelector
           isOpen={formatModalOpen}
-          formats={mockFormats}
+          formats={formats}
           selectedFormat={selectedFormat}
-          onSelect={(format) => {
-            setSelectedFormat(format);
-            setFormatModalOpen(false);
-          }}
+          onSelect={(format) => { setSelectedFormat(format); setFormatModalOpen(false); }}
           onClose={() => setFormatModalOpen(false)}
         />
       )}
@@ -528,8 +615,10 @@ const NewProject: React.FC = () => {
           isOpen={genresModalOpen}
           onClose={() => setGenresModalOpen(false)}
           selectedGenres={selectedGenres}
-          toggleGenre={toggleGenre}
-          genres={mockGenres}
+          toggleGenre={(genre) => {
+            setSelectedGenres(prev => prev.some(g => g.genre_id === genre.genre_id) ? prev.filter(g => g.genre_id !== genre.genre_id) : [...prev, genre]);
+          }}
+          genres={genres}
         />
       )}
 
@@ -538,20 +627,22 @@ const NewProject: React.FC = () => {
           isOpen={subjectsModalOpen}
           onClose={() => setSubjectsModalOpen(false)}
           selectedSubjects={selectedSubjects}
-          toggleSubject={toggleSubject}
-          subjects={mockSubjects}
+          toggleSubject={(subject) => {
+            setSelectedSubjects(prev => prev.some(s => s.class_id === subject.class_id) ? prev.filter(s => s.class_id !== subject.class_id) : [...prev, subject]);
+          }}
+          subjects={subjects}
         />
       )}
 
       {deleteConfirmOpen && (
-       <ConfirmCancelModal
-        isOpen={deleteConfirmOpen}
-        onCancel={() => setDeleteConfirmOpen(false)}
-        onConfirm={() => {
-          navigate("/dashboard"); // Redirigir a la página de proyectos
-          setDeleteConfirmOpen(false);
-        }}
-      />
+        <ConfirmCancelModal
+          isOpen={deleteConfirmOpen}
+          onCancel={() => setDeleteConfirmOpen(false)}
+          onConfirm={() => {
+            navigate("/dashboard"); // Redirigir al dashboard
+            setDeleteConfirmOpen(false);
+          }}
+        />
       )}
     </CreatorLayout>
   );

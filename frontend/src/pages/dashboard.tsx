@@ -10,9 +10,7 @@ interface ApiProject {
   banner: string;
   estimated_end: string;
   is_active: boolean;
-  // Otros campos del schema pueden añadirse según necesidad
 }
-
 
 const DashboardPage: React.FC = () => {
   const [projects, setProjects] = useState<ProjectCardProps[]>([]);
@@ -20,11 +18,12 @@ const DashboardPage: React.FC = () => {
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const apiRoute = import.meta.env.VITE_API_ROUTE;
 
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const projectsResponse = await fetch("http://localhost:3000/api/projects");
+        const projectsResponse = await fetch(`${apiRoute}projects`);
         if (!projectsResponse.ok) throw new Error("Error obteniendo proyectos");
         
         const projectsData: ApiProject[] = await projectsResponse.json();
@@ -33,7 +32,7 @@ const DashboardPage: React.FC = () => {
           projectsData.map(async (project) => {
             try {
               const genresResponse = await fetch(
-                `http://localhost:3000/api/projects/${project.project_id}/genres`,
+                `${apiRoute}projects/${project.project_id}/genres`,
                 { credentials: 'include' }
               );
 

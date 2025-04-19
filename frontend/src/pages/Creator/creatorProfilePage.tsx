@@ -30,6 +30,7 @@ const CreatorProfilePage: React.FC = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const decodedToken = useDecodeJWT();
   const userId = decodedToken?.id;
+  const apiRoute = import.meta.env.VITE_API_ROUTE;
 
   useEffect(() => {
     if (!userId) return;
@@ -43,7 +44,7 @@ const CreatorProfilePage: React.FC = () => {
           Authorization: `Bearer ${token}`,
         };
 
-        const profileRes = await fetch(`http://localhost:3000/api/profiles/user/${userId}`, {
+        const profileRes = await fetch(`${apiRoute}profiles/user/${userId}`, {
           headers,
         });
 
@@ -60,7 +61,7 @@ const CreatorProfilePage: React.FC = () => {
         setProfile(sanitizedProfile);
 
 
-        const projectsRes = await fetch(`http://localhost:3000/api/projects/creator/${userId}`, {
+        const projectsRes = await fetch(`${apiRoute}projects/creator/${userId}`, {
           headers,
         });
 
