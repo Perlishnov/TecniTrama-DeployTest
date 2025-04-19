@@ -148,7 +148,7 @@ router.get('/creator/:id', projectController.getProjectsByCreatorId);
  *       500:
  *         description: Server error
  */
-router.post('/', authenticateToken, projectController.createProject);
+router.post('/', /*authenticateToken,*/ projectController.createProject);
 
 
 // Update project
@@ -565,6 +565,164 @@ router.get('/:id/crew', authenticateToken, projectController.getCrewByProjectId)
  */
 router.delete('/:id/crew', authenticateToken, projectController.deleteCrewByProjectId);
 
+// Update project format
+/**
+ * @swagger
+ * /api/projects/{id}/format:
+ *   patch:
+ *     summary: Update project format
+ *     description: Update the format of a specific project. Requires authentication.
+ *     tags: [Projects]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Project ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - format_id
+ *             properties:
+ *               format_id:
+ *                 type: integer
+ *                 description: ID of the new format
+ *                 example: 2
+ *     responses:
+ *       200:
+ *         description: Project format updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Project'
+ *       400:
+ *         description: Bad request - Missing format_id
+ *       401:
+ *         description: Unauthorized - No token provided
+ *       403:
+ *         description: Forbidden - Invalid token
+ *       404:
+ *         description: Project not found
+ *       500:
+ *         description: Server error
+ */
+router.patch('/:id/format', authenticateToken, projectController.updateProjectFormat);
+
+// Update project genres
+/**
+ * @swagger
+ * /api/projects/{id}/genres:
+ *   put:
+ *     summary: Update project genres
+ *     description: Update the genres associated with a specific project. Requires authentication.
+ *     tags: [Projects, Genres]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Project ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - genre_ids
+ *             properties:
+ *               genre_ids:
+ *                 type: array
+ *                 items:
+ *                   type: integer
+ *                 description: Array of genre IDs to associate with the project
+ *                 example: [1, 3, 5]
+ *     responses:
+ *       200:
+ *         description: Project genres updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Genre'
+ *       400:
+ *         description: Bad request - Missing or invalid genre_ids
+ *       401:
+ *         description: Unauthorized - No token provided
+ *       403:
+ *         description: Forbidden - Invalid token
+ *       404:
+ *         description: Project not found
+ *       500:
+ *         description: Server error
+ */
+router.put('/:id/genres', authenticateToken, projectController.updateProjectGenres);
+
+// Update project classes
+/**
+ * @swagger
+ * /api/projects/{id}/classes:
+ *   put:
+ *     summary: Update project classes
+ *     description: Update the classes associated with a specific project. Requires authentication.
+ *     tags: [Projects, Classes]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Project ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - class_ids
+ *             properties:
+ *               class_ids:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 description: Array of class IDs to associate with the project
+ *                 example: ["CLS001", "CLS002"]
+ *     responses:
+ *       200:
+ *         description: Project classes updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Class'
+ *       400:
+ *         description: Bad request - Missing or invalid class_ids
+ *       401:
+ *         description: Unauthorized - No token provided
+ *       403:
+ *         description: Forbidden - Invalid token
+ *       404:
+ *         description: Project not found
+ *       500:
+ *         description: Server error
+ */
+router.put('/:id/classes', authenticateToken, projectController.updateProjectClasses);
+
 // Swagger schemas and security definitions
 /**
  * @swagger
@@ -687,7 +845,7 @@ router.delete('/:id/crew', authenticateToken, projectController.deleteCrewByProj
  *       example:
  *         genre_id: 1
  *         genre: "Drama"
- * 
+ *
  *     Class:
  *       type: object
  *       properties:
