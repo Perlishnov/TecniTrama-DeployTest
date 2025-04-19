@@ -51,6 +51,27 @@ const getProjectsByCreatorId = async (req, res) => {
   }
 };
 
+// Gets all projects where a user is part of the crew
+// GET /projects/user/:id/crew
+const getProjectsByCrewMemberId = async (req, res) => {
+  try {
+    const userId = req.params.user_id;
+    if (!userId) {
+      return res.status(400).json({ error: "User ID is required" });
+    }
+
+    const projects = await projectService.getProjectsByCrewMemberId(userId);
+
+    if (!projects || projects.length === 0) {
+      return res.status(404).json({ error: "No projects found where this user is part of the crew" });
+    }
+
+    res.status(200).json(projects);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // Updates a project
 // PUT /projects/:id
 const updateProject = async (req, res) => {
@@ -384,6 +405,7 @@ module.exports = {
   getProjectGenres,
   getProjectClasses,
   getProjectFormats,
+  getProjectsByCrewMemberId,
   getAllFormats,
   isOwner,
   getCrewByProjectId,

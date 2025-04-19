@@ -700,7 +700,7 @@ router.put('/:id/genres', authenticateToken, projectController.updateProjectGenr
  *                 items:
  *                   type: string
  *                 description: Array of class IDs to associate with the project
- *                 example: ["CLS001", "CLS002"]
+ *                 example: ["LCC332", "LCC334"]
  *     responses:
  *       200:
  *         description: Project classes updated successfully
@@ -722,6 +722,59 @@ router.put('/:id/genres', authenticateToken, projectController.updateProjectGenr
  *         description: Server error
  */
 router.put('/:id/classes', authenticateToken, projectController.updateProjectClasses);
+
+// Get projects where user is part of crew
+/**
+ * @swagger
+ * /api/projects/user/{user_id}/crew:
+ *   get:
+ *     summary: Get projects where user is part of crew
+ *     description: Retrieve all projects where the specified user is part of the crew. Requires authentication.
+ *     tags: [Projects, Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: user_id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: User ID
+ *     responses:
+ *       200:
+ *         description: List of projects where the user is part of the crew
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 allOf:
+ *                   - $ref: '#/components/schemas/Project'
+ *                   - type: object
+ *                     properties:
+ *                       role:
+ *                         type: string
+ *                         description: The user's role in the project
+ *                       genres:
+ *                         type: array
+ *                         items:
+ *                           $ref: '#/components/schemas/Genre'
+ *                       formats:
+ *                         type: array
+ *                         items:
+ *                           $ref: '#/components/schemas/Format'
+ *       400:
+ *         description: Bad request - Missing user_id
+ *       401:
+ *         description: Unauthorized - No token provided
+ *       403:
+ *         description: Forbidden - Invalid token
+ *       404:
+ *         description: No projects found where this user is part of the crew
+ *       500:
+ *         description: Server error
+ */
+router.get('/user/:user_id/crew', authenticateToken, projectController.getProjectsByCrewMemberId);
 
 // Swagger schemas and security definitions
 /**
