@@ -1,5 +1,4 @@
 const applicationService = require('../services/applicationService');
-const prisma = require('../prismaClient');
 
 // Creates Application
 // POST /applications

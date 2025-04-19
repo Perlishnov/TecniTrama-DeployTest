@@ -141,7 +141,7 @@ router.get('/postulant/:id', authenticateToken, applicationController.getApplica
  *       500:
  *         description: Internal server error
  */
-router.get('/postulant/:postulantId/status/:statusId', authenticateToken, applicationController.getApplicationsByPostulantIdAndStatusId);
+router.get('/postulant/:postulantId/status/:statusId', authenticateToken, applicationController.getApplicationsByPostulantAndStatus);
 
 // Get Application By Project ID
 /**
@@ -174,7 +174,7 @@ router.get('/postulant/:postulantId/status/:statusId', authenticateToken, applic
  *       500:
  *         description: Internal server error
  */
-router.get('/project/:id', authenticateToken, applicationController.getApplicationByProjectId);
+router.get('/project/:id', authenticateToken, applicationController.getApplicationsByProjectId);
 
 // Get Application By Project ID and Application Status ID
 /**
@@ -215,7 +215,7 @@ router.get('/project/:id', authenticateToken, applicationController.getApplicati
  *       500:
  *         description: Internal server error
  */
-router.get('/project/:projectId/status/:statusId', authenticateToken, applicationController.getApplicationsByProjectIdAndStatusId);
+router.get('/project/:projectId/status/:statusId', authenticateToken, applicationController.getApplicationsByProjectAndStatus);
 
 
 // Swagger schemas and security definitions

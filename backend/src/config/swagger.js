@@ -1,6 +1,5 @@
 const swaggerJsdoc = require('swagger-jsdoc');
 
-// Swagger definition
 const swaggerOptions = {
   definition: {
     openapi: '3.0.0',
@@ -9,7 +8,7 @@ const swaggerOptions = {
       version: '1.0.0',
       description: 'API documentation for TecniTrama application',
       contact: {
-        name: 'TecniTrama Team'
+        name: 'TecniTrama Team',
       },
     },
     servers: [
@@ -27,8 +26,27 @@ const swaggerOptions = {
         },
       },
     },
+    security: [
+      {
+        bearerAuth: [],
+      },
+    ],
+    tags: [
+      {
+        name: 'Projects',
+        description: 'Project management API',
+      },
+      {
+        name: 'Genres',
+        description: 'Genre management API',
+      },
+      {
+        name: 'Classes',
+        description: 'Class management API',
+      },
+    ],
   },
-  apis: ['./src/routes/*.js', './src/controllers/*.js'], // Path to the API docs
+  apis: ['./src/routes/*.js', './src/controllers/*.js'],
 };
 
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
