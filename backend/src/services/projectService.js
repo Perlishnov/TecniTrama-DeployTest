@@ -220,6 +220,136 @@ const deleteCrewByProjectId = async (projectId, userIds) => {
   });
 };
 
+// Updates the format of a project
+const updateProjectFormat = async (projectId, formatId) => {
+  if (!formatId) {
+    throw new Error('Format ID must be provided');
+  }
+
+  return await prisma.projects.update({
+    where: { project_id: parseInt(projectId) },
+    data: { format_id: parseInt(formatId) },
+    include: {
+      project_formats: true
+    }
+  });
+};
+
+// Updates the genres associated with a project
+const updateProjectGenres = async (projectId, genreIds) => {
+  if (!Array.isArray(genreIds)) {
+    throw new Error('Genre IDs must be provided as an array');
+  }
+
+  const parsedProjectId = parseInt(projectId);
+
+  return await prisma.$transaction(async (tx) => {
+    // Check if project exists
+    const project = await tx.projects.findUnique({
+      where: { project_id: parsedProjectId }
+    });
+
+    if (!project) {
+      throw new Error('Project not found');
+    }
+
+    // Delete existing genre associations
+    await tx.project_genres.deleteMany({
+      where: { project_id: parsedProjectId }
+    });
+
+    // Create new genre associations if genreIds is not empty
+    if (genreIds.length > 0) {
+      await tx.project_genres.createMany({
+        data: genreIds.map(genreId => ({
+          project_id: parsedProjectId,
+          genre_id: parseInt(genreId)
+        }))
+      });
+    }
+
+    // Return the updated project with genres
+    return await tx.projects.findUnique({
+      where: { project_id: parsedProjectId },
+      include: {
+        project_genres: {
+          include: {
+            genres: true
+          }
+        }
+      }
+    });
+  });
+};
+
+// Updates the classes associated with a project
+const updateProjectClasses = async (projectId, classIds) => {
+  if (!Array.isArray(classIds)) {
+    throw new Error('Class IDs must be provided as an array');
+  }
+
+  const parsedProjectId = parseInt(projectId);
+
+  return await prisma.$transaction(async (tx) => {
+    // Check if project exists
+    const project = await tx.projects.findUnique({
+      where: { project_id: parsedProjectId }
+    });
+
+    if (!project) {
+      throw new Error('Project not found');
+    }
+
+    // Verify that all class IDs exist before proceeding
+    if (classIds.length > 0) {
+      const existingClasses = await tx.classes.findMany({
+        where: {
+          class_id: {
+            in: classIds
+          }
+        },
+        select: {
+          class_id: true
+        }
+      });
+
+      const validClassIds = existingClasses.map(c => c.class_id);
+
+      if (validClassIds.length !== classIds.length) {
+        const invalidIds = classIds.filter(id => !validClassIds.includes(id));
+        throw new Error(`The following class IDs do not exist: ${invalidIds.join(', ')}`);
+      }
+    }
+
+    // Delete existing class associations
+    await tx.class_projects.deleteMany({
+      where: { project_id: parsedProjectId }
+    });
+
+    // Create new class associations if classIds is not empty
+    if (classIds.length > 0) {
+      await tx.class_projects.createMany({
+        data: classIds.map(classId => ({
+          project_id: parsedProjectId,
+          class_id: classId
+        }))
+      });
+    }
+
+    // Return the updated project with classes
+    return await tx.projects.findUnique({
+      where: { project_id: parsedProjectId },
+      include: {
+        class_projects: {
+          include: {
+            classes: true
+          }
+        }
+      }
+    });
+  });
+};
+
 module.exports = {
   createProject,
   getAllProjects,
@@ -231,5 +361,8 @@ module.exports = {
   toggleProjectPublishStatus,
   isProjectOwner,
   getCrewByProjectId,
-  deleteCrewByProjectId
+  deleteCrewByProjectId,
+  updateProjectFormat,
+  updateProjectGenres,
+  updateProjectClasses
 };
