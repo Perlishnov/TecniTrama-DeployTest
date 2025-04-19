@@ -52,3 +52,12 @@ export interface Role {
   /** Descripción de las responsabilidades */
   responsibilities: string;
 }
+export interface ApiVacancy {
+  id: string;
+  position: string;
+  description: string;
+  requirements: string;
+  department: string;
+  department_id?: number;
+  role_id?: number;
+}
