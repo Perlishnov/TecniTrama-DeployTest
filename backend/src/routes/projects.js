@@ -148,7 +148,7 @@ router.get('/creator/:id', projectController.getProjectsByCreatorId);
  *       500:
  *         description: Server error
  */
-router.post('/', authenticateToken, projectController.createProject);
+router.post('/', /*authenticateToken,*/ projectController.createProject);
 
 
 // Update project
