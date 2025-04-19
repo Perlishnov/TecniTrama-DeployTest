@@ -33,7 +33,7 @@ const createProject = async (projectData) => {
 
     // Associates the classes with the project
     if (Array.isArray(projectData.class_ids) && projectData.class_ids.length > 0) {
-      await tx.project_classes.createMany({
+      await tx.class_projects.createMany({
         data: projectData.class_ids.map((classId) => ({
           project_id: newProject.project_id,
           class_id: classId
