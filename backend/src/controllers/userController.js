@@ -164,6 +164,12 @@ const registerUser = async (req, res) => {
         }
       });
 
+      await streamClient.upsertUser({
+        id: newUser.user_id.toString(),
+        name: newUser.name,
+        email: newUser.email
+      });
+
       return newUser;
     });
 
@@ -171,7 +177,7 @@ const registerUser = async (req, res) => {
     const token = generateToken({ id: result.user_id, email: result.email });
     // Create Stream token
     const streamToken = streamClient.createToken(result.user_id.toString());
-    
+
     res.status(201).json({
       message: 'User registered successfully with empty profile',
       token,
