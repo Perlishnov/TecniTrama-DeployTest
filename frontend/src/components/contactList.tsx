@@ -9,7 +9,7 @@ interface Props {
 
 const ContactList: React.FC<Props> = ({ users, currentUserId, onSelectUser }) => {
   return (
-    <div className="w-1/3 border-r p-4">
+    <div>
       <h2 className="text-lg font-bold mb-4">Contactos</h2>
       <ul>
         {users
@@ -18,9 +18,7 @@ const ContactList: React.FC<Props> = ({ users, currentUserId, onSelectUser }) =>
             <li key={user.id} className="mb-2">
               <button
                 className="text-blue-500 hover:underline"
-                onClick={() => {
-                    console.log("ContactList ➡️ onSelectUser:", user);
-                    onSelectUser(user)}}
+                onClick={() => onSelectUser(user)}
               >
                 {user.name || user.email}
               </button>

@@ -68,6 +68,7 @@ const NewProject: React.FC = () => {
     "Lorem ipsum dolor sit amet, consectetur adipiscing elit..."
   );
   const decodedToken = useDecodeJWT();
+  const apiRoute = import.meta.env.VITE_API_ROUTE;
 
   const [formats, setFormats] = useState<ProjectFormat[]>([]);
   const [genres, setGenres] = useState<Genre[]>([]);
@@ -123,7 +124,7 @@ const NewProject: React.FC = () => {
   const fetchGenres = async () => {
     try {
       setIsLoadingGenres(true);
-      const response = await fetch("http://localhost:3000/api/genres", {
+      const response = await fetch(`${apiRoute}genres`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       const data = await response.json();
@@ -138,7 +139,7 @@ const NewProject: React.FC = () => {
   const fetchFormats = async () => {
     try {
       setIsLoadingFormats(true);
-      const response = await fetch("http://localhost:3000/api/projects/formats", {
+      const response = await fetch(`${apiRoute}projects/formats`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       const data = await response.json();
@@ -153,7 +154,7 @@ const NewProject: React.FC = () => {
   const fetchSubjects = async () => {
     try {
       setIsLoadingSubjects(true);
-      const response = await fetch("http://localhost:3000/api/classes", {
+      const response = await fetch(`${apiRoute}classes`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       const data = await response.json();
@@ -247,7 +248,7 @@ const NewProject: React.FC = () => {
         class_ids: selectedSubjects.map(s => s.class_id),
       };
 
-      const projectResponse = await fetch("http://localhost:3000/api/projects", {
+      const projectResponse = await fetch(`${apiRoute}projects`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -275,7 +276,7 @@ const NewProject: React.FC = () => {
           is_visible: true,
         };
 
-        const vacancyResponse = await fetch("http://localhost:3000/api/vacancies", {
+        const vacancyResponse = await fetch(`${apiRoute}vacancies`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

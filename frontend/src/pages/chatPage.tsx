@@ -1,4 +1,3 @@
-// src/pages/ChatPage.tsx
 import React, { useState } from "react";
 import CreatorLayout from "@/layouts/default";
 import { useUsers, UserData } from "@/hooks/useUsers";
@@ -20,7 +19,7 @@ const ChatPage: React.FC<Props> = ({ user }) => {
   return (
     <CreatorLayout>
       <div className="flex h-screen">
-        {/* Panel izquierdo: lista de contactos siempre visible */}
+        {/* Panel izquierdo: lista de contactos */}
         <div className="w-1/3 border-r p-4 overflow-y-auto">
           {loading ? (
             <p>Cargando contactos…</p>
@@ -33,17 +32,9 @@ const ChatPage: React.FC<Props> = ({ user }) => {
           )}
         </div>
 
-        {/* Panel derecho: zona de chat o mensaje de espera */}
+        {/* Panel derecho: siempre montado */}
         <div className="flex-1 p-8">
-          {!selectedUser && (
-            <p className="text-gray-500">
-              Selecciona un contacto para iniciar chat…
-            </p>
-          )}
-
-          {selectedUser && (
-            <ChatPanel user={user} selectedUser={selectedUser} />
-          )}
+          <ChatPanel user={user} selectedUser={selectedUser} />
         </div>
       </div>
     </CreatorLayout>

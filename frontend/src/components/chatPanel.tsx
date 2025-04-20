@@ -5,9 +5,11 @@ import {
   Window,
   MessageList,
   MessageInput,
+  ChannelHeader,
 } from "stream-chat-react";
 import { StreamChat } from "stream-chat";
 import { UserData } from "@/hooks/useUsers";
+import CustomMessage from "@/components/customMessage";
 
 interface Props {
   user: {
@@ -61,7 +63,15 @@ const ChatPanel: React.FC<Props> = ({ user, selectedUser }) => {
     <Chat client={chatClient} theme="messaging light">
       <Channel channel={channel}>
         <Window>
-          <MessageList />
+          {/* Cabecera personalizada */}
+          <div className="bg-blue-100 px-6 py-3 border-b text-lg font-semibold text-blue-800">
+            {selectedUser?.name || selectedUser?.email}
+          </div>
+
+          {/* Lista de mensajes */}
+          <MessageList  Message={CustomMessage}/>
+
+          {/* Entrada de mensajes */}
           <MessageInput />
         </Window>
       </Channel>
