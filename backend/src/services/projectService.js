@@ -389,6 +389,27 @@ const updateProjectClasses = async (projectId, classIds) => {
   });
 };
 
+// Gets all projects where a user is part of the crew
+const getProjectsByCrewMemberId = async (userId) => {
+  const parsedUserId = parseInt(userId);
+ // Get all project_ids where the user is part of the crew
+  const crewEntries = await prisma.crew.findMany({
+    where: { user_id: parsedUserId },
+    select: { project_id: true }
+  });
+
+  const projectIds = crewEntries.map(entry => entry.project_id);
+
+  // Fetch all related projects using getProjectById for each project_id
+
+  const projects = await Promise.all(
+    projectIds.map(id => getProjectById(id))
+  );
+
+  // Filter out any nulls (in case some projects were deleted)
+  return projects.filter(project => project);
+};
+
 module.exports = {
   createProject,
   getAllProjects,
@@ -401,6 +422,7 @@ module.exports = {
   isProjectOwner,
   getCrewByProjectId,
   deleteCrewByProjectId,
+  getProjectsByCrewMemberId,
   updateProjectFormat,
   updateProjectGenres,
   updateProjectClasses
