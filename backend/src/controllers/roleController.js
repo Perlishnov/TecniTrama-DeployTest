@@ -13,6 +13,21 @@ const getDepartmentByRoleId = async (req, res) => {
   }
 };
 
+// GET /roles
+const getAllRoles = async (req, res) => {
+  try {
+    const roles = await roleService.getAllRoles();
+    if (!roles || roles.length === 0) {
+      return res.status(404).json({ error: "No roles found" });
+    }
+
+    res.status(200).json(roles);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports = {
-  getDepartmentByRoleId
+  getDepartmentByRoleId,
+  getAllRoles
 };

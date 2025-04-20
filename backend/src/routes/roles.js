@@ -31,4 +31,25 @@ const { authenticateToken } = require('../controllers/authController');
  */
 router.get('/:id/department', authenticateToken, roleController.getDepartmentByRoleId);
 
+/**
+ * @swagger
+ * /api/roles:
+ *   get:
+ *     summary: Get all roles
+ *     description: Retrieve a list of all roles.
+ *     tags: [Roles]
+ *     responses:
+ *       200:
+ *         description: A list of roles
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Role'
+ *       500:
+ *         description: Server error
+ */
+router.get('/', authenticateToken, roleController.getAllRoles);
+
 module.exports = router;
