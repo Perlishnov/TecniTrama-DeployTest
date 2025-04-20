@@ -5,6 +5,7 @@ import bannerImg from "../assets/loginSignupBanner.png";
 import Logo from "@/components/logo";
 import InputField from "@/components/input";
 import CustomButton from "@/components/button";
+import { jwtDecode } from "jwt-decode";
 
 export const Login = (): JSX.Element => {
   const navigate = useNavigate();
@@ -14,6 +15,7 @@ export const Login = (): JSX.Element => {
   });
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const apiRoute = import.meta.env.VITE_API_ROUTE;
 
   // Handle input changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -32,7 +34,7 @@ export const Login = (): JSX.Element => {
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:3000/api/users/login', {
+      const response = await fetch(`${apiRoute}users/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -49,12 +51,24 @@ export const Login = (): JSX.Element => {
       // Handle successful login
       const responseData = await response.json();
       localStorage.setItem('token', responseData.token);
+      localStorage.setItem('streamToken', responseData.streamToken)
       
-      // Redirect to dashboard or home page
-      navigate('/dashboard');
-    } catch (err) {
-      // Handle login error
-      setError(err instanceof Error ? err.message : 'Error desconocido');
+      // Disparar evento para actualizar el estado global
+      window.dispatchEvent(new Event('storage'));
+      
+      // Redirigir inmediatamente según el tipo de usuario
+      const decoded = jwtDecode(responseData.token);
+      if (decoded.user_type_id === 2) {
+        navigate('/admin/dashboard', { replace: true });
+      } else {
+        navigate('/dashboard', { replace: true });
+      }
+    } catch (err:any) {
+      console.error('Login error:', error);
+      setError(err.message || 'Error al iniciar sesión');
+      // Limpiar tokens en caso de error
+      localStorage.removeItem('token');
+      localStorage.removeItem('streamToken');
     } finally {
       setIsLoading(false);
     }

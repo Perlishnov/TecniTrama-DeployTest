@@ -19,10 +19,9 @@ export const Register = (): JSX.Element => {
   });
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const apiRoute = import.meta.env.VITE_API_ROUTE;
 
-  // Validation function for phone number
   const formatPhoneNumber = (value: string): string => {
-    // Remove all non-digit characters
     const digits = value.replace(/\D/g, "");
     
     // Format the phone number
@@ -56,7 +55,7 @@ export const Register = (): JSX.Element => {
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:3000/api/users/register', {
+      const response = await fetch(`${apiRoute}users/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -74,7 +73,6 @@ export const Register = (): JSX.Element => {
       const responseData = await response.json();
       console.log('Registration successful', responseData);
       
-      // Optional: Show success message or redirect to login
       navigate('/login');
     } catch (err) {
       // Handle registration error

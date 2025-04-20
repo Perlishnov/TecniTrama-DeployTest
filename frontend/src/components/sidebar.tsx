@@ -20,6 +20,7 @@ function Sidebar() {
   const [showNotifications, setShowNotifications] = useState(false);
   const [loading, setLoading] = useState(true);
   const decodedToken = useDecodeJWT();
+  const apiRoute = import.meta.env.VITE_API_ROUTE;
 
   useEffect(() => {
     const fetchUserInfo = async () => {
@@ -34,11 +35,11 @@ function Sidebar() {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         };
-        const userRes = await fetch(`http://localhost:3000/api/users/${decodedToken.id}`, {
+        const userRes = await fetch(`${apiRoute}users/${decodedToken.id}`, {
           headers,
         });
 
-        const profileRes = await fetch(`http://localhost:3000/api/profiles/user/${decodedToken.id}`, {
+        const profileRes = await fetch(`${apiRoute}profiles/user/${decodedToken.id}`, {
           headers,
         });
 

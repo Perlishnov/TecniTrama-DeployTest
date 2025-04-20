@@ -18,8 +18,15 @@ const ProfileWidget: React.FC<ProfileWidgetProps> = ({
 }) => {
   const navigate = useNavigate();
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/login");
+    localStorage.removeItem("token"
+    localStorage.removeItem("streamToken")
+    window.dispatchEvent(new Event('storage'));
+  
+    // Redirigir y forzar recarga para limpiar estado
+    navigate("/login", { 
+      replace: true,
+      state: { from: location.pathname } 
+    });
   };
 
   return (

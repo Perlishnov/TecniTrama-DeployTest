@@ -3,6 +3,7 @@ import { useNavigate }                from "react-router-dom";
 import CreatorLayout                  from "@/layouts/default";
 import ProjectCard, { ProjectCardProps } from "@/components/projectCard";
 import CustomTabs, { CustomTab }      from "@/components/tabs";
+import { useDecodeJWT } from "@/hooks/useDecodeJWT";
 
 interface BackendProject {
   project_id: number;
@@ -31,6 +32,9 @@ const ProjectsPage: React.FC = () => {
   const [projects, setProjects] = useState<ProjectCardProps[]>([]);
   const [loading,  setLoading]  = useState(true);
   const [error,    setError]    = useState<string|null>(null);
+  const decoded = useDecodeJWT();
+  const userId = decoded?.id;
+  const apiRoute = import.meta.env.VITE_API_ROUTE;
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -46,7 +50,10 @@ const ProjectsPage: React.FC = () => {
 
     (async () => {
       try {
-        const resp = await fetch("http://localhost:3000/api/projects", { headers });
+        const resp = await fetch(`${apiRoute}projects/creator/${userId}`, {
+          method: "GET",
+           headers
+           });
         if (resp.status === 401) throw new Error("No autorizado");
         if (!resp.ok)        throw new Error(`HTTP ${resp.status}`);
 
@@ -101,15 +108,27 @@ const ProjectsPage: React.FC = () => {
         <CustomTabs>
           <CustomTab label="Activos">
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-2 gap-6">
-              {projects.filter((p) => !p.completado)
-                       .map((pr) => <ProjectCard key={pr.id} {...pr} />)}
+                {projects.filter((p) => !p.completado).length > 0 ? (
+                projects.filter((p) => !p.completado)
+                    .map((pr) => <ProjectCard key={pr.id} {...pr} />)
+                ) : (
+                <div className="col-span-full text-center py-8 text-gray-500">
+                  No hay proyectos activos disponibles.
+                </div>
+                )}
             </div>
           </CustomTab>
 
           <CustomTab label="Inactivos">
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-2 gap-6">
-              {projects.filter((p) => p.completado)
-                       .map((pr) => <ProjectCard key={pr.id} {...pr} />)}
+                {projects.filter((p) => p.completado).length > 0 ? (
+                projects.filter((p) => p.completado)
+                    .map((pr) => <ProjectCard key={pr.id} {...pr} />)
+                ) : (
+                <div className="col-span-full text-center py-8 text-gray-500">
+                  No hay proyectos activos disponibles.
+                </div>
+                )}
             </div>
           </CustomTab>
         </CustomTabs>
