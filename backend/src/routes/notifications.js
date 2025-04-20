@@ -6,7 +6,7 @@ const { authenticateToken } = require('../controllers/authController');
 // Get Notifications By User ID
 /**
  * @swagger
- * /notifications/{user_id}:
+ * /api/notifications/{user_id}:
  *   get:
  *     summary: Get notifications by user ID
  *     tags: [Notifications]
@@ -38,8 +38,8 @@ router.get('/:user_id', authenticateToken, notificationController.getNotificatio
 // Toggle Notification Read Status
 /**
  * @swagger
- * /notifications/{notificationId}/{userId}:
- *   put:
+ * /api/notifications/{notificationId}/{userId}:
+ *   patch:
  *     summary: Toggle the read status of a notification for a specific user
  *     tags: [Notifications]
  *     parameters:

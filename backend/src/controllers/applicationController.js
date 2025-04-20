@@ -1,3 +1,4 @@
+const { parse } = require('dotenv');
 const applicationService = require('../services/applicationService');
 
 // Creates Application
@@ -84,11 +85,11 @@ const getApplicationsByProjectAndStatus = async (req, res) => {
 };
 
 // Changes Application Status
-// PATCH /applications/:id/status
+// PATCH /applications/:appId/status/:statusId
 const changeApplicationStatus = async (req, res) => {
     try {
-      const applicationId = parseInt(req.params.id, 10);
-      const { newStatusId } = req.body;             
+      const applicationId = parseInt(req.params.appId, 10);
+      const newStatusId = parseInt(req.params.statusId, 10);             
   
       const updatedApp = await applicationService.changeApplicationStatus(
         applicationId,

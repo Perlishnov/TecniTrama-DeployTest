@@ -219,29 +219,26 @@ router.get('/project/:projectId/status/:statusId', authenticateToken, applicatio
 // Change Application Status
 /**
  * @swagger
- * /api/applications/{id}/status:
+ * /api/applications/{appId}/status/{statusId}:
  *   patch:
  *     summary: Change the status of an application.
- *     description: Updates the status of an application based on its ID.
+ *     description: Updates the status of an application based on its ID and the new status ID.
  *     tags: [Applications]
  *     security:
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
- *         name: id
+ *         name: appId
  *         required: true
  *         schema:
  *           type: integer
- *         description: Application ID
- *       - in: body
+ *         description: ID of the application
+ *       - in: path
  *         name: statusId
  *         required: true
  *         schema:
- *           type: object
- *           properties:
- *             statusId:
- *               type: integer
- *               example: 2
+ *           type: integer
+ *         description: New status ID
  *     responses:
  *       200:
  *         description: Application status updated successfully
@@ -256,7 +253,8 @@ router.get('/project/:projectId/status/:statusId', authenticateToken, applicatio
  *       404:
  *         description: Application or status not found
  */
-router.patch('/:id/status', authenticateToken, applicationController.changeApplicationStatus);
+router.patch('/:appId/status/:statusId', authenticateToken, applicationController.changeApplicationStatus);
+
 
 // Swagger schemas and security definitions
 /**

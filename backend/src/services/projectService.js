@@ -187,12 +187,18 @@ const toggleProjectPublishStatus = async (id) => {
       // Update publish date
       await tx.projects.update({
         where: { project_id: updatedProject.project_id },
-        data: { published_at: new Date() },
+        data: { publication_date: new Date() },
       });
 
       // Get all users to notify
       const allUsers = await tx.users.findMany({
         select: { user_id: true },
+        where: {
+          user_type_id: 1, // Assuming 1 is the user type for common users
+          user_id: {
+            not: updatedProject.creator_id // Exclude the project creator
+          }
+        }, 
       });
 
       const notifContent = `¡Nuevo proyecto "${updatedProject.title}"! Dale un vistazo a las vacantes.`;
@@ -203,9 +209,15 @@ const toggleProjectPublishStatus = async (id) => {
         projectId: updatedProject.project_id,
         content: notifContent,
       }, tx);
+      
     }
 
-    return updatedProject;
+    // Return the final updated project
+    const finalProject = await tx.projects.findUnique({
+      where: { project_id: project.project_id },
+    });
+
+    return finalProject;
   });
 };
 

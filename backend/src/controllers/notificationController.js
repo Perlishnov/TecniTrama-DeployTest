@@ -1,5 +1,5 @@
-const { Moderation } = require('stream-chat');
 const notificationService = require('../services/notificationService');
+const prismaClient = require('../models/prismaClient'); 
 
 // Get Notifications By User ID
 const getNotificationsByUserId = async (req, res) => {
@@ -9,7 +9,9 @@ const getNotificationsByUserId = async (req, res) => {
       return res.status(400).json({ error: 'User ID is required' });
     }
 
-    const user = await notificationService.getUserById(user_id);
+    const user = await prismaClient.users.findUnique({
+      where: { user_id: parseInt(user_id) },
+    });
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }

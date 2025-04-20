@@ -2,7 +2,7 @@ const prisma = require("../models/prismaClient");
 
 // Create Notification
 const createNotification = async ({ userId, projectId, content }, client = prisma) => {
-    const notification = await client.notifications.create({
+    const createdNotification = await client.notifications.create({
       data: {
         content,
         is_read: false,
@@ -13,17 +13,17 @@ const createNotification = async ({ userId, projectId, content }, client = prism
       data: {
         user_id: userId,
         project_id: projectId,
-        notif_id: notification.notif_id,
+        notif_id: createdNotification.notif_id,
         is_read: false,
       },
     });
   
-    return notification;
+    return createdNotification;
 };
 
 // Create Notification For Multiple Users
 const createNotificationForMultipleUsers = async ({ userIds, projectId, content }, tx) => {
-    const notification = await tx.notifications.create({
+    const createdNotification = await tx.notifications.create({
       data: {
         content,
         is_read: false,
@@ -33,7 +33,7 @@ const createNotificationForMultipleUsers = async ({ userIds, projectId, content 
     const userNotifications = userIds.map(userId => ({
       user_id: userId,
       project_id: projectId,
-      notif_id: notification.notif_id,
+      notif_id: createdNotification.notif_id,
       is_read: false,
     }));
   
@@ -42,7 +42,7 @@ const createNotificationForMultipleUsers = async ({ userIds, projectId, content 
       skipDuplicates: true,
     });
   
-    return notification;
+    return createdNotification;
   };
   
 
@@ -50,10 +50,7 @@ const createNotificationForMultipleUsers = async ({ userIds, projectId, content 
 const getNotificationsByUserId = async (user_id) => {
     return await prisma.user_notification.findMany({
         where: { user_id: parseInt(user_id) },
-        include: {
-          users: true,
-          notifications: true
-        }
+        include: { notifications: true },
       });
 }
 
