@@ -10,6 +10,7 @@ export interface InputFieldProps {
   className?: string;
   // Función de validación opcional que devuelve un booleano
   validationFunction?: (value: string) => boolean;
+  disabled?: boolean;
 }
 
 const InputField: React.FC<InputFieldProps> = ({
@@ -21,6 +22,7 @@ const InputField: React.FC<InputFieldProps> = ({
   onChange,
   className = "",
   validationFunction,
+  disabled
 }) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (validationFunction) {
@@ -41,6 +43,7 @@ const InputField: React.FC<InputFieldProps> = ({
       pattern={pattern}
       value={value}
       onChange={handleChange}
+      disabled={disabled}
       className={`px-4 py-2 bg-white border-2 border-black rounded-xl ${className}`}
     />
   );

@@ -31,7 +31,7 @@ const RequestCard: React.FC<RequestCardProps> = ({
       <div className="flex-1 flex flex-col p-4 gap-4">
         {/* Header */}
         <div className="flex flex-col gap-2.5">
-          <h2 className="text-Base-Negro text-3xl font-medium font-barlow leading-10">
+          <h2 className="text-Base-Negro text-3xl font-barlow-medium font-barlow leading-10">
             Solicitud a: {projectTitle}
           </h2>
           <div className="w-full h-px bg-Gris-700"></div>

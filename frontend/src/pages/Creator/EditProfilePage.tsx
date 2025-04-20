@@ -6,6 +6,7 @@ import TextareaField from "@/components/TextareaField";
 import AvatarUrl from "@/assets/profile_page_avatar.svg";
 import { useCloudinaryUpload } from "@/hooks/usecloudinary";
 import { useDecodeJWT } from "@/hooks/useDecodeJWT";
+import { useNavigate } from "react-router-dom";
 
 interface Profile {
   profile_id: number;
@@ -16,65 +17,46 @@ interface Profile {
 }
 
 const EditProfilePage: React.FC = () => {
-  // Local state for profile fields (mapped to API fields)
   const [career, setCareer] = useState("");
   const [biography, setBiography] = useState("");
   const [experience, setExperience] = useState("");
   const [profilePhoto, setProfilePhoto] = useState<string>(AvatarUrl);
-  const [phoneNumber, setPhoneNumber] = useState<string>("");
+  const [showToast, setShowToast] = useState(false);
 
-  // Cloudinary upload hook instance
+  const navigate = useNavigate();
+
   const { isUploading, uploadFile, error: uploadError } = useCloudinaryUpload({
     uploadPreset: "tecnitrama-asset",
     cloudName: "dcrl5demd",
   });
 
-  // Reference to the hidden file input
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  // State for loading and API errors
   const [apiError, setApiError] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
-
-  // Retrieve userId and token from localStorage
   const token = localStorage.getItem("token") || "";
   const decoded = useDecodeJWT();
-  const userId = decoded?.id;  
-
-  // Local state for the entire profile
+  const userId = decoded?.id;
   const [profile, setProfile] = useState<Profile | null>(null);
 
-  // Fetch current user's profile on mount
   useEffect(() => {
     if (!token || !userId) return;
     const fetchProfile = async () => {
       try {
         setIsLoading(true);
-        const res = await fetch("http://localhost:3000/api/profiles", {
+        const res = await fetch(`http://localhost:3000/api/profiles/user/${userId}`, {
           method: "GET",
           headers: {
             "accept": "application/json",
             "Authorization": `Bearer ${token}`,
           },
         });
-        if (!res.ok) {
-          throw new Error("Failed to fetch profiles");
-        }
-        const data: Profile[] = await res.json();
-        // Find profile by matching profile_id with userId (assuming they match)
-        const currentProfile = data.find(
-          (p) => p.profile_id.toString() === userId
-        );
-        if (currentProfile) {
-          setProfile(currentProfile);
-          // Set local fields from the fetched profile
-          setCareer(currentProfile.carreer || "");
-          setBiography(currentProfile.bio || "");
-          setExperience(currentProfile.experience || "");
-          setProfilePhoto(currentProfile.profile_image || AvatarUrl);
-        } else {
-          setApiError("Profile not found for current user");
-        }
+        if (!res.ok) throw new Error("Failed to fetch profiles");
+        const data: Profile = await res.json();
+        setProfile(data);
+        setCareer(data.carreer || "");
+        setBiography(data.bio || "");
+        setExperience(data.experience || "");
+        setProfilePhoto(data.profile_image || AvatarUrl);
       } catch (err: any) {
         setApiError(err.message);
       } finally {
@@ -84,12 +66,10 @@ const EditProfilePage: React.FC = () => {
     fetchProfile();
   }, [token, userId]);
 
-  // Trigger file selection dialog for photo change
   const handleChangePhotoClick = () => {
     fileInputRef.current?.click();
   };
 
-  // Handle file selection and upload to Cloudinary
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
@@ -100,7 +80,6 @@ const EditProfilePage: React.FC = () => {
     }
   };
 
-  // Handler for form submission (update profile via PUT)
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!profile) return;
@@ -127,7 +106,8 @@ const EditProfilePage: React.FC = () => {
         const errData = await res.json();
         throw new Error(errData.message || "Failed to update profile");
       }
-      alert("Profile updated successfully");
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 3000);
     } catch (err: any) {
       setApiError(err.message);
     } finally {
@@ -143,13 +123,14 @@ const EditProfilePage: React.FC = () => {
         </h1>
         {isLoading && <p>Cargando...</p>}
         {apiError && <p className="text-red-500">{apiError}</p>}
+        {showToast && (
+          <div className="bg-green-500 text-white px-4 py-2 rounded-lg shadow-md">
+            Perfil actualizado correctamente
+          </div>
+        )}
         <div className="px-6 py-8 bg-rojo-intec-100 rounded-[56px] flex flex-col items-center">
           <div className="flex items-center gap-5">
-            <img
-              className="w-24 h-20 rounded-full"
-              src={profilePhoto}
-              alt="Profile"
-            />
+            <img className="w-24 h-20 rounded-full" src={profilePhoto} alt="Profile" />
             <Button
               onClick={handleChangePhotoClick}
               className="bg-rojo-intec-400 rounded-[45px] border border-black p-2.5"
@@ -170,51 +151,22 @@ const EditProfilePage: React.FC = () => {
           {uploadError && (
             <p className="text-sm text-red-500">{uploadError}</p>
           )}
-          <form
-            className="flex flex-col items-center gap-7"
-            onSubmit={handleSubmit}
-          >
-            <div className="flex gap-4">
-              {/* First Name and Last Name are not used in this API update. */}
-              {/* You might manage those separately if needed. */}
+
+          <form className="flex flex-col items-center gap-7" onSubmit={handleSubmit}>
+            <div className="flex flex-col items-center w-96">
+              <label htmlFor="career" className="text-Base-Negro text-xs font-medium font-barlow leading-tight">
+                Carrera
+              </label>
+              <Input
+                name="career"
+                type="text"
+                value={career}
+                onChange={(e) => setCareer(e.target.value)}
+              />
             </div>
-            <div className="flex gap-4">
-              <div className="flex flex-col items-center">
-                <label
-                  htmlFor="career"
-                  className="text-Base-Negro text-xs font-medium font-barlow leading-tight"
-                >
-                  Carrera
-                </label>
-                <Input
-                  name="career"
-                  type="text"
-                  value={career}
-                  onChange={(e) => setCareer(e.target.value)}
-                />
-              </div>
-              <div className="flex flex-col items-center">
-                <label
-                  htmlFor="phoneNumber"
-                  className="text-Base-Negro text-xs font-medium font-barlow leading-tight"
-                >
-                  {/* Phone number not updated in profile API */}
-                  Número de teléfono
-                </label>
-                <Input
-                  name="phoneNumber"
-                  type="text"
-                  value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value)}
-                  disabled={()=>true}
-                />
-              </div>
-            </div>
-            <div className="flex flex-col items-center">
-              <label
-                htmlFor="biography"
-                className="text-Base-Negro text-xs font-medium font-barlow leading-tight"
-              >
+
+            <div className="flex flex-col items-center w-96">
+              <label htmlFor="biography" className="text-Base-Negro text-xs font-medium font-barlow leading-tight">
                 Biografía
               </label>
               <TextareaField
@@ -223,11 +175,9 @@ const EditProfilePage: React.FC = () => {
                 onChange={(e) => setBiography(e.target.value)}
               />
             </div>
-            <div className="flex flex-col items-center">
-              <label
-                htmlFor="experience"
-                className="text-Base-Negro text-xs font-medium font-barlow leading-tight"
-              >
+
+            <div className="flex flex-col items-center w-96">
+              <label htmlFor="experience" className="text-Base-Negro text-xs font-medium font-barlow leading-tight">
                 Experiencia
               </label>
               <TextareaField
@@ -236,9 +186,19 @@ const EditProfilePage: React.FC = () => {
                 onChange={(e) => setExperience(e.target.value)}
               />
             </div>
-            <Button type="submit" className="px-4 py-2">
-              Guardar cambios
-            </Button>
+
+            <div className="flex gap-4 mt-4">
+              <Button type="submit" className="px-4 py-2">
+                Guardar cambios
+              </Button>
+              <Button
+                type="button"
+                onClick={() => navigate(-1)}
+                className="px-4 py-2 bg-gray-300 hover:bg-gray-400"
+              >
+                Volver
+              </Button>
+            </div>
           </form>
         </div>
       </div>

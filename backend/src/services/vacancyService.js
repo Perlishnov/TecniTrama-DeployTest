@@ -1,17 +1,15 @@
 const prisma = require("../models/prismaClient");
 
-// Creates Vacacy
+// Creates Vacancy
 const createVacancy = async (vacancyData) => {
   return await prisma.vacancies.create({
     data: {
       project_id: parseInt(vacancyData.project_id),
-      title: vacancyData.title,
+      role_id: parseInt(vacancyData.role_id),
       description: vacancyData.description,
-      requirements: vacancyData.requirements || null,
-      is_active: vacancyData.is_active || false,
-      is_published: vacancyData.is_published || false,
-      estimated_start: vacancyData.estimated_start ? new Date(vacancyData.estimated_start) : null,
-      estimated_end: vacancyData.estimated_end ? new Date(vacancyData.estimated_end) : null
+      requirements: vacancyData.requirements,
+      is_filled: vacancyData.is_filled || false,
+      is_visible: vacancyData.is_visible || true
     }
   });
 };
@@ -47,13 +45,11 @@ const updateVacancy = async (id, vacancyData) => {
   return await prisma.vacancies.update({
     where: { vacancy_id: parseInt(id) },
     data: {
-      title: vacancyData.title || existingVacancy.title,
       description: vacancyData.description || existingVacancy.description,
       requirements: vacancyData.requirements !== undefined ? vacancyData.requirements : existingVacancy.requirements,
-      is_active: vacancyData.is_active !== undefined ? vacancyData.is_active : existingVacancy.is_active,
-      is_published: vacancyData.is_published !== undefined ? vacancyData.is_published : existingVacancy.is_published,
-      estimated_start: vacancyData.estimated_start ? new Date(vacancyData.estimated_start) : existingVacancy.estimated_start,
-      estimated_end: vacancyData.estimated_end ? new Date(vacancyData.estimated_end) : existingVacancy.estimated_end
+      is_filled: vacancyData.is_filled !== undefined ? vacancyData.is_filled : existingVacancy.is_filled,
+      is_visible: vacancyData.is_visible !== undefined ? vacancyData.is_visible : existingVacancy.is_visible,
+      role_id: vacancyData.role_id !== undefined ? parseInt(vacancyData.role_id) : existingVacancy.role_id
     }
   });
 };

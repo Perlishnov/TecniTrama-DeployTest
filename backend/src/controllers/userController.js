@@ -29,10 +29,11 @@ const getAllUsers = async (req, res) => {
   }
 };
 
-// Get user by ID
+// Get user by ID (with profile info)
 const getUserById = async (req, res) => {
   try {
     const userId = parseInt(req.params.id);
+
     const user = await prisma.users.findUnique({
       where: { user_id: userId },
       select: {
@@ -43,7 +44,38 @@ const getUserById = async (req, res) => {
         phone_num: true,
         registration_date: true,
         is_active: true,
-        user_type_id: true
+        user_type_id: true,
+        profiles: {
+          select: {
+            profile_id: true,
+            experience: true,
+            carreer: true,
+            bio: true,
+            profile_image: true,
+            profile_interest: {
+              select: {
+                interest_id: true,
+                interests: {
+                  select: {
+                    interest_name: true
+                  }
+                }
+              }
+            },
+            profile_roles: {
+              select: {
+                role_id: true,
+                roles: {
+                  select: {
+                    role_name: true,
+                    responsibilities: true,
+                    department_id: true
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     });
 
@@ -57,6 +89,7 @@ const getUserById = async (req, res) => {
     res.status(500).json({ message: 'Error fetching user', error: error.message });
   }
 };
+
 
 // Register new user
 const registerUser = async (req, res) => {

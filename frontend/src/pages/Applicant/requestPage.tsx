@@ -1,6 +1,8 @@
+// src/pages/RequestPage.tsx
 import React from "react";
 import CreatorLayout from "@/layouts/default";
 import RequestCard, { RequestCardProps } from "@/components/requestCard";
+import CustomTabs, { CustomTab } from "@/components/tabs";
 
 const dummyRequests: RequestCardProps[] = [
   {
@@ -26,25 +28,52 @@ const dummyRequests: RequestCardProps[] = [
   },
 ];
 
+const dummyInvitations: RequestCardProps[] = [
+  {
+    projectTitle: "Invitación a Cortometraje XYZ",
+    imageUrl: "https://placehold.co/208x266",
+    cargo: "Asistente de Dirección",
+    estado: "Pendiente",
+    fecha: "05/04/2025",
+  },
+  {
+    projectTitle: "Invitación a Documental Social",
+    imageUrl: "https://placehold.co/208x266",
+    cargo: "Sonidista",
+    estado: "Aprobada",
+    fecha: "06/04/2025",
+  },
+];
+
 const RequestPage: React.FC = () => {
   return (
     <CreatorLayout>
-      <div className="w-full h-full px-12 pb-11 flex flex-col justify-start gap-2">
+      <div className="w-full h-full px-12 pb-11 flex flex-col justify-start gap-6">
         {/* Header */}
-        <div className="self-stretch flex flex-col justify-start items-center gap-4">
-          <div className="w-full h-20 pr-14 inline-flex justify-start items-center">
-            <div className="text-Base-Negro text-6xl font-medium font-barlow leading-[78px]">
-              Solicitudes
-            </div>
-          </div>
-          <div className="w-full h-0 outline outline-1 outline-offset-[-0.5px] outline-Gris-700"></div>
-          {/* Request Cards */}
-          <div className="self-stretch inline-flex justify-between items-start flex-wrap gap-6">
-            {dummyRequests.map((request) => (
-              <RequestCard key={request.projectTitle} {...request} />
-            ))}
-          </div>
+        <div className="w-full h-20 pr-14 inline-flex justify-start items-center">
+          <h1 className="text-Base-Negro text-6xl font-medium font-barlow leading-[78px]">
+            Solicitudes e Invitaciones
+          </h1>
         </div>
+
+        {/* Tabs */}
+        <CustomTabs>
+          <CustomTab label="Solicitudes">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-1 gap-6">
+              {dummyRequests.map((request) => (
+                <RequestCard key={request.projectTitle} {...request} />
+              ))}
+            </div>
+          </CustomTab>
+
+          <CustomTab label="Invitaciones">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-1 gap-6">
+              {dummyInvitations.map((invitation) => (
+                <RequestCard key={invitation.projectTitle} {...invitation} />
+              ))}
+            </div>
+          </CustomTab>
+        </CustomTabs>
       </div>
     </CreatorLayout>
   );

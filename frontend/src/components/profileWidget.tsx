@@ -1,6 +1,6 @@
 import React from "react";
 import Button from "./button";
-import { Link } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import ExitIcon from "@/assets/icons/exit.svg";
 
 export interface ProfileWidgetProps {
@@ -16,8 +16,10 @@ const ProfileWidget: React.FC<ProfileWidgetProps> = ({
   email,
   className = "",
 }) => {
+  const navigate = useNavigate();
   const handleLogout = () => {
     localStorage.removeItem("token");
+    navigate("/login");
   };
 
   return (
@@ -42,13 +44,13 @@ const ProfileWidget: React.FC<ProfileWidgetProps> = ({
             </div>
           </div>
         </Link>
-        <Link to="/login" onClick={handleLogout}>
+        <button onClick={handleLogout}>
             <img
               src={ExitIcon}
               alt="Exit Icon"
               className="w-full h-full"
             />
-        </Link> 
+        </button> 
       </div>
     </div>
   );
