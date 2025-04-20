@@ -51,6 +51,27 @@ const getProjectsByCreatorId = async (req, res) => {
   }
 };
 
+// Gets all projects where a user is part of the crew
+// GET /projects/user/:id/crew
+const getProjectsByCrewMemberId = async (req, res) => {
+  try {
+    const userId = req.params.user_id;
+    if (!userId) {
+      return res.status(400).json({ error: "User ID is required" });
+    }
+
+    const projects = await projectService.getProjectsByCrewMemberId(userId);
+
+    if (!projects || projects.length === 0) {
+      return res.status(404).json({ error: "No projects found where this user is part of the crew" });
+    }
+
+    res.status(200).json(projects);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // Updates a project
 // PUT /projects/:id
 const updateProject = async (req, res) => {
@@ -106,18 +127,14 @@ const toggleProjectStatus = async (req, res) => {
 // PATCH /projects/:id/publish
 const toggleProjectPublishStatus = async (req, res) => {
   try {
-    const project = await projectService.getProjectById(req.params.id);
-    if (!project) {
-      return res.status(404).json({ error: "Project not found" });
-    }
-
+    // Update the project publish status
     const updatedProject = await projectService.toggleProjectPublishStatus(
-      req.params.id, 
-      req.body.is_published
+      req.params.id
     );
     res.status(200).json(updatedProject);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    const status = error.statusCode || 500;
+    res.status(status).json({ error: error.message });
   }
 }
 
@@ -252,8 +269,8 @@ const isOwner = async (req, res) => {
   }
 };
 
-//
-
+// Gets all crew members associated with a project
+// GET /projects/:id/crew
 const getCrewByProjectId = async (req, res) => {
   try {
     const project = await projectService.getProjectById(req.params.id);
@@ -384,6 +401,7 @@ module.exports = {
   getProjectGenres,
   getProjectClasses,
   getProjectFormats,
+  getProjectsByCrewMemberId,
   getAllFormats,
   isOwner,
   getCrewByProjectId,

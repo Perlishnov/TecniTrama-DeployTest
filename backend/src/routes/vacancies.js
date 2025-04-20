@@ -170,7 +170,7 @@ router.put('/:id', authenticateToken, vacancyController.updateVacancy);
  *         schema:
  *           type: string
  *     responses:
- *       200:
+ *       204:
  *         description: Vacancy deleted successfully.
  *       404:
  *         description: Vacancy not found.

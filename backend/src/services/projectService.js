@@ -1,5 +1,5 @@
 const prisma = require("../models/prismaClient");
-const { get } = require("../routes/profiles");
+const { createNotificationForMultipleUsers } = require("./notificationService");
 
 // Creates Project
 const createProject = async (projectData) => {
@@ -44,8 +44,6 @@ const createProject = async (projectData) => {
     return newProject;
   });
 };
-
-
 
 // Gets all Projects
 const getAllProjects = async () => {
@@ -163,10 +161,63 @@ const toggleProjectStatus = async (id, is_active) => {
 };
 
 // Toggles Project Publish Status
-const toggleProjectPublishStatus = async (id, is_published) => {
-  return await prisma.projects.update({
-    where: { project_id: parseInt(id) },
-    data: { is_published }
+const toggleProjectPublishStatus = async (id) => {
+  return await prisma.$transaction(async (tx) => {
+    
+    // Check if project exists
+    const project = await tx.projects.findUnique({
+      where: { project_id: parseInt(id) },
+    });
+
+    if (!project) {
+      const error = new Error("Project not found");
+      error.statusCode = 404;
+      throw error;
+    }
+
+    // Toggle publish status
+    const updatedProject = await tx.projects.update({
+      where: { project_id: project.project_id },
+      data: { is_published: !project.is_published },
+    });
+
+    // If the project is being published
+    if (!project.is_published && updatedProject.is_published) {
+
+      // Update publish date
+      await tx.projects.update({
+        where: { project_id: updatedProject.project_id },
+        data: { publication_date: new Date() },
+      });
+
+      // Get all users to notify
+      const allUsers = await tx.users.findMany({
+        select: { user_id: true },
+        where: {
+          user_type_id: 1, // Assuming 1 is the user type for common users
+          user_id: {
+            not: updatedProject.creator_id // Exclude the project creator
+          }
+        }, 
+      });
+
+      const notifContent = `¡Nuevo proyecto "${updatedProject.title}"! Dale un vistazo a las vacantes.`;
+
+      // Create notifications in batch for all users
+      await createNotificationForMultipleUsers({
+        userIds: allUsers.map(u => u.user_id),
+        projectId: updatedProject.project_id,
+        content: notifContent,
+      }, tx);
+      
+    }
+
+    // Return the final updated project
+    const finalProject = await tx.projects.findUnique({
+      where: { project_id: project.project_id },
+    });
+
+    return finalProject;
   });
 };
 
@@ -350,6 +401,27 @@ const updateProjectClasses = async (projectId, classIds) => {
   });
 };
 
+// Gets all projects where a user is part of the crew
+const getProjectsByCrewMemberId = async (userId) => {
+  const parsedUserId = parseInt(userId);
+ // Get all project_ids where the user is part of the crew
+  const crewEntries = await prisma.crew.findMany({
+    where: { user_id: parsedUserId },
+    select: { project_id: true }
+  });
+
+  const projectIds = crewEntries.map(entry => entry.project_id);
+
+  // Fetch all related projects using getProjectById for each project_id
+
+  const projects = await Promise.all(
+    projectIds.map(id => getProjectById(id))
+  );
+
+  // Filter out any nulls (in case some projects were deleted)
+  return projects.filter(project => project);
+};
+
 module.exports = {
   createProject,
   getAllProjects,
@@ -362,6 +434,7 @@ module.exports = {
   isProjectOwner,
   getCrewByProjectId,
   deleteCrewByProjectId,
+  getProjectsByCrewMemberId,
   updateProjectFormat,
   updateProjectGenres,
   updateProjectClasses

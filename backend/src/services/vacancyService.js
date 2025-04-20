@@ -27,8 +27,8 @@ const getVacanciesByProjectId = async (project_id) => {
 };
 
 // Get vacancy by ID
-const getVacancyById = async (id) => {
-  return await prisma.vacancies.findUnique({
+const getVacancyById = async (id, client = prisma) => {
+  return await client.vacancies.findUnique({
     where: { vacancy_id: parseInt(id) },
     include: {
       projects: true,

@@ -35,7 +35,6 @@ const { authenticateToken } = require('../controllers/authController');
  */
 router.post('/', authenticateToken, applicationController.createApplication);
 
-
 // Get Application by ID
 /**
  * @swagger
@@ -216,6 +215,45 @@ router.get('/project/:id', authenticateToken, applicationController.getApplicati
  *         description: Internal server error
  */
 router.get('/project/:projectId/status/:statusId', authenticateToken, applicationController.getApplicationsByProjectAndStatus);
+
+// Change Application Status
+/**
+ * @swagger
+ * /api/applications/{appId}/status/{statusId}:
+ *   patch:
+ *     summary: Change the status of an application.
+ *     description: Updates the status of an application based on its ID and the new status ID.
+ *     tags: [Applications]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: appId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID of the application
+ *       - in: path
+ *         name: statusId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: New status ID
+ *     responses:
+ *       200:
+ *         description: Application status updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Application'
+ *       400:
+ *         description: Bad request
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Application or status not found
+ */
+router.patch('/:appId/status/:statusId', authenticateToken, applicationController.changeApplicationStatus);
 
 
 // Swagger schemas and security definitions

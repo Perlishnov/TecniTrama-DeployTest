@@ -1,3 +1,4 @@
+const { parse } = require('dotenv');
 const applicationService = require('../services/applicationService');
 
 // Creates Application
@@ -83,6 +84,29 @@ const getApplicationsByProjectAndStatus = async (req, res) => {
     }
 };
 
+// Changes Application Status
+// PATCH /applications/:appId/status/:statusId
+const changeApplicationStatus = async (req, res) => {
+    try {
+      const applicationId = parseInt(req.params.appId, 10);
+      const newStatusId = parseInt(req.params.statusId, 10);             
+  
+      const updatedApp = await applicationService.changeApplicationStatus(
+        applicationId,
+        parseInt(newStatusId, 10)
+      );
+  
+      res.status(200).json(updatedApp);
+    } catch (error) {
+        if (error.statusCode === 404) {
+            res.status(404).json({ error: error.message });
+          } else {
+            res.status(500).json({ error: "Internal server error" });
+          }
+    }
+  };
+  
+
 module.exports = {
     createApplication,
     getApplicationById,
@@ -90,4 +114,5 @@ module.exports = {
     getApplicationsByPostulantAndStatus,
     getApplicationsByProjectId,
     getApplicationsByProjectAndStatus,
+    changeApplicationStatus
 };
