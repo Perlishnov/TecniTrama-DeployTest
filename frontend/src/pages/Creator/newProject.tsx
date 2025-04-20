@@ -15,7 +15,8 @@ import ConfirmCancelModal from "@/components/modals/ConfirmCancelModal";
 import VacancyFormModal from "@/components/modals/VacantModal";
 import VacanciesTable from "@/components/VacancyTable";
 import { useDecodeJWT } from "@/hooks/useDecodeJWT";
-
+import type { Dayjs } from "dayjs";
+import dayjs from "dayjs";
 
 export const mockDepartments: Department[] = [
   { department_id: 1, department_name: "Producción" },
@@ -102,6 +103,7 @@ const NewProject: React.FC = () => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [openPicker, setOpenPicker] = useState<"start" | "end" | null>(null);
+  const parsedStartDate = startDate ? dayjs(startDate, "DD/MM/YYYY") : null;
 
   // File Input for Banner Image
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -471,12 +473,13 @@ const NewProject: React.FC = () => {
                     {openPicker === "start" && (
                       <div className="absolute z-10 mt-2">
                         <CustomDatePicker
-                          selectedDate={startDate ? new Date(startDate) : null}
+                          selectedDate={startDate}
                           onSelect={(date) => {
                             setStartDate(date);
                             setOpenPicker(null);
                           }}
                           onClose={() => setOpenPicker(null)}
+                          maxDate={dayjs().add(2, 'year')}
                         />
                       </div>
                     )}
@@ -509,12 +512,14 @@ const NewProject: React.FC = () => {
                     {openPicker === "end" && (
                       <div className="absolute z-10 mt-2 right-0">
                         <CustomDatePicker
-                          selectedDate={endDate ? new Date(endDate) : null}
+                          selectedDate={endDate}
                           onSelect={(date) => {
                             setEndDate(date);
                             setOpenPicker(null);
                           }}
                           onClose={() => setOpenPicker(null)}
+                          minDate={parsedStartDate || dayjs()}
+                          disabled={!startDate}
                         />
                       </div>
                     )}
