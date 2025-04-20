@@ -287,16 +287,6 @@ router.patch('/:id/status', authenticateToken, projectController.toggleProjectSt
  *         schema:
  *           type: integer
  *         description: Project ID
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               is_published:
- *                 type: boolean
- *                 example: false
  *     responses:
  *       200:
  *         description: Project publish status updated
@@ -723,7 +713,7 @@ router.put('/:id/genres', authenticateToken, projectController.updateProjectGenr
  */
 router.put('/:id/classes', authenticateToken, projectController.updateProjectClasses);
 
-// Swagger schemas and security definitions
+// Swagger schemas definitions
 /**
  * @swagger
  * components:

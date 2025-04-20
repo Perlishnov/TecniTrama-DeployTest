@@ -106,18 +106,14 @@ const toggleProjectStatus = async (req, res) => {
 // PATCH /projects/:id/publish
 const toggleProjectPublishStatus = async (req, res) => {
   try {
-    const project = await projectService.getProjectById(req.params.id);
-    if (!project) {
-      return res.status(404).json({ error: "Project not found" });
-    }
-
+    // Update the project publish status
     const updatedProject = await projectService.toggleProjectPublishStatus(
-      req.params.id, 
-      req.body.is_published
+      req.params.id
     );
     res.status(200).json(updatedProject);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    const status = error.statusCode || 500;
+    res.status(status).json({ error: error.message });
   }
 }
 
@@ -252,8 +248,8 @@ const isOwner = async (req, res) => {
   }
 };
 
-//
-
+// Gets all crew members associated with a project
+// GET /projects/:id/crew
 const getCrewByProjectId = async (req, res) => {
   try {
     const project = await projectService.getProjectById(req.params.id);

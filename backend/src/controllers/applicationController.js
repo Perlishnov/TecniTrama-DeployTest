@@ -83,6 +83,29 @@ const getApplicationsByProjectAndStatus = async (req, res) => {
     }
 };
 
+// Changes Application Status
+// PATCH /applications/:id/status
+const changeApplicationStatus = async (req, res) => {
+    try {
+      const applicationId = parseInt(req.params.id, 10);
+      const { newStatusId } = req.body;             
+  
+      const updatedApp = await applicationService.changeApplicationStatus(
+        applicationId,
+        parseInt(newStatusId, 10)
+      );
+  
+      res.status(200).json(updatedApp);
+    } catch (error) {
+        if (error.statusCode === 404) {
+            res.status(404).json({ error: error.message });
+          } else {
+            res.status(500).json({ error: "Internal server error" });
+          }
+    }
+  };
+  
+
 module.exports = {
     createApplication,
     getApplicationById,
@@ -90,4 +113,5 @@ module.exports = {
     getApplicationsByPostulantAndStatus,
     getApplicationsByProjectId,
     getApplicationsByProjectAndStatus,
+    changeApplicationStatus
 };

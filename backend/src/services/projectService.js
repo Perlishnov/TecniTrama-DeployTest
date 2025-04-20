@@ -1,5 +1,5 @@
 const prisma = require("../models/prismaClient");
-const { get } = require("../routes/profiles");
+const { createNotificationForMultipleUsers } = require("./notificationService");
 
 // Creates Project
 const createProject = async (projectData) => {
@@ -44,8 +44,6 @@ const createProject = async (projectData) => {
     return newProject;
   });
 };
-
-
 
 // Gets all Projects
 const getAllProjects = async () => {
@@ -163,10 +161,51 @@ const toggleProjectStatus = async (id, is_active) => {
 };
 
 // Toggles Project Publish Status
-const toggleProjectPublishStatus = async (id, is_published) => {
-  return await prisma.projects.update({
-    where: { project_id: parseInt(id) },
-    data: { is_published }
+const toggleProjectPublishStatus = async (id) => {
+  return await prisma.$transaction(async (tx) => {
+    
+    // Check if project exists
+    const project = await tx.projects.findUnique({
+      where: { project_id: parseInt(id) },
+    });
+
+    if (!project) {
+      const error = new Error("Project not found");
+      error.statusCode = 404;
+      throw error;
+    }
+
+    // Toggle publish status
+    const updatedProject = await tx.projects.update({
+      where: { project_id: project.project_id },
+      data: { is_published: !project.is_published },
+    });
+
+    // If the project is being published
+    if (!project.is_published && updatedProject.is_published) {
+
+      // Update publish date
+      await tx.projects.update({
+        where: { project_id: updatedProject.project_id },
+        data: { published_at: new Date() },
+      });
+
+      // Get all users to notify
+      const allUsers = await tx.users.findMany({
+        select: { user_id: true },
+      });
+
+      const notifContent = `¡Nuevo proyecto "${updatedProject.title}"! Dale un vistazo a las vacantes.`;
+
+      // Create notifications in batch for all users
+      await createNotificationForMultipleUsers({
+        userIds: allUsers.map(u => u.user_id),
+        projectId: updatedProject.project_id,
+        content: notifContent,
+      }, tx);
+    }
+
+    return updatedProject;
   });
 };
 

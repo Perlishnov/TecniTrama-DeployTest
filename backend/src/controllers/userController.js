@@ -1,4 +1,3 @@
-// const bcrypt = require('bcryptjs'); // Removed in favor of hash utility
 const hash = require('../utils/hash')
 const { generateToken } = require('../services/authService');
 const prisma = require('../models/prismaClient');
