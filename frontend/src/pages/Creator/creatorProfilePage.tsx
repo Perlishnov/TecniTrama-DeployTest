@@ -72,6 +72,7 @@ const CreatorProfilePage: React.FC = () => {
           title: p.title ?? "Sin titulo",
           description: p.description ?? "Sin descripcion",
           imageUrl: p.imageUrl ?? "https://placehold.co/400x300",
+          href: `/projects/${p.project_id}`,
           filters: Array.isArray(p.filters) ? p.filters : [],
           completado: !!p.completado,
         }));
