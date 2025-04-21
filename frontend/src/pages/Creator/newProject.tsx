@@ -15,51 +15,10 @@ import ConfirmCancelModal from "@/components/modals/ConfirmCancelModal";
 import VacancyFormModal from "@/components/modals/VacantModal";
 import VacanciesTable from "@/components/VacancyTable";
 import { useDecodeJWT } from "@/hooks/useDecodeJWT";
+import { useCloudinaryUpload } from "@/hooks/usecloudinary";
 import type { Dayjs } from "dayjs";
 import dayjs from "dayjs";
 
-export const mockDepartments: Department[] = [
-  { department_id: 1, department_name: "Producción" },
-  { department_id: 2, department_name: "Dirección" },
-  { department_id: 3, department_name: "Guion" },
-  { department_id: 4, department_name: "Fotografía" },
-  { department_id: 5, department_name: "Sonido" },
-  { department_id: 6, department_name: "Arte" },
-  { department_id: 7, department_name: "Vestuario" },
-  { department_id: 8, department_name: "Maquillaje y Peinado" },
-  { department_id: 9, department_name: "Edición y Post-producción" },
-  { department_id: 10, department_name: "Efectos Visuales (VFX)" },
-  { department_id: 11, department_name: "Música" },
-  { department_id: 12, department_name: "Administración y Legal" },
-];
-
-export const mockRoles: Role[] = [
-  // Producción (department_id: 1)
-  { role_id: 101, role_name: "Productor/a Ejecutivo/a", department_id: 1, responsibilities: "Financiación y supervisión general del proyecto." },
-  { role_id: 102, role_name: "Productor/a General", department_id: 1, responsibilities: "Supervisión diaria de la producción." },
-  { role_id: 103, role_name: "Jefe/a de Producción", department_id: 1, responsibilities: "Logística, presupuesto y cronograma del rodaje." },
-  { role_id: 104, role_name: "Asistente de Producción", department_id: 1, responsibilities: "Apoyo general al equipo de producción." },
-  { role_id: 105, role_name: "Secretario/a de Producción", department_id: 1, responsibilities: "Tareas administrativas y de comunicación." },
-  { role_id: 106, role_name: "Administrador/a de Locaciones", department_id: 1, responsibilities: "Búsqueda, gestión y permisos de locaciones." },
-
-  // Dirección (department_id: 2)
-  { role_id: 201, role_name: "Director/a", department_id: 2, responsibilities: "Visión creativa y dirección de actores y equipo técnico." },
-  { role_id: 202, role_name: "Primer/a Asistente de Dirección", department_id: 2, responsibilities: "Planificación del rodaje, gestión del set." },
-  { role_id: 203, role_name: "Segundo/a Asistente de Dirección", department_id: 2, responsibilities: "Coordinación de extras, logística del set." },
-  { role_id: 204, role_name: "Script Supervisor / Continuista", department_id: 2, responsibilities: "Seguimiento de la continuidad y notas del guion." },
-];
-
-const initialVacanciesData = [
-  {
-    id: "",
-    cargo: "",
-    descripcion: "",
-    requerimientos: "",
-    departamento: "",
-    role_id: "",
-    department_id: "",
-  },
-];
 
 const NewProject: React.FC = () => {
   // Project Fields
@@ -70,14 +29,24 @@ const NewProject: React.FC = () => {
   );
   const decodedToken = useDecodeJWT();
   const apiRoute = import.meta.env.VITE_API_ROUTE;
+  const { isUploading, uploadFile, error: uploadError } = useCloudinaryUpload({
+    uploadPreset: "tecnitrama-asset",
+    cloudName: "dcrl5demd",
+  });
+
 
   const [formats, setFormats] = useState<ProjectFormat[]>([]);
   const [genres, setGenres] = useState<Genre[]>([]);
   const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [departments, setDepartments] = useState<Department[]>([]);
+  const [roles, setRoles] = useState<Role[]>([]);
 
   const [isLoadingFormats, setIsLoadingFormats] = useState(false);
   const [isLoadingGenres, setIsLoadingGenres] = useState(false);
   const [isLoadingSubjects, setIsLoadingSubjects] = useState(false);
+  const [isLoadingDepartments, setIsLoadingDepartments] = useState(false);
+  const [isLoadingRoles, setIsLoadingRoles] = useState(false);
+
 
   const [budget, setBudget] = useState("2.00$");
   const [selectedFormat, setSelectedFormat] = useState<ProjectFormat | null>(null);
@@ -86,10 +55,8 @@ const NewProject: React.FC = () => {
   const [bannerImage, setBannerImage] = useState("https://placehold.co/1305x297");
   const [sponsors, setSponsors] = useState("");
   const [attachmentsUrl, setAttachmentsUrl] = useState("");
-  const [departments, setDepartments] = useState<Department[]>(mockDepartments);
-  const [roles, setRoles] = useState<Role[]>(mockRoles);
 
-  const [vacancies, setVacancies] = useState<Vacancy[]>(initialVacanciesData); // Empezar vacío
+  const [vacancies, setVacancies] = useState<Vacancy[]>([]); // Empezar vacío
   const [vacancyModalOpen, setVacancyModalOpen] = useState(false);
   const [editingVacancy, setEditingVacancy] = useState<Vacancy | null>(null); // Para editar
 
@@ -99,26 +66,32 @@ const NewProject: React.FC = () => {
   const [subjectsModalOpen, setSubjectsModalOpen] = useState(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 
-  // Date States (using string for simplicity in display; ideally, you'd use a date type)
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  const [startDate, setStartDate] = useState<string | null>(null);
+  const [endDate, setEndDate] = useState<string | null>(null);
   const [openPicker, setOpenPicker] = useState<"start" | "end" | null>(null);
   const parsedStartDate = startDate ? dayjs(startDate, "DD/MM/YYYY") : null;
 
   // File Input for Banner Image
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const handleFileChange = (event: any): void => {
+  const handleFileChange = async (event: any) => {
     const file = event.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      console.log("Image file selected:", file.name);
-      setBannerImage(e.target?.result as string);
-    };
-    reader.readAsDataURL(file);
+
+    const uploadedUrl = await uploadFile(file);
+    if (uploadedUrl) {
+      console.log("Imagen subida a Cloudinary:", uploadedUrl);
+      setBannerImage(uploadedUrl); // Ahora guardamos el URL de Cloudinary
+    } else {
+      alert("Error subiendo la imagen. Intenta de nuevo.");
+    }
   };
-  // Abrir modal (nuevo o edicion)
-  const openVacancyModal = (vacancy: Vacancy | null = null) => {
+
+
+  const openVacancyModal = async (vacancy: Vacancy | null = null) => {
+    // Si aún no tenemos departamentos, los traemos
+    if (departments.length === 0) {
+      await fetchDepartments();
+    }
     setEditingVacancy(vacancy);
     setVacancyModalOpen(true);
   };
@@ -167,41 +140,65 @@ const NewProject: React.FC = () => {
       setIsLoadingSubjects(false);
     }
   };
+
+  const fetchDepartments = async () => {
+    try {
+      setIsLoadingDepartments(true);
+      const res = await fetch(`${apiRoute}departments`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+      const data: Department[] = await res.json();
+      setDepartments(data);
+    } catch (e) {
+      console.error("Error cargando departamentos:", e);
+    } finally {
+      setIsLoadingDepartments(false);
+    }
+  };
+
+  const fetchRolesByDepartment = async (department_id: string) => {
+    try {
+      setIsLoadingRoles(true);
+      const response = await fetch(`${apiRoute}departments/${department_id}/roles`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+      const data = await response.json();
+      setRoles(data);
+    } catch (error) {
+      console.error("Error cargando roles por departamento", error);
+    } finally {
+      setIsLoadingRoles(false);
+    }
+  };
+
   const handleSaveVacancy = (data: {
     department_id: number;
+    department_name: string;
     role_id: number;
-    descripcion: string;
-    requerimientos: string;
+    role_name: string;
+    description: string;
+    requirements: string;
   }) => {
-    const role = roles.find(r => r.role_id === data.role_id);
-    const department = departments.find(d => d.department_id === data.department_id);
-
-    if (!role || !department) {
-      alert("Departamento o Rol invalido");
-      return;
-    }
-
-    const transformedData: Omit<Vacancy, "id"> = {
+    const transformed: Omit<Vacancy, "id"> = {
       department_id: data.department_id,
       role_id: data.role_id,
-      descripcion: data.descripcion,
-      requerimientos: data.requerimientos,
-      cargo: role.role_name,
-      departamento: department.department_name,
+      cargo: data.role_name,
+      departamento: data.department_name,
+      descripcion: data.description,
+      requerimientos: data.requirements,
     };
 
     if (editingVacancy) {
-      setVacancies((prev) =>
-        prev.map((v) =>
-          v.id === editingVacancy.id ? { ...v, ...transformedData } : v
+      setVacancies(prev =>
+        prev.map(v =>
+          v.id === editingVacancy.id ? { ...v, ...transformed } : v
         )
       );
     } else {
-      const newVacancy: Vacancy = {
-        id: `temp-${Date.now()}`,
-        ...transformedData,
-      };
-      setVacancies((prev) => [...prev, newVacancy]);
+      setVacancies(prev => [
+        ...prev,
+        { id: `temp-${Date.now()}`, ...transformed }
+      ]);
     }
     setVacancyModalOpen(false);
     setEditingVacancy(null);
@@ -211,10 +208,12 @@ const NewProject: React.FC = () => {
     setVacancies((prev) => prev.filter((v) => v.id !== id));
   };
 
-  const formatDate = (date: string) => (date ? date : "Seleccionar");
+  const formatDate = (dateStr: string | null) => {
+    if (!dateStr) return "";
+    return dateStr;
+  };  
 
-  const handleSubmit = async () => {// Form Submission for the project
-
+  const handleSubmit = async () => {
     if (!decodedToken) {
       alert("No se pudo decodificar el token. Vuelve a iniciar sesión.");
       return;
@@ -226,8 +225,8 @@ const NewProject: React.FC = () => {
       return;
     }
 
-    // Validaciones normales
-    if (!title || !selectedFormat || selectedGenres.length === 0 || selectedSubjects.length === 0 ) {
+    // Validaciones
+    if (!title || !selectedFormat || selectedGenres.length === 0 || selectedSubjects.length === 0) {
       alert("Por favor completa todos los campos obligatorios.");
       return;
     }
@@ -241,16 +240,15 @@ const NewProject: React.FC = () => {
         attachmenturl: attachmentsUrl,
         budget: parseFloat(budget.replace("$", "").trim()) || 0,
         sponsors,
-        estimated_start: new Date(startDate),
-        estimated_end: new Date(endDate),
-        is_published: true,
-        //is_active: true,
+        estimated_start: startDate ? dayjs(startDate, "DD/MM/YYYY").toISOString() : null,
+        estimated_end: endDate ? dayjs(endDate, "DD/MM/YYYY").toISOString() : null,
+        is_published: false,
         format_id: selectedFormat.format_id,
         genre_ids: selectedGenres.map(g => g.genre_id),
         class_ids: selectedSubjects.map(s => s.class_id),
       };
 
-      const projectResponse = await fetch(`${apiRoute}projects`, {
+      const projectRes = await fetch(`${apiRoute}projects`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -259,26 +257,21 @@ const NewProject: React.FC = () => {
         body: JSON.stringify(projectPayload),
       });
 
-      console.log(projectResponse)
-      if (!projectResponse.ok) {
-        throw new Error("Error al crear el proyecto.");
-      }
-
-      const projectData = await projectResponse.json();
+      if (!projectRes.ok) throw new Error("Error al crear el proyecto");
+      const projectData = await projectRes.json();
       const newProjectId = projectData.project_id;
 
-      // Crear vacantes
-      for (const vacancy of vacancies) {
+      for (const vac of vacancies) {
         const vacancyPayload = {
           project_id: newProjectId,
-          role_id: vacancy.role_id,
-          description: vacancy.descripcion,
-          requirements: vacancy.requerimientos,
+          role_id: vac.role_id,
+          description: vac.descripcion,
+          requirements: vac.requerimientos,
           is_filled: false,
           is_visible: true,
         };
 
-        const vacancyResponse = await fetch(`${apiRoute}vacancies`, {
+        const vacRes = await fetch(`${apiRoute}vacancies`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -287,15 +280,16 @@ const NewProject: React.FC = () => {
           body: JSON.stringify(vacancyPayload),
         });
 
-        if (!vacancyResponse.ok) {
-          console.error("Error al crear una vacante:", vacancy);
+        if (!vacRes.ok) {
+          console.error("Error al crear vacante:", vac, await vacRes.text());
         }
       }
+
       navigate("/dashboard");
 
     } catch (error) {
       console.error("Error en la creación del proyecto o vacantes:", error);
-      alert("Hubo un error al crear el proyecto. Intenta de nuevo.");
+      alert("Hubo un error al crear el proyecto o las vacantes. Intenta de nuevo.");
     }
   };
 
@@ -354,7 +348,7 @@ const NewProject: React.FC = () => {
           <CustomTab label="General">
             {/* Main Content Container */}
             <div className="w-full max-w-[75rem] flex gap-10 px-8 my-8">
-              
+
               {/* Left Column: Format, Genres, Subjects */}
               <div className="w-1/4 flex flex-col gap-[1.563rem]">
                 <InfoCard
@@ -580,15 +574,17 @@ const NewProject: React.FC = () => {
               <VacancyFormModal
                 isOpen={vacancyModalOpen}
                 onClose={() => setVacancyModalOpen(false)}
-                onSave={handleSaveVacancy}
+                onSave={handleSaveVacancy}   // ahora recibe también department_name y role_name
                 initialData={editingVacancy ? {
                   department_id: editingVacancy.department_id,
                   role_id: editingVacancy.role_id,
-                  descripcion: editingVacancy.descripcion,
-                  requerimientos: editingVacancy.requerimientos
+                  // Para editar también necesitas mapear los dos nombres
+                  department_name: editingVacancy.departamento,
+                  role_name: editingVacancy.cargo,
+                  description: editingVacancy.descripcion,
+                  requirements: editingVacancy.requerimientos
                 } : undefined}
                 departments={departments}
-                roles={roles}
               />
             </>
           </CustomTab>

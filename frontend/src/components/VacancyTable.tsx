@@ -1,4 +1,3 @@
-// src/components/VacanciesTable.tsx
 import React from "react";
 import { Table, Button, Space } from "antd";
 import { Vacancy } from "@/types/index";
