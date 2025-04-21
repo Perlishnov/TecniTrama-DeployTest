@@ -1,6 +1,7 @@
 const prisma = require("../models/prismaClient");
 const { createNotification } = require("./notificationService");
 const { getVacancyById } = require("./vacancyService");
+const { updateVacancyFilledStatus } = require("./vacancyService");
 
 
 // Creates Application
@@ -199,7 +200,13 @@ const changeApplicationStatus = async (applicationId, newStatusId) => {
     const updatedApp = await tx.applications.update({
       where: { app_id: applicationId },
       data: { app_status_id: newStatusId },
+      include: { app_status: true },
     });
+
+    // Update vacancy filled status if necessary
+    if (newStatus.status === "APROBADO") {
+      await updateVacancyFilledStatus(application.vacancy_id, true, tx);
+    }
 
     const user = application.users;
     const project = application.vacancies.projects;
@@ -217,7 +224,7 @@ const changeApplicationStatus = async (applicationId, newStatusId) => {
       );
     }
 
-    if (prevStatus === "invitado" && ["aprobado", "rechazado"].includes(newStatus.status)) {
+    if (prevStatus === "INVITADO" && ["APROBADO", "RECHAZADO"].includes(newStatus.status)) {
       await createNotification(
         {
           userId: project.creator_id,
