@@ -16,6 +16,8 @@ import ConfirmCancelModal from "@/components/modals/ConfirmCancelModal";
 import VacancyFormModal  from "@/components/modals/VacantModal";
 import VacanciesTable from "@/components/VacancyTable";
 import ConfirmEditModal from "@/components/modals/confirmEditModal";
+import type { Dayjs } from "dayjs";
+import dayjs from "dayjs";
 
 // Mock formats (ProjectFormat[])
 export const mockFormats: ProjectFormat[] = [

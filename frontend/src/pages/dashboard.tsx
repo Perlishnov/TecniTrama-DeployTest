@@ -19,6 +19,7 @@ const DashboardPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const apiRoute = import.meta.env.VITE_API_ROUTE;
+   const token = localStorage.getItem("token");
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -33,8 +34,12 @@ const DashboardPage: React.FC = () => {
             try {
               const genresResponse = await fetch(
                 `${apiRoute}projects/${project.project_id}/genres`,
-                { credentials: 'include' }
-              );
+                {
+                  headers: {
+                    Authorization: `Bearer ${token}`,
+                    Accept: "application/json",
+                  }
+                });
 
               // Estructura base del proyecto
               const baseProject = {
