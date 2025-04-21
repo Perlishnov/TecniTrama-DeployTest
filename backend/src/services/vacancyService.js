@@ -72,11 +72,20 @@ const getAllVacancies = async () => {
   });
 };
 
+// Update filled status of vacancy
+const updateVacancyFilledStatus = async (id, filled, client = prisma) => {
+  return await client.vacancies.update({
+    where: { vacancy_id: parseInt(id) },
+    data: { is_filled: filled }
+  });
+};
+
 module.exports = {
   createVacancy,
   getAllVacancies,
   getVacanciesByProjectId,
   getVacancyById,
   updateVacancy,
-  deleteVacancy
+  deleteVacancy,
+  updateVacancyFilledStatus
 };
