@@ -72,8 +72,15 @@ const App = () => {
           Pagination:{
             itemBg: '#ffffff',
             itemActiveBg: '#FF9A8C', 
+          },
+          Dropdown: {
+            colorSplit: 'rgba(0, 0, 0, 0.15)',
+            controlItemBgHover: '#FF9A8C',
+            controlItemBgActive: '#FFC2B8',
+            colorPrimary: '#ffffff',
+            fontFamily: 'Barlow',
           }
-        },
+        }
       }}
     >
       <Routes>

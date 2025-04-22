@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import CreatorLayout from "@/layouts/default";
 import ProjectCard, { ProjectCardProps } from "@/components/projectCard";
 import { Genre } from "@/types";
+import { Dropdown, Menu, ConfigProvider } from "antd";
+import type { MenuProps } from "antd";
 
 interface ApiProject {
   project_id: number;
@@ -19,15 +21,23 @@ const DashboardPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const apiRoute = import.meta.env.VITE_API_ROUTE;
-   const token = localStorage.getItem("token");
+  const token = localStorage.getItem("token");
+
 
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const projectsResponse = await fetch(`${apiRoute}projects`);
+        const projectsResponse = await fetch(`${apiRoute}projects`, {
+          headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/json",
+          }
+        });
         if (!projectsResponse.ok) throw new Error("Error obteniendo proyectos");
         
-        const projectsData: ApiProject[] = await projectsResponse.json();
+        let projectsData: ApiProject[] = await projectsResponse.json();
+        // Filtrar solo proyectos publicados
+        projectsData = projectsData.filter(project => project.is_published === true);
 
         const projectsWithGenres = await Promise.all(
           projectsData.map(async (project) => {
@@ -95,6 +105,24 @@ const DashboardPage: React.FC = () => {
     ? projects.filter(project => project.filters.includes(activeFilter))
     : projects;
 
+  const handleMenuClick: MenuProps['onClick'] = (e) => {
+    setActiveFilter(e.key === 'all' ? null : e.key);
+  };
+
+  const menuItems: MenuProps['items'] = [
+    ...allFilters.map(filter => ({
+      label: filter,
+      key: filter,
+    })),
+    {
+      type: 'divider',
+    },
+    {
+      label: 'Todos',
+      key: 'all',
+    }
+  ];  
+
   if (loading) {
     return (
       <CreatorLayout>
@@ -118,29 +146,27 @@ const DashboardPage: React.FC = () => {
   return (
     <CreatorLayout>
       <div className="w-full h-full px-12 pt-20 flex flex-col justify-start items-start gap-10">
-        {/* Filtros */}
-        <div className="flex flex-wrap justify-start items-center gap-3.5">
-          {allFilters.map((filter) => (
-            <button
-              key={filter}
-              onClick={() => setActiveFilter(filter)}
-              className={`h-10 px-3.5 py-1 rounded-[71px] outline outline-2 outline-offset-[-2px] outline-black transition-colors
-                ${activeFilter === filter 
-                  ? "bg-blue-500 text-white" 
-                  : "bg-white text-black"}`}
-            >
-              <span className="text-xl p-2 font-medium font-barlow">
-                {filter}
-              </span>
-            </button>
-          ))}
-          <button
-            onClick={() => setActiveFilter(null)}
-            className="h-10 px-3.5 py-1 bg-white rounded-[71px] outline outline-2 outline-black"
+        {/* Filtro Dropdown */}
+          <Dropdown
+            overlay={
+              <Menu 
+                onClick={handleMenuClick}
+                items={menuItems}
+                selectedKeys={activeFilter ? [activeFilter] : []}
+              />
+            }
+            trigger={['click']}
           >
-            <span className="text-xl font-medium font-barlow">Todos</span>
-          </button>
-        </div>
+            <button className="h-10 px-6 py-1 rounded-[71px] outline outline-2 outline-black 
+              bg-white hover:bg-gray-50 transition-colors flex items-center gap-2">
+              <span className="text-xl font-medium font-barlow">
+                {activeFilter || 'Filtrar por género'}
+              </span>
+              <svg width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1 1.5L6 6.5L11 1.5" stroke="black" strokeWidth="2"/>
+              </svg>
+            </button>
+          </Dropdown>
 
         {/* Proyectos */}
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-2 gap-6">
