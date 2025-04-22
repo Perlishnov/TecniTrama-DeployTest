@@ -10,7 +10,7 @@ import ViewRequestModal from "@/components/modals/viewRequestModal";
 import { Vacancy } from "@/types";
 import ApplyVacanciesTable from "@/components/applyVacancyTables";
 import ApplyVacancyModal from "@/components/modals/applyVacancyModal";
-import InviteModal from "@/components/modals/inviteModal";
+import InviteModal from "@/components/modals/InviteModal";
 import { useDecodeJWT } from "@/hooks/useDecodeJWT";
 import dayjs from "dayjs";
 
@@ -79,8 +79,12 @@ const ProjectPreview: React.FC = () => {
         const crewRes = await fetch(`${apiRoute}projects/${projectId}/crew`, { headers });
         const crew = crewRes.ok ? await crewRes.json() : [];
 
-        const requestsRes = await fetch(`${apiRoute}projects/${projectId}`, { headers });
+        const requestsRes = await fetch(`${apiRoute}applications/project/${projectId}`, { headers });
         const requests = requestsRes.ok ? await requestsRes.json() : [];
+
+
+        //const requestsRes = await fetch(`${apiRoute}projects/${projectId}`, { headers });
+        //const requests = requestsRes.ok ? await requestsRes.json() : [];
 
         const mappedVacancies = vacanciesData.map((v: any) => {
           const role = roles.find((r: any) => r.role_id === v.role_id);
@@ -164,64 +168,88 @@ const ProjectPreview: React.FC = () => {
 
   const { title, banner, description, genres, classes, budget, estimated_start, estimated_end, sponsors, attachmenturl, formatoNombre } = projectDetails;
 
-  return (
-    <CreatorLayout>
-      <div className="w-full h-full flex flex-col items-center gap-4 pb-10 bg-rojo-intec-100 overflow-x-hidden">
-        <img src={banner} alt="Project Banner" className="w-full h-[18.56rem] object-cover" />
-        <h1 className="w-full text-center text-[4.5rem] font-barlow font-medium leading-[5.85rem] px-2">
-          {title}
-        </h1>
-        <CustomTabs>
-          <CustomTab label="General">
-            <div className="w-full flex flex-col md:flex-row gap-4 px-[3.375rem] mt-4">
-              <div className="w-full md:w-[12.625rem] flex flex-col gap-[1.563rem]">
-                <InfoCard title="Formato" content={[formatoNombre]} />
-                <InfoCard title="Géneros" content={genres.map((g: any) => g.genre)} />
-                <InfoCard title="Materias" content={classes.map((c: any) => c.class_name)} />
-              </div>
-              <InfoCard title="Descripción" content={description} className="flex-1 min-w-0" />
-              <div className="w-full md:w-[16.563rem] flex flex-col justify-between gap-4">
-                <InfoCard title="Presupuesto" content={budget} />
-                <div className="flex gap-4">
-                  <InfoCard title="Inicio" content={formatDate(estimated_start)} />
-                  <InfoCard title="Final" content={formatDate(estimated_end)} />
-                </div>
-                <InfoCard title="Patrocinadores" content={sponsors} />
-                <InfoCard title="Links" content={attachmenturl} />
-                {isOwner && (
-                  <>
-                    <Button className="p-4 bg-gray-200"><Link to={`/projects/${projectId}/edit`}>Editar proyecto</Link></Button>
-                    <Button className="p-4" onClick={handleToggleActive}>{isActive ? "Terminar" : "Publicar"}</Button>
-                  </>
-                )}
-              </div>
-            </div>
-            <div className="w-full px-[3.375rem] mt-6">
-              <ApplyVacanciesTable
-                vacancies={currentVacancies}
-                isOwner={isOwner}
-                onApply={handleApplyToVacancy}
-                onInvite={handleInviteToVacancy}
+  // Antes del return, dentro de tu componente:
+  const tabs: React.ReactElement[] = [
+    // Tab General
+    <CustomTab label="General" key="general">
+      <div className="w-full flex flex-col md:flex-row gap-4 px-[3.375rem] mt-4">
+        <div className="w-full md:w-[12.625rem] flex flex-col gap-[1.563rem]">
+          <InfoCard title="Formato" content={[formatoNombre]} />
+          <InfoCard title="Géneros" content={genres.map((g: any) => g.genre)} />
+          <InfoCard title="Materias" content={classes.map((c: any) => c.class_name)} />
+        </div>
+        <InfoCard title="Descripción" content={description} className="flex-1 min-w-0" />
+        <div className="w-full md:w-[16.563rem] flex flex-col justify-between gap-4">
+          <InfoCard title="Presupuesto" content={budget} />
+          <div className="flex gap-4">
+            <InfoCard title="Inicio" content={formatDate(estimated_start)} />
+            <InfoCard title="Final" content={formatDate(estimated_end)} />
+          </div>
+          <InfoCard title="Patrocinadores" content={sponsors} />
+          <InfoCard title="Links" content={attachmenturl} />
+          {isOwner && (
+            <>
+              <Button className="p-4 bg-gray-200">
+                <Link to={`/projects/${projectId}/edit`}>Editar proyecto</Link>
+              </Button>
+              <Button className="p-4" onClick={handleToggleActive}>
+                {isActive ? "Terminar" : "Publicar"}
+              </Button>
+            </>
+          )}
+        </div>
+      </div>
+      <div className="w-full px-[3.375rem] mt-6">
+        <ApplyVacanciesTable
+          vacancies={currentVacancies}
+          isOwner={isOwner}
+          onApply={handleApplyToVacancy}
+          onInvite={handleInviteToVacancy}
+        />
+      </div>
+    </CustomTab>,
+
+    // Tab Crew
+    <CustomTab label="Crew" key="crew">
+      <div className="px-[3.375rem] w-full mt-4">
+        <CrewTable items={currentAssignedCrew} isCreator={isOwner} />
+      </div>
+    </CustomTab>,
+
+    // Tab Solicitudes sólo si es owner
+    ...(
+      isOwner
+        ? [
+          <CustomTab label="Solicitudes" key="solicitudes">
+            <div className="px-[3.375rem] w-full mt-4">
+              <RequestTable
+                requests={solicitudesData}
+                onAccept={handleAcceptRequest}
+                onDeny={handleDenyRequest}
               />
             </div>
           </CustomTab>
-          <CustomTab label="Crew">
-            <div className="px-[3.375rem] w-full mt-4">
-              <CrewTable items={currentAssignedCrew} isCreator={isOwner} />
-            </div>
-          </CustomTab>
-          {isOwner && (
-            <CustomTab label="Solicitudes">
-              <div className="px-[3.375rem] w-full mt-4">
-                <RequestTable
-                  requests={solicitudesData}
-                  onAccept={handleAcceptRequest}
-                  onDeny={handleDenyRequest}
-                />
-              </div>
-            </CustomTab>
-          )}
-        </CustomTabs>
+        ]
+        : []
+    )
+  ];
+  // Y ahora tu return:
+  return (
+    <CreatorLayout>
+      <div className="w-full h-full flex flex-col items-center gap-4 pb-10 bg-rojo-intec-100 overflow-x-hidden">
+        <img
+          src={banner}
+          alt="Project Banner"
+          className="w-full h-[18.56rem] object-cover"
+        />
+        <h1 className="w-full text-center text-[4.5rem] font-barlow font-medium leading-[5.85rem] px-2">
+          {title}
+        </h1>
+
+        {/* Aquí pasamos el array directamente */}
+        <CustomTabs children={tabs} />
+
+        {/* Modales */}
         {applyModalVisible && vacancyToApply && (
           <ApplyVacancyModal
             className="bg-rojo-intec-200"
@@ -253,6 +281,5 @@ const ProjectPreview: React.FC = () => {
       </div>
     </CreatorLayout>
   );
-};
-
+}
 export default ProjectPreview;

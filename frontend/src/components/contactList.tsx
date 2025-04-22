@@ -25,21 +25,22 @@ const ContactList: React.FC<Props> = ({ users, currentUserId, onSelectUser }) =>
   const debouncedSearch = useDebounce(searchTerm, 300);
 
   useEffect(() => {
+    const controller = new AbortController();
+    const signal = controller.signal;
+  
     async function loadAvatars() {
       const entries = await Promise.all(
         users
           .filter(u => u.id !== currentUserId)
           .map(async user => {
             try {
-              const res = await fetch(
-                `${apiRoute}profiles/user/${user.id}`,
-                {
-                  headers: {
-                    Authorization: `Bearer ${token}`,
-                    Accept: "application/json",
-                  },
-                }
-              );
+              const res = await fetch(`${apiRoute}profiles/user/${user.id}`, {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  Accept: "application/json",
+                },
+                signal,
+              });
               if (!res.ok) throw new Error(`Status ${res.status}`);
               const data = await res.json();
               return [user.id, data.profile_image] as [number, string];
@@ -50,7 +51,12 @@ const ContactList: React.FC<Props> = ({ users, currentUserId, onSelectUser }) =>
       );
       setAvatars(Object.fromEntries(entries));
     }
+  
     loadAvatars();
+  
+    return () => {
+      controller.abort();
+    };
   }, [users, currentUserId, apiRoute, token]);
 
   const filteredUsers = users
@@ -60,7 +66,7 @@ const ContactList: React.FC<Props> = ({ users, currentUserId, onSelectUser }) =>
     );
 
   const handleSelect = (user: UserData) => {
-    setSearchTerm("");            // Clear search
+    setSearchTerm("");
     onSelectUser(user);
   };
 
