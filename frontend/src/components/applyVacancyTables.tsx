@@ -1,63 +1,68 @@
-// src/components/VacanciesTable.tsx
-import React from 'react';
-import { Table, Button } from 'antd';
-import type { ColumnsType } from 'antd/es/table';
-import type { Vacancy } from '@/types';
 
-export interface ApplyVacanciesTableProps {
+import React from "react";
+import { Table } from "antd";
+import Button from "@/components/button";
+import { Vacancy } from "@/types";
+
+interface Props {
   vacancies: Vacancy[];
   isOwner: boolean;
   onApply?: (vacancy: Vacancy) => void;
+  onInvite?: (vacancy: Vacancy) => void;
 }
 
-const ApplyVacanciesTable: React.FC<ApplyVacanciesTableProps> = ({
-  vacancies,
-  isOwner,
-  onApply
-}) => {
-  const columns: ColumnsType<Vacancy> = [
+const ApplyVacanciesTable: React.FC<Props> = ({ vacancies, isOwner, onApply, onInvite }) => {
+  const columns = [
     {
-      title: 'Cargo',
-      dataIndex: 'cargo',
-      key: 'cargo'
+      title: "Departamento",
+      dataIndex: "departamento",
+      key: "departamento",
     },
     {
-      title: 'Descripción',
-      dataIndex: 'descripcion',
-      key: 'descripcion'
+      title: "Cargo",
+      dataIndex: "cargo",
+      key: "cargo",
     },
     {
-      title: 'Requerimientos',
-      dataIndex: 'requerimientos',
-      key: 'requerimientos'
+      title: "Descripción",
+      dataIndex: "descripcion",
+      key: "descripcion",
+      render: (text: string) => text.split(" ").slice(0, 3).join(" ") + "...",
     },
     {
-      title: 'Departamento',
-      dataIndex: 'departamento',
-      key: 'departamento'
-    }
+      title: "Requerimientos",
+      dataIndex: "requerimientos",
+      key: "requerimientos",
+      render: (text: string) => text.split(" ").slice(0, 3).join(" ") + "...",
+    },
+    {
+      title: "Estado",
+      key: "estado",
+      render: (_: any, record: Vacancy) =>
+        !record.is_filled ? (
+          <Button
+            onClick={() => {
+              if (isOwner) {
+                onInvite?.(record);
+              } else {
+                onApply?.(record);
+              }
+            }}
+          >
+            {isOwner ? "Invitar" : "Aplicar"}
+          </Button>
+        ) : (
+          "Ocupado"
+        ),
+    },
   ];
-
-  if (!isOwner) {
-    columns.push({
-      title: 'Solicitud',
-      key: 'solicitud',
-      render: (_text, record) => (
-        <Button type="primary" onClick={() => onApply?.(record)}>
-          Aplicar
-        </Button>
-      )
-    });
-  }
 
   return (
     <Table
       dataSource={vacancies}
       columns={columns}
-      rowKey="id"
+      rowKey={(record) => record.id.toString()}
       pagination={false}
-      bordered
-      size="middle"
     />
   );
 };
