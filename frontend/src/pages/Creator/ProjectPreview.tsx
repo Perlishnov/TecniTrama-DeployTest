@@ -12,6 +12,12 @@ import ApplyVacanciesTable from "@/components/applyVacancyTables";
 import ApplyVacancyModal from "@/components/modals/applyVacancyModal";
 import InviteModal from "@/components/modals/inviteModal";
 import { useDecodeJWT } from "@/hooks/useDecodeJWT";
+import dayjs from "dayjs";
+
+const formatDate = (date: string) => {
+  const parsedDate = dayjs(date);
+  return parsedDate.isValid() ? parsedDate.format("DD/MM/YYYY") : "Fecha inválida";
+}
 
 const ProjectPreview: React.FC = () => {
   const { projectId } = useParams<{ projectId: string }>();
@@ -50,7 +56,7 @@ const ProjectPreview: React.FC = () => {
         }
         const data = await res.json();
 
-        const formato = formats.find((f: any) => f.format_id === data.format_id)?.format || "Desconocido";
+        const formato = formats.find((f: any) => f.format_id === data.format_id) || "Desconocido";
 
         setIsActive(data.is_active);
         setIsOwner(decodedToken?.id === data.creator_id);
@@ -177,8 +183,8 @@ const ProjectPreview: React.FC = () => {
               <div className="w-full md:w-[16.563rem] flex flex-col justify-between gap-4">
                 <InfoCard title="Presupuesto" content={budget} />
                 <div className="flex gap-4">
-                  <InfoCard title="Inicio" content={estimated_start} />
-                  <InfoCard title="Final" content={estimated_end} />
+                  <InfoCard title="Inicio" content={formatDate(estimated_start)} />
+                  <InfoCard title="Final" content={formatDate(estimated_end)} />
                 </div>
                 <InfoCard title="Patrocinadores" content={sponsors} />
                 <InfoCard title="Links" content={attachmenturl} />

@@ -21,8 +21,8 @@ const InvitePersonModal: React.FC<InvitePersonModalProps> = ({ open, onClose, on
   };
 
   return (
-    <Modal isOpen={open} onClose={onClose} title="Invitar persona">
-      <div className="flex flex-col gap-6 bg-rojo-intec-100 p-6 rounded-xl">
+    <Modal className="bg-rojo-intec-100" isOpen={open} onClose={onClose} title="Invitar persona">
+      <div className="flex flex-col gap-6 bg-rojo-intec-100 px-2 rounded-xl">
         <div>
           <label className="block text-black font-semibold text-xl mb-2">
             Escribe el nombre de la persona encargada
