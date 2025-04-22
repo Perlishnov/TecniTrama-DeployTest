@@ -1,4 +1,3 @@
-// src/components/ContactList.tsx
 import React, { useEffect, useState } from "react";
 import { UserData } from "@/hooks/useUsers";
 
@@ -9,7 +8,7 @@ interface Props {
 }
 
 const ContactList: React.FC<Props> = ({ users, currentUserId, onSelectUser }) => {
-  const apiRoute = import.meta.env.VITE_API_ROUTE; // p.ej. "http://localhost:3000/api/"
+  const apiRoute = import.meta.env.VITE_API_ROUTE;
   const token    = localStorage.getItem("token");
   const [avatars, setAvatars] = useState<Record<number, string>>({});
 

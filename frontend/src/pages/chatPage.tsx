@@ -1,5 +1,3 @@
-// src/pages/ChatPage.tsx
-
 import React, { useState } from "react";
 import CreatorLayout from "@/layouts/default";
 import { useUsers, UserData } from "@/hooks/useUsers";

@@ -34,13 +34,16 @@ export const useUsers = () => {
           setUsers([]);
         } else {
           const data = await res.json();
-          // Devuelve un array plano con user_id, email, first_name y last_name
+
+          // Filtrar por user_type_id === 1 antes de mapear
           const list: UserData[] = Array.isArray(data)
-            ? data.map((u: any) => ({
-                id: u.user_id,
-                email: u.email,
-                name: `${u.first_name} ${u.last_name}`,
-              }))
+            ? data
+                .filter((u: any) => u.user_type_id === 1)
+                .map((u: any) => ({
+                  id: u.user_id,
+                  email: u.email,
+                  name: `${u.first_name} ${u.last_name}`,
+                }))
             : [];
 
           setUsers(list);

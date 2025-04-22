@@ -14,6 +14,8 @@ import { Department, Genre, ProjectFormat, Role, Subject, Vacancy } from "@/type
 import ConfirmCancelModal from "@/components/modals/ConfirmCancelModal";
 import VacancyFormModal from "@/components/modals/VacantModal";
 import VacanciesTable from "@/components/VacancyTable";
+import { notification } from "antd";
+import { CloseCircleOutlined } from "@ant-design/icons";
 import { useDecodeJWT } from "@/hooks/useDecodeJWT";
 import { useCloudinaryUpload } from "@/hooks/usecloudinary";
 import type { Dayjs } from "dayjs";
@@ -33,6 +35,7 @@ const NewProject: React.FC = () => {
     uploadPreset: "tecnitrama-asset",
     cloudName: "dcrl5demd",
   });
+  const [apiError, setApiError] = useState<string>("");
 
 
   const [formats, setFormats] = useState<ProjectFormat[]>([]);
@@ -48,7 +51,7 @@ const NewProject: React.FC = () => {
   const [isLoadingRoles, setIsLoadingRoles] = useState(false);
 
 
-  const [budget, setBudget] = useState("2.00$");
+  const [budget, setBudget] = useState("");
   const [selectedFormat, setSelectedFormat] = useState<ProjectFormat | null>(null);
   const [selectedGenres, setSelectedGenres] = useState<Genre[]>([]);
   const [selectedSubjects, setSelectedSubjects] = useState<Subject[]>([]);
@@ -211,7 +214,7 @@ const NewProject: React.FC = () => {
   const formatDate = (dateStr: string | null) => {
     if (!dateStr) return "";
     return dateStr;
-  };  
+  };
 
   const handleSubmit = async () => {
     if (!decodedToken) {
@@ -227,7 +230,13 @@ const NewProject: React.FC = () => {
 
     // Validaciones
     if (!title || !selectedFormat || selectedGenres.length === 0 || selectedSubjects.length === 0) {
-      alert("Por favor completa todos los campos obligatorios.");
+      notification.open({
+        message: "Por favor completa todos los campos obligatorios:",
+        description: "Formato, generos, materias",
+        icon: <CloseCircleOutlined style={{ color: "#ff4d4f" }} />,
+        placement: "topRight",
+        duration: 4,
+      });
       return;
     }
 
@@ -287,9 +296,15 @@ const NewProject: React.FC = () => {
 
       navigate("/dashboard");
 
-    } catch (error) {
-      console.error("Error en la creación del proyecto o vacantes:", error);
-      alert("Hubo un error al crear el proyecto o las vacantes. Intenta de nuevo.");
+    } catch (err: any) {
+      setApiError(err.message);
+      notification.open({
+        message: "Error en la creación del proyecto o vacantes:",
+        description: err.message || "Hubo un error al crear el proyecto o las vacantes. Intenta de nuevo.",
+        icon: <CloseCircleOutlined style={{ color: "#ff4d4f" }} />,
+        placement: "topRight",
+        duration: 4,
+      });
     }
   };
 
