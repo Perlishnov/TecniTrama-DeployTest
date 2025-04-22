@@ -3,7 +3,6 @@ import CreatorLayout from "@/layouts/default";
 import CustomTabs, { CustomTab } from "@/components/tabs";
 import ProjectCard from "@/components/projectCard"
 import Button from "@/components/button";
-import ChangePasswordModal from "@/components/ChangePasswordModal";
 import { Link } from "react-router-dom";
 import { useDecodeJWT } from "@/hooks/useDecodeJWT";
 
@@ -25,11 +24,11 @@ interface CreatorProfile {
 }
 
 const CreatorProfilePage: React.FC = () => {
-  const [showModal, setShowModal] = useState(false);
   const [profile, setProfile] = useState<CreatorProfile | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
   const decodedToken = useDecodeJWT();
   const userId = decodedToken?.id;
+  const apiRoute = import.meta.env.VITE_API_ROUTE;
 
   useEffect(() => {
     if (!userId) return;
@@ -43,7 +42,7 @@ const CreatorProfilePage: React.FC = () => {
           Authorization: `Bearer ${token}`,
         };
 
-        const profileRes = await fetch(`http://localhost:3000/api/profiles/user/${userId}`, {
+        const profileRes = await fetch(`${apiRoute}profiles/user/${userId}`, {
           headers,
         });
 
@@ -60,7 +59,7 @@ const CreatorProfilePage: React.FC = () => {
         setProfile(sanitizedProfile);
 
 
-        const projectsRes = await fetch(`http://localhost:3000/api/projects/creator/${userId}`, {
+        const projectsRes = await fetch(`${apiRoute}projects/creator/${userId}`, {
           headers,
         });
 
@@ -70,7 +69,8 @@ const CreatorProfilePage: React.FC = () => {
           id: p.id ?? 0,
           title: p.title ?? "Sin titulo",
           description: p.description ?? "Sin descripcion",
-          imageUrl: p.imageUrl ?? "https://placehold.co/400x300",
+          imageUrl: p.banner ?? "https://placehold.co/400x300",
+          href: `/projects/${p.project_id}`,
           filters: Array.isArray(p.filters) ? p.filters : [],
           completado: !!p.completado,
         }));
@@ -124,15 +124,6 @@ const CreatorProfilePage: React.FC = () => {
             <Button className="bg-red-200 hover:bg-red-300 text-black font-medium rounded-full px-5 py-2">
               <Link to="/profile/edit-profile">Editar perfil</Link>
             </Button>
-            <Button
-              onClick={() => setShowModal(true)}
-              className="bg-red-200 hover:bg-red-300 text-black font-medium rounded-full px-5 py-2"
-            >
-              Cambiar contraseña
-            </Button>
-            {showModal && (
-              <ChangePasswordModal onClose={() => setShowModal(false)} />
-            )}
           </div>
         </div>
 

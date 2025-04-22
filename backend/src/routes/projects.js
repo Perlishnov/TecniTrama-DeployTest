@@ -148,7 +148,7 @@ router.get('/creator/:id', projectController.getProjectsByCreatorId);
  *       500:
  *         description: Server error
  */
-router.post('/', authenticateToken, projectController.createProject);
+router.post('/', /*authenticateToken,*/ projectController.createProject);
 
 
 // Update project
@@ -287,16 +287,6 @@ router.patch('/:id/status', authenticateToken, projectController.toggleProjectSt
  *         schema:
  *           type: integer
  *         description: Project ID
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               is_published:
- *                 type: boolean
- *                 example: false
  *     responses:
  *       200:
  *         description: Project publish status updated
@@ -322,7 +312,7 @@ router.patch('/:id/publish', authenticateToken, projectController.toggleProjectP
  *   get:
  *     summary: Get project genres
  *     description: Retrieve all genres associated with a specific project. Requires authentication.
- *     tags: [Projects]
+ *     tags: [Projects, Genres]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -364,7 +354,7 @@ router.get('/:id/genres', authenticateToken, projectController.getProjectGenres)
  *   get:
  *     summary: Get project classes
  *     description: Retrieve all classes associated with a specific project. Requires authentication.
- *     tags: [Projects]
+ *     tags: [Projects, Classes]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -465,224 +455,6 @@ router.get('/:id/isOwner', authenticateToken, projectController.isOwner);
  */
 router.get('/formats', projectController.getAllFormats);
 
-// Swagger schemas and security definitions
-/**
- * @swagger
- * components:
- *   schemas:
- *     Project:
- *       type: object
- *       properties:
- *         project_id:
- *           type: integer
- *           description: The auto-generated ID of the project
- *         creator_id:
- *           type: integer
- *           description: ID of the user who created the project
- *         title:
- *           type: string
- *           description: Title of the project
- *         banner:
- *           type: string
- *           description: URL of the project banner image
- *         description:
- *           type: string
- *           description: Detailed description of the project
- *         attachmenturl:
- *           type: string
- *           description: URL of any attachment
- *         publication_date:
- *           type: string
- *           format: date-time
- *           description: Date when project was published
- *         budget:
- *           type: number
- *           format: float
- *           description: Project budget
- *         sponsors:
- *           type: string
- *           description: Project sponsors
- *         estimated_start:
- *           type: string
- *           format: date-time
- *           description: Estimated start date
- *         estimated_end:
- *           type: string
- *           format: date-time
- *           description: Estimated end date
- *         is_active:
- *           type: boolean
- *           description: Whether the project is active
- *         is_published:
- *           type: boolean
- *           description: Whether the project is published
- *         format_id:
- *           type: integer
- *           description: ID of the project format
- *         created_at:
- *           type: string
- *           format: date-time
- *           description: Date when project was created
- *     ProjectInput:
- *       type: object
- *       required:
- *           - title
- *           - description
- *           - creator_id
- *       properties:
- *           title:
- *              type: string
- *              example: "My Awesome Project"
- *           description:
- *              type: string
- *              example: "Detailed description of my project"
- *           creator_id:
- *              type: integer
- *              example: 1
- *           banner:
- *              type: string
- *              example: "https://example.com/banner.jpg"
- *           attachmenturl:
- *              type: string
- *              example: "https://example.com/attachment.pdf"
- *           budget:
- *              type: number
- *              example: 5000.50
- *           sponsors:
- *              type: string
- *              example: "Company A, Company B"
- *           estimated_start:
- *              type: string
- *              format: date-time
- *              example: "2023-12-01T00:00:00Z"
- *           estimated_end:
- *              type: string
- *              format: date-time
- *              example: "2024-06-01T00:00:00Z"
- *           is_published:
- *              type: boolean
- *              example: true
- *           format_id:
- *              type: integer
- *              example: 1
- *           genre_ids:
- *              type: array
- *              items:
- *                  type: integer
- *              example: [1, 3, 5]
- *           class_ids:
- *              type: array
- *              items:
- *                  type: string
- *              example: ["LCS202", "LCS203"]
- *   securitySchemes:
- *     bearerAuth:
- *       type: http
- *       scheme: bearer
- *       bearerFormat: JWT
- *   tags:
- *     - name: Projects
- *       description: Project management API
- */
-
-/**
- * @swagger
- * components:
- *   securitySchemes:
- *     bearerAuth:
- *       type: http
- *       scheme: bearer
- *       bearerFormat: JWT
- *   schemas:
- *     Genre:
- *       type: object
- *       properties:
- *         genre_id:
- *           type: integer
- *         genre:
- *           type: string
- *       example:
- *         genre_id: 1
- *         genre: "Drama"
- */
-
-// Get all genres
-/**
- * @swagger
- * /api/genres:
- *   get:
- *     security:
- *       - bearerAuth: []
- *     summary: Get all genres
- *     description: Retrieve a list of all genres. Requires authentication.
- *     tags: [Genres]
- *     responses:
- *       200:
- *         description: A list of genres
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Genre'
- *       401:
- *         description: Unauthorized - No token provided
- *       403:
- *         description: Forbidden - Invalid token
- *       500:
- *         description: Server error
- */
-router.get('/genres', authenticateToken, projectController.getAllGenres);
-
-/**
- * @swagger
- * components:
- *   securitySchemes:
- *     bearerAuth:
- *       type: http
- *       scheme: bearer
- *       bearerFormat: JWT
- *   schemas:
- *     Class:
- *       type: object
- *       properties:
- *         class_id:
- *           type: string
- *         class_name:
- *           type: string
- *       example:
- *         class_id: "CLS001"
- *         class_name: "Film Production"
- */
-
-// Get all classes
-/**
- * @swagger
- * /api/classes:
- *   get:
- *     security:
- *       - bearerAuth: []
- *     summary: Get all classes
- *     description: Retrieve a list of all classes. Requires authentication.
- *     tags: [Classes]
- *     responses:
- *       200:
- *         description: A list of classes
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Class'
- *       401:
- *         description: Unauthorized - No token provided
- *       403:
- *         description: Forbidden - Invalid token
- *       500:
- *         description: Server error
- */
-router.get('/classes', authenticateToken, projectController.getAllClasses);
-
 // Get crew by project ID
 /**
  * @swagger
@@ -782,5 +554,352 @@ router.get('/:id/crew', authenticateToken, projectController.getCrewByProjectId)
  *         description: Server error
  */
 router.delete('/:id/crew', authenticateToken, projectController.deleteCrewByProjectId);
+
+// Update project format
+/**
+ * @swagger
+ * /api/projects/{id}/format:
+ *   patch:
+ *     summary: Update project format
+ *     description: Update the format of a specific project. Requires authentication.
+ *     tags: [Projects]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Project ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - format_id
+ *             properties:
+ *               format_id:
+ *                 type: integer
+ *                 description: ID of the new format
+ *                 example: 2
+ *     responses:
+ *       200:
+ *         description: Project format updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Project'
+ *       400:
+ *         description: Bad request - Missing format_id
+ *       401:
+ *         description: Unauthorized - No token provided
+ *       403:
+ *         description: Forbidden - Invalid token
+ *       404:
+ *         description: Project not found
+ *       500:
+ *         description: Server error
+ */
+router.patch('/:id/format', authenticateToken, projectController.updateProjectFormat);
+
+// Update project genres
+/**
+ * @swagger
+ * /api/projects/{id}/genres:
+ *   put:
+ *     summary: Update project genres
+ *     description: Update the genres associated with a specific project. Requires authentication.
+ *     tags: [Projects, Genres]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Project ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - genre_ids
+ *             properties:
+ *               genre_ids:
+ *                 type: array
+ *                 items:
+ *                   type: integer
+ *                 description: Array of genre IDs to associate with the project
+ *                 example: [1, 3, 5]
+ *     responses:
+ *       200:
+ *         description: Project genres updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Genre'
+ *       400:
+ *         description: Bad request - Missing or invalid genre_ids
+ *       401:
+ *         description: Unauthorized - No token provided
+ *       403:
+ *         description: Forbidden - Invalid token
+ *       404:
+ *         description: Project not found
+ *       500:
+ *         description: Server error
+ */
+router.put('/:id/genres', authenticateToken, projectController.updateProjectGenres);
+
+// Update project classes
+/**
+ * @swagger
+ * /api/projects/{id}/classes:
+ *   put:
+ *     summary: Update project classes
+ *     description: Update the classes associated with a specific project. Requires authentication.
+ *     tags: [Projects, Classes]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Project ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - class_ids
+ *             properties:
+ *               class_ids:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 description: Array of class IDs to associate with the project
+ *                 example: ["LCC332", "LCC334"]
+ *     responses:
+ *       200:
+ *         description: Project classes updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Class'
+ *       400:
+ *         description: Bad request - Missing or invalid class_ids
+ *       401:
+ *         description: Unauthorized - No token provided
+ *       403:
+ *         description: Forbidden - Invalid token
+ *       404:
+ *         description: Project not found
+ *       500:
+ *         description: Server error
+ */
+router.put('/:id/classes', authenticateToken, projectController.updateProjectClasses);
+
+// Get projects where user is part of crew
+/**
+ * @swagger
+ * /api/projects/user/{user_id}/crew:
+ *   get:
+ *     summary: Get projects where user is part of crew
+ *     description: Retrieve all projects where the specified user is part of the crew. Requires authentication.
+ *     tags: [Projects, Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: user_id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: User ID
+ *     responses:
+ *       200:
+ *         description: List of projects where the user is part of the crew
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 allOf:
+ *                   - $ref: '#/components/schemas/Project'
+ *                   - type: object
+ *                     properties:
+ *                       role:
+ *                         type: string
+ *                         description: The user's role in the project
+ *                       genres:
+ *                         type: array
+ *                         items:
+ *                           $ref: '#/components/schemas/Genre'
+ *                       formats:
+ *                         type: array
+ *                         items:
+ *                           $ref: '#/components/schemas/Format'
+ *       400:
+ *         description: Bad request - Missing user_id
+ *       401:
+ *         description: Unauthorized - No token provided
+ *       403:
+ *         description: Forbidden - Invalid token
+ *       404:
+ *         description: No projects found where this user is part of the crew
+ *       500:
+ *         description: Server error
+ */
+router.get('/user/:user_id/crew', authenticateToken, projectController.getProjectsByCrewMemberId);
+
+// Swagger schemas definitions
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Project:
+ *       type: object
+ *       properties:
+ *         project_id:
+ *           type: integer
+ *           description: The auto-generated ID of the project
+ *         creator_id:
+ *           type: integer
+ *           description: ID of the user who created the project
+ *         title:
+ *           type: string
+ *           description: Title of the project
+ *         banner:
+ *           type: string
+ *           description: URL of the project banner image
+ *         description:
+ *           type: string
+ *           description: Detailed description of the project
+ *         attachmenturl:
+ *           type: string
+ *           description: URL of any attachment
+ *         publication_date:
+ *           type: string
+ *           format: date-time
+ *           description: Date when project was published
+ *         budget:
+ *           type: number
+ *           format: float
+ *           description: Project budget
+ *         sponsors:
+ *           type: string
+ *           description: Project sponsors
+ *         estimated_start:
+ *           type: string
+ *           format: date-time
+ *           description: Estimated start date
+ *         estimated_end:
+ *           type: string
+ *           format: date-time
+ *           description: Estimated end date
+ *         is_active:
+ *           type: boolean
+ *           description: Whether the project is active
+ *         is_published:
+ *           type: boolean
+ *           description: Whether the project is published
+ *         format_id:
+ *           type: integer
+ *           description: ID of the project format
+ *         created_at:
+ *           type: string
+ *           format: date-time
+ *           description: Date when project was created
+ * 
+ *     ProjectInput:
+ *       type: object
+ *       required:
+ *         - title
+ *         - description
+ *         - creator_id
+ *       properties:
+ *         title:
+ *           type: string
+ *           example: "My Awesome Project"
+ *         description:
+ *           type: string
+ *           example: "Detailed description of my project"
+ *         creator_id:
+ *           type: integer
+ *           example: 1
+ *         banner:
+ *           type: string
+ *           example: "https://example.com/banner.jpg"
+ *         attachmenturl:
+ *           type: string
+ *           example: "https://example.com/attachment.pdf"
+ *         budget:
+ *           type: number
+ *           example: 5000.50
+ *         sponsors:
+ *           type: string
+ *           example: "Company A, Company B"
+ *         estimated_start:
+ *           type: string
+ *           format: date-time
+ *           example: "2023-12-01T00:00:00Z"
+ *         estimated_end:
+ *           type: string
+ *           format: date-time
+ *           example: "2024-06-01T00:00:00Z"
+ *         is_published:
+ *           type: boolean
+ *           example: true
+ *         format_id:
+ *           type: integer
+ *           example: 1
+ *         genre_ids:
+ *           type: array
+ *           items:
+ *             type: integer
+ *           example: [1, 3, 5]
+ *         class_ids:
+ *           type: array
+ *           items:
+ *             type: string
+ *           example: ["LCS202", "LCS203"]
+ * 
+ *     Genre:
+ *       type: object
+ *       properties:
+ *         genre_id:
+ *           type: integer
+ *         genre:
+ *           type: string
+ *       example:
+ *         genre_id: 1
+ *         genre: "Drama"
+ *
+ *     Class:
+ *       type: object
+ *       properties:
+ *         class_id:
+ *           type: string
+ *         class_name:
+ *           type: string
+ *       example:
+ *         class_id: "CLS001"
+ *         class_name: "Film Production"
+ */
+
 
 module.exports = router;

@@ -27,7 +27,7 @@ model applications {
 
 model class_projects {
   project_id Int
-  class_id   String   @db.Char(6)
+  class_id   String   @db.VarChar(7)
   classes    classes  @relation(fields: [class_id], references: [class_id], onDelete: NoAction, onUpdate: NoAction)
   projects   projects @relation(fields: [project_id], references: [project_id], onDelete: NoAction, onUpdate: NoAction)
 
@@ -35,7 +35,7 @@ model class_projects {
 }
 
 model classes {
-  class_id       String           @id @db.Char(6)
+  class_id       String           @id @db.VarChar(7)
   class_name     String           @db.VarChar(100)
   class_projects class_projects[]
 }
@@ -153,7 +153,7 @@ model projects {
   sponsors          String?
   estimated_start   DateTime?           @db.Timestamp(6)
   estimated_end     DateTime?           @db.Timestamp(6)
-  is_active         Boolean
+  is_active         Boolean             @default(true)
   created_at        DateTime            @default(now()) @db.Timestamp(6)
   is_published      Boolean
   format_id         Int?

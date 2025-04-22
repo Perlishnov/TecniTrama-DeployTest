@@ -18,7 +18,7 @@ export interface ProjectLink {
   link: string; // 'link' en vez de 'url'
 }
 export interface Subject {
-  class_id: number;
+  class_id: string;
   class_name: string;
 }
 
@@ -51,4 +51,13 @@ export interface Role {
   role_name: string;
   /** Descripción de las responsabilidades */
   responsibilities: string;
+}
+export interface ApiVacancy {
+  id: string;
+  position: string;
+  description: string;
+  requirements: string;
+  department: string;
+  department_id?: number;
+  role_id?: number;
 }

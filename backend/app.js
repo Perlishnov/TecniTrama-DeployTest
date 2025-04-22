@@ -15,6 +15,12 @@ const usersRouter = require('./src/routes/users');
 const projectsRouter = require('./src/routes/projects');
 const profilesRouter = require('./src/routes/profiles');
 const vacanciesRouter = require("./src/routes/vacancies");
+const applicationsRouter = require("./src/routes/applications");
+const genresRouter = require("./src/routes/genres");
+const classesRouter = require("./src/routes/classes");
+const rolesRouter = require('./src/routes/roles');
+const departmentRouter = require("./src/routes/departments");
+const notificationsRouter = require("./src/routes/notifications");
 // Initialize Express app
 const app = express();
 
@@ -44,6 +50,12 @@ app.use('/api/users', usersRouter);
 app.use('/api/projects', projectsRouter);
 app.use('/api/profiles', profilesRouter);
 app.use('/api/vacancies', vacanciesRouter);
+app.use('/api/applications', applicationsRouter);
+app.use('/api/genres', genresRouter);
+app.use('/api/classes', classesRouter);
+app.use('/api/notifications', notificationsRouter);
+app.use('/api/roles', rolesRouter);
+app.use("/api/departments", departmentRouter)
 
 // Catch 404 and forward to error handler
 app.use((req, res, next) => {

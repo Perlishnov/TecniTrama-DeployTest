@@ -8,6 +8,9 @@ import {
 } from "stream-chat-react";
 import { StreamChat } from "stream-chat";
 import { UserData } from "@/hooks/useUsers";
+import CustomMessage from "@/components/customMessage";
+import "stream-chat-react/dist/css/v2/index.css";
+import "@/styles/messaging.css";
 
 interface Props {
   user: {
@@ -58,14 +61,22 @@ const ChatPanel: React.FC<Props> = ({ user, selectedUser }) => {
   }
 
   return (
-    <Chat client={chatClient} theme="messaging light">
-      <Channel channel={channel}>
-        <Window>
-          <MessageList />
-          <MessageInput />
-        </Window>
-      </Channel>
-    </Chat>
+    <div className="h-full flex flex-col">
+      <Chat client={chatClient} theme="theme-light">
+        <Channel channel={channel}>
+          <Window>
+            {/* Cabecera personalizada */}
+            <div className="bg-rojo-intec-200 px-6 py-3 border-b text-lg font-semibold font-barlow">
+              {selectedUser?.name || selectedUser?.email}
+            </div>
+            {/* Lista de mensajes */}
+            <MessageList  Message={CustomMessage}/>
+            {/* Entrada de mensajes */}
+            <MessageInput noFiles={true} disableMentions={true}/>
+          </Window>
+        </Channel>
+      </Chat>
+    </div>
   );
 };
 

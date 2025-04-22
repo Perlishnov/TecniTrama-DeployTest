@@ -8,7 +8,8 @@ interface ChangePasswordModalProps {
 
 const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ onClose }) => {
   const decoded = useDecodeJWT();
-  const userId = decoded?.id; // Se asume que el payload del JWT tiene la propiedad "id"
+  const userId = decoded?.id;
+  const apiRoute = import.meta.env.VITE_API_ROUTE;
   
   const [userData, setUserData] = useState<any>(null);
   const [newPassword, setNewPassword] = useState("");
@@ -18,7 +19,7 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ onClose }) =>
   useEffect(() => {
     console.log("userId", userId);
     if (!userId) return;
-    fetch(`http://localhost:3000/api/users/${userId}`, {
+    fetch(`${apiRoute}users/${userId}`, {
       method: "GET",
       headers: {
         "accept": "application/json",
@@ -42,7 +43,7 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ onClose }) =>
     const updatedUser = { ...userData, password: newPassword };
 
     try {
-      const res = await fetch(`http://localhost:3000/api/users/${userId}`, {
+      const res = await fetch(`${apiRoute}users/${userId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

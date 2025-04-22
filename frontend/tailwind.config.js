@@ -17,6 +17,7 @@ export default {
         "rojo-intec-200": "#FFD7CF",
         "rojo-intec-300": "#FFC2B8",
         "rojo-intec-400": "#FF9A8C",
+        "rojo-intec-600":"#E4002B",
         "Gris-100": "#EFF0F0",
         "Gris-500": "#63666A",
       },

@@ -4,6 +4,8 @@ import Button from "@/components/button";
 import Input from "@/components/input";
 import TextareaField from "@/components/TextareaField";
 import AvatarUrl from "@/assets/profile_page_avatar.svg";
+import { notification } from "antd";
+import { CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
 import { useCloudinaryUpload } from "@/hooks/usecloudinary";
 import { useDecodeJWT } from "@/hooks/useDecodeJWT";
 import { useNavigate } from "react-router-dom";
@@ -21,8 +23,7 @@ const EditProfilePage: React.FC = () => {
   const [biography, setBiography] = useState("");
   const [experience, setExperience] = useState("");
   const [profilePhoto, setProfilePhoto] = useState<string>(AvatarUrl);
-  const [showToast, setShowToast] = useState(false);
-
+  const apiRoute = import.meta.env.VITE_API_ROUTE;
   const navigate = useNavigate();
 
   const { isUploading, uploadFile, error: uploadError } = useCloudinaryUpload({
@@ -43,7 +44,7 @@ const EditProfilePage: React.FC = () => {
     const fetchProfile = async () => {
       try {
         setIsLoading(true);
-        const res = await fetch(`http://localhost:3000/api/profiles/user/${userId}`, {
+        const res = await fetch(`${apiRoute}profiles/user/${userId}`, {
           method: "GET",
           headers: {
             "accept": "application/json",
@@ -91,25 +92,34 @@ const EditProfilePage: React.FC = () => {
         bio: biography,
         profile_image: profilePhoto,
       };
-      const res = await fetch(
-        `http://localhost:3000/api/profiles/${profile.profile_id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`,
-          },
-          body: JSON.stringify(updatedProfile),
-        }
-      );
+      const res = await fetch(`${apiRoute}profiles/${profile.profile_id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify(updatedProfile),
+      });
       if (!res.ok) {
         const errData = await res.json();
         throw new Error(errData.message || "Failed to update profile");
       }
-      setShowToast(true);
-      setTimeout(() => setShowToast(false), 3000);
+      notification.open({
+        message: "Perfil actualizado",
+        description: "Tu perfil ha sido actualizado exitosamente.",
+        icon: <CheckCircleOutlined style={{ color: "#52c41a" }} />,
+        placement: "topRight",
+        duration: 3,
+      });
     } catch (err: any) {
       setApiError(err.message);
+      notification.open({
+        message: "Error al actualizar",
+        description: err.message || "Hubo un problema al actualizar tu perfil.",
+        icon: <CloseCircleOutlined style={{ color: "#ff4d4f" }} />, 
+        placement: "topRight",
+        duration: 4,
+      });
     } finally {
       setIsLoading(false);
     }
@@ -123,11 +133,6 @@ const EditProfilePage: React.FC = () => {
         </h1>
         {isLoading && <p>Cargando...</p>}
         {apiError && <p className="text-red-500">{apiError}</p>}
-        {showToast && (
-          <div className="bg-green-500 text-white px-4 py-2 rounded-lg shadow-md">
-            Perfil actualizado correctamente
-          </div>
-        )}
         <div className="px-6 py-8 bg-rojo-intec-100 rounded-[56px] flex flex-col items-center">
           <div className="flex items-center gap-5">
             <img className="w-24 h-20 rounded-full" src={profilePhoto} alt="Profile" />

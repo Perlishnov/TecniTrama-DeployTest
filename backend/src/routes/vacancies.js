@@ -15,6 +15,14 @@ const { authenticateToken } = require('../controllers/authController');
  *     responses:
  *       200:
  *         description: Successfully retrieved the list of vacancies.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/VacancyResponse'
+ *       404:
+ *         description: No vacancies found.
  *       500:
  *         description: Internal server error.
  */
@@ -37,6 +45,12 @@ router.get('/', vacancyController.getAllVacancies);
  *     responses:
  *       200:
  *         description: Successfully retrieved the list of vacancies for the project.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/VacancyResponse'
  *       404:
  *         description: Project not found or no vacancies available for the project.
  *       500:
@@ -61,6 +75,10 @@ router.get('/project/:project_id', vacancyController.getVacanciesByProjectId);
  *     responses:
  *       200:
  *         description: Successfully retrieved the vacancy.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/VacancyResponse'
  *       404:
  *         description: Vacancy not found.
  *       500:
@@ -75,41 +93,21 @@ router.get('/:id', vacancyController.getVacancyById);
  *     summary: Create a new vacancy
  *     description: Adds a new vacancy to the database.
  *     tags: [Vacancies]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             required:
- *               - project_id
- *               - role_id
- *               - description
- *               - requirements
- *               - is_filled
- *               - is_visible
- *             properties:
- *               project_id:
- *                 type: integer
- *                 example: 1
- *               role_id:
- *                 type: integer
- *                 example: 2
- *               description:
- *                 type: string
- *                 example: "Buscamos un director con experiencia en cine independiente."
- *               requirements:
- *                 type: string
- *                 example: "Experiencia mínima de 2 años en dirección cinematográfica."
- *               is_filled:
- *                 type: boolean
- *                 example: false
- *               is_visible:
- *                 type: boolean
- *                 example: true
+ *             $ref: '#/components/schemas/VacancyInput'
  *     responses:
  *       201:
  *         description: Successfully created the vacancy.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/VacancyResponse'
  *       400:
  *         description: Invalid data.
  *       500:
@@ -124,6 +122,8 @@ router.post('/', authenticateToken, vacancyController.createVacancy);
  *     summary: Update a vacancy by ID
  *     description: Modifies the details of a specific vacancy.
  *     tags: [Vacancies]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -136,23 +136,14 @@ router.post('/', authenticateToken, vacancyController.createVacancy);
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             properties:
- *               project_id:
- *                 type: integer
- *               role_id:
- *                 type: integer
- *               description:
- *                 type: string
- *               requirements:
- *                 type: string
- *               is_filled:
- *                 type: boolean
- *               is_visible:
- *                 type: boolean
+ *             $ref: '#/components/schemas/VacancyInput'
  *     responses:
  *       200:
  *         description: Successfully updated the vacancy.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/VacancyResponse'
  *       400:
  *         description: Invalid data.
  *       404:
@@ -169,6 +160,8 @@ router.put('/:id', authenticateToken, vacancyController.updateVacancy);
  *     summary: Delete a vacancy by ID
  *     description: Removes a specific vacancy from the database.
  *     tags: [Vacancies]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -177,7 +170,7 @@ router.put('/:id', authenticateToken, vacancyController.updateVacancy);
  *         schema:
  *           type: string
  *     responses:
- *       200:
+ *       204:
  *         description: Vacancy deleted successfully.
  *       404:
  *         description: Vacancy not found.
@@ -185,5 +178,79 @@ router.put('/:id', authenticateToken, vacancyController.updateVacancy);
  *         description: Internal server error.
  */
 router.delete('/:id', authenticateToken, vacancyController.deleteVacancy);
+
+
+// Swagger schemas and security definitions
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     VacancyInput:
+ *       type: object
+ *       required:
+ *         - project_id
+ *         - role_id
+ *         - description
+ *         - requirements
+ *         - is_filled
+ *         - is_visible
+ *       properties:
+ *         project_id:
+ *           type: integer
+ *           example: 1
+ *         role_id:
+ *           type: integer
+ *           example: 2
+ *         description:
+ *           type: string
+ *           example: "Buscamos un director con experiencia en cine independiente."
+ *         requirements:
+ *           type: string
+ *           example: "Experiencia mínima de 2 años en dirección cinematográfica."
+ *         is_filled:
+ *           type: boolean
+ *           example: false
+ *         is_visible:
+ *           type: boolean
+ *           example: true
+ *
+ *     VacancyResponse:
+ *       type: object
+ *       properties:
+ *         vacancy_id:
+ *           type: integer
+ *           example: 10
+ *         project_id:
+ *           type: integer
+ *           example: 1
+ *         role_id:
+ *           type: integer
+ *           example: 2
+ *         description:
+ *           type: string
+ *           example: "Buscamos un director con experiencia en cine independiente."
+ *         requirements:
+ *           type: string
+ *           example: "Experiencia mínima de 2 años en dirección cinematográfica."
+ *         is_filled:
+ *           type: boolean
+ *           example: false
+ *         created_at:
+ *           type: string
+ *           format: date-time
+ *           example: "2025-04-18T15:30:00Z"
+ *         is_visible:
+ *           type: boolean
+ *           example: true
+ *
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
+ *   tags:
+ *     - name: Vacancies
+ *       description: API for managing vacancies
+ */
 
 module.exports = router;

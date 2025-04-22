@@ -1,72 +1,74 @@
-// CustomDatePicker.tsx
 import React from "react";
+import { DatePicker } from "antd";
+import type { Dayjs } from "dayjs";
+import dayjs from "dayjs";
 import { useLocale } from "@react-aria/i18n";
 
 interface CustomDatePickerProps {
-  selectedDate: Date | null;
+  selectedDate: string | null;
   onSelect: (date: string) => void;
   onClose: () => void;
+  minDate?: Dayjs;
+  maxDate?: Dayjs;
+  disabled?: boolean;
 }
-
 
 const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
   selectedDate,
   onSelect,
   onClose,
+  minDate,
+  maxDate,
+  disabled = false,
 }) => {
   const { locale } = useLocale();
-  const defaultDate = selectedDate ? new Date(selectedDate) : new Date();
+  const parsedDate = selectedDate ? dayjs(selectedDate, "DD/MM/YYYY") : null;
+  const defaultDate = parsedDate || dayjs();
 
-  const handleDateClick = (date: Date) => {
-    onSelect(date.toLocaleDateString(locale, {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    }));
-    onClose();
+  const handleDateChange = (date: Dayjs | null) => {
+    if (date) {
+      onSelect(date.format("DD/MM/YYYY"));
+      onClose();
+    }
   };
 
-  const sampleDates = Array.from({ length: 31 }, (_, i) => 
-    new Date(defaultDate.getFullYear(), defaultDate.getMonth(), i + 1)
-  ).filter(date => date.getMonth() === defaultDate.getMonth());
+  const disabledDate = (current: Dayjs) => {
+    const today = dayjs().startOf('day');
+    
+    // Deshabilitar fechas anteriores a minDate
+    if (minDate && current.isBefore(minDate, 'day')) return true;
+    
+    // Deshabilitar fechas posteriores a maxDate
+    if (maxDate && current.isAfter(maxDate, 'day')) return true;
+    
+    // Por defecto, deshabilitar fechas anteriores a hoy
+    if (!minDate && !maxDate) return current.isBefore(today, 'day');
+    
+    return false;
+  };
 
   return (
-    <div className="bg-white p-4 rounded-lg shadow-lg w-[320px] max-w-[95vw]"> {/* Fixed width */}
-      <div className="flex justify-between items-center mb-4">
+    <div className="bg-white p-4 rounded-lg shadow-lg w-[320px] max-w-[95vw]">
+      <div className="flex justify-between items-center mb-4 relative">
         <h3 className="text-lg font-medium text-black">Seleccionar Fecha</h3>
         <button 
           onClick={onClose} 
-          className="text-2xl text-gray-500 hover:text-gray-700 transition-colors focus:outline-none"
+          className="text-2xl text-gray-500 hover:text-gray-700 transition-colors focus:outline-none absolute right-0 top-0"
         >
           &times;
         </button>
       </div>
-      <div className="grid grid-cols-7 gap-1">
-        {/* Weekday headers */}
-        {['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'].map(day => (
-          <div key={day} className="text-center text-sm font-medium text-gray-600 py-1">
-            {day}
-          </div>
-        ))}
-        
-        {/* Calendar dates */}
-        {sampleDates.map((date, index) => (
-          <button
-            key={index}
-            className={`w-10 h-10 p-1 rounded-full text-sm flex items-center justify-center
-              hover:bg-rojo-intec-400 transition-colors
-              ${date.toDateString() === new Date().toDateString() 
-                ? 'bg-rojo-intec-400 text-white hover:bg-rojo-intec-200' 
-                : 'text-gray-700'}
-              ${date.getDay() === 0 || date.getDay() === 6 
-                ? 'text-red-500' 
-                : ''}`}
-            onClick={() => handleDateClick(date)}
-          >
-            {date.getDate()}
-          </button>
-        ))}
-      </div>
+      
+      <DatePicker
+        value={parsedDate || undefined}
+        onChange={handleDateChange}
+        allowClear={false}
+        open={true}
+        format="DD/MM/YYYY"
+        className="w-full"
+        disabledDate={disabledDate}
+        disabled={disabled}
+      />
     </div>
   );
 };

@@ -1,4 +1,3 @@
-// src/pages/ChatPage.tsx
 import React, { useState } from "react";
 import CreatorLayout from "@/layouts/default";
 import { useUsers, UserData } from "@/hooks/useUsers";
@@ -19,31 +18,35 @@ const ChatPage: React.FC<Props> = ({ user }) => {
 
   return (
     <CreatorLayout>
-      <div className="flex h-screen">
-        {/* Panel izquierdo: lista de contactos siempre visible */}
-        <div className="w-1/3 border-r p-4 overflow-y-auto">
-          {loading ? (
-            <p>Cargando contactos…</p>
-          ) : (
-            <ContactList
-              users={users}
-              currentUserId={user.user_id}
-              onSelectUser={setSelectedUser}
-            />
-          )}
+      {/* 1) Contenedor flex-column que ocupa todo el alto */}
+      <div className="flex flex-col h-full">
+        
+        {/* 2) Header fijo */}
+        <div className="py-4 px-6">
+          <h1 className="text-6xl font-medium font-barlow">Chat</h1>
         </div>
 
-        {/* Panel derecho: zona de chat o mensaje de espera */}
-        <div className="flex-1 p-8">
-          {!selectedUser && (
-            <p className="text-gray-500">
-              Selecciona un contacto para iniciar chat…
-            </p>
-          )}
+        {/* 3) Body: flex de altura restante, sin overflow en global */}
+        <div className="flex flex-1 overflow-hidden">
+          
+          {/* 4) Left panel: scroll sólo aquí */}
+          <div className="w-1/3 border-r overflow-y-auto h-full">
+            {loading ? (
+              <p className="p-4">Cargando contactos…</p>
+            ) : (
+              <ContactList
+                users={users}
+                currentUserId={user.user_id}
+                onSelectUser={setSelectedUser}
+              />
+            )}
+          </div>
 
-          {selectedUser && (
+          {/* 5) Right panel: ocupa resto, sin scroll global */}
+          <div className="flex-1 h-full">
             <ChatPanel user={user} selectedUser={selectedUser} />
-          )}
+          </div>
+
         </div>
       </div>
     </CreatorLayout>

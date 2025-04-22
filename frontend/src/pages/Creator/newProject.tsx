@@ -4,85 +4,22 @@ import CreatorLayout from "@/layouts/default";
 import InfoCard from "@/components/InfoCard";
 import Button from "@/components/button";
 import Input from "@/components/input";
-import CustomDatePicker from "@/components/CustomDatePicker"; // Your custom date picker component
+import CustomDatePicker from "@/components/CustomDatePicker";
 import CalendarIcon from "@/assets/icons/calendar.svg";
 import FormatSelector from "@/components/modals/formatModal";
 import { GenresModal } from "@/components/modals/genreModal";
 import { SubjectsModal } from "@/components/modals/subjectModal";
-
 import CustomTabs, { CustomTab } from "@/components/tabs";
 import { Department, Genre, ProjectFormat, Role, Subject, Vacancy } from "@/types";
 import ConfirmCancelModal from "@/components/modals/ConfirmCancelModal";
-import VacancyFormModal  from "@/components/modals/VacantModal";
+import VacancyFormModal from "@/components/modals/VacantModal";
 import VacanciesTable from "@/components/VacancyTable";
-
-// Mock formats (ProjectFormat[])
-export const mockFormats: ProjectFormat[] = [
-  { format_id: 1, format_name: "Corto" },
-  { format_id: 2, format_name: "Largo" },
-  { format_id: 3, format_name: "Serie" },
-  { format_id: 4, format_name: "Documental" },
-];
-
-// Mock genres (Genre[])
-export const mockGenres: Genre[] = [
-  { genre_id: 1, genre: "Drama" },
-  { genre_id: 2, genre: "Comedia" },
-  { genre_id: 3, genre: "Acción" },
-  { genre_id: 4, genre: "Ciencia Ficción" },
-  { genre_id: 5, genre: "Terror" },
-];
-
-// Mock subjects (Subject[])
-export const mockSubjects: Subject[] = [
-  { class_id: 1, class_name: "Historia" },
-  { class_id: 2, class_name: "Psicología" },
-  { class_id: 3, class_name: "Sociología" },
-  { class_id: 4, class_name: "Tecnología" },
-];
-export const mockDepartments: Department[] = [
-  { department_id: 1, department_name: "Producción" },
-  { department_id: 2, department_name: "Dirección" },
-  { department_id: 3, department_name: "Guion" },
-  { department_id: 4, department_name: "Fotografía" },
-  { department_id: 5, department_name: "Sonido" },
-  { department_id: 6, department_name: "Arte" },
-  { department_id: 7, department_name: "Vestuario" },
-  { department_id: 8, department_name: "Maquillaje y Peinado" },
-  { department_id: 9, department_name: "Edición y Post-producción" },
-  { department_id: 10, department_name: "Efectos Visuales (VFX)" },
-  { department_id: 11, department_name: "Música" },
-  { department_id: 12, department_name: "Administración y Legal" },
-];
-
-export const mockRoles: Role[] = [
-  // Producción (department_id: 1)
-  { role_id: 101, role_name: "Productor/a Ejecutivo/a", department_id: 1, responsibilities: "Financiación y supervisión general del proyecto." },
-  { role_id: 102, role_name: "Productor/a General", department_id: 1, responsibilities: "Supervisión diaria de la producción." },
-  { role_id: 103, role_name: "Jefe/a de Producción", department_id: 1, responsibilities: "Logística, presupuesto y cronograma del rodaje." },
-  { role_id: 104, role_name: "Asistente de Producción", department_id: 1, responsibilities: "Apoyo general al equipo de producción." },
-  { role_id: 105, role_name: "Secretario/a de Producción", department_id: 1, responsibilities: "Tareas administrativas y de comunicación." },
-  { role_id: 106, role_name: "Administrador/a de Locaciones", department_id: 1, responsibilities: "Búsqueda, gestión y permisos de locaciones." },
-
-  // Dirección (department_id: 2)
-  { role_id: 201, role_name: "Director/a", department_id: 2, responsibilities: "Visión creativa y dirección de actores y equipo técnico." },
-  { role_id: 202, role_name: "Primer/a Asistente de Dirección", department_id: 2, responsibilities: "Planificación del rodaje, gestión del set." },
-  { role_id: 203, role_name: "Segundo/a Asistente de Dirección", department_id: 2, responsibilities: "Coordinación de extras, logística del set." },
-  { role_id: 204, role_name: "Script Supervisor / Continuista", department_id: 2, responsibilities: "Seguimiento de la continuidad y notas del guion." },
-];
-
-
-const initialVacanciesData = [
-  {
-    id: 1,
-    cargo: "Director",
-    descripcion: "Director principal",
-    requerimientos: "Experiencia previa",
-    departamento: "Audiovisual",
-    role_id: 1,
-    department_id: 1,
-  },
-];
+import { notification } from "antd";
+import { CloseCircleOutlined } from "@ant-design/icons";
+import { useDecodeJWT } from "@/hooks/useDecodeJWT";
+import { useCloudinaryUpload } from "@/hooks/usecloudinary";
+import type { Dayjs } from "dayjs";
+import dayjs from "dayjs";
 
 
 const NewProject: React.FC = () => {
@@ -92,18 +29,37 @@ const NewProject: React.FC = () => {
   const [description, setDescription] = useState(
     "Lorem ipsum dolor sit amet, consectetur adipiscing elit..."
   );
-  const [budget, setBudget] = useState("2.00$");
+  const decodedToken = useDecodeJWT();
+  const apiRoute = import.meta.env.VITE_API_ROUTE;
+  const { isUploading, uploadFile, error: uploadError } = useCloudinaryUpload({
+    uploadPreset: "tecnitrama-asset",
+    cloudName: "dcrl5demd",
+  });
+  const [apiError, setApiError] = useState<string>("");
+
+
+  const [formats, setFormats] = useState<ProjectFormat[]>([]);
+  const [genres, setGenres] = useState<Genre[]>([]);
+  const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [departments, setDepartments] = useState<Department[]>([]);
+  const [roles, setRoles] = useState<Role[]>([]);
+
+  const [isLoadingFormats, setIsLoadingFormats] = useState(false);
+  const [isLoadingGenres, setIsLoadingGenres] = useState(false);
+  const [isLoadingSubjects, setIsLoadingSubjects] = useState(false);
+  const [isLoadingDepartments, setIsLoadingDepartments] = useState(false);
+  const [isLoadingRoles, setIsLoadingRoles] = useState(false);
+
+
+  const [budget, setBudget] = useState("");
   const [selectedFormat, setSelectedFormat] = useState<ProjectFormat | null>(null);
   const [selectedGenres, setSelectedGenres] = useState<Genre[]>([]);
   const [selectedSubjects, setSelectedSubjects] = useState<Subject[]>([]);
   const [bannerImage, setBannerImage] = useState("https://placehold.co/1305x297");
   const [sponsors, setSponsors] = useState("");
   const [attachmentsUrl, setAttachmentsUrl] = useState("");
-  const [departments, setDepartments] = useState<Department[]>(mockDepartments);
-  const [roles, setRoles]             = useState<Role[]>(mockRoles);
-  const [genres, setGenres]           = useState<Genre[]>(mockGenres);
 
-  const [vacancies, setVacancies] = useState<Vacancy[]>(initialVacanciesData); // Empezar vacío
+  const [vacancies, setVacancies] = useState<Vacancy[]>([]); // Empezar vacío
   const [vacancyModalOpen, setVacancyModalOpen] = useState(false);
   const [editingVacancy, setEditingVacancy] = useState<Vacancy | null>(null); // Para editar
 
@@ -113,94 +69,246 @@ const NewProject: React.FC = () => {
   const [subjectsModalOpen, setSubjectsModalOpen] = useState(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 
-  // Date States (using string for simplicity in display; ideally, you'd use a date type)
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  const [startDate, setStartDate] = useState<string | null>(null);
+  const [endDate, setEndDate] = useState<string | null>(null);
   const [openPicker, setOpenPicker] = useState<"start" | "end" | null>(null);
+  const parsedStartDate = startDate ? dayjs(startDate, "DD/MM/YYYY") : null;
 
   // File Input for Banner Image
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const handleFileChange = (event: any): void => {
+  const handleFileChange = async (event: any) => {
     const file = event.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      console.log("Image file selected:", file.name);
-      setBannerImage(e.target?.result as string);
-    };
-    reader.readAsDataURL(file);
+
+    const uploadedUrl = await uploadFile(file);
+    if (uploadedUrl) {
+      console.log("Imagen subida a Cloudinary:", uploadedUrl);
+      setBannerImage(uploadedUrl); // Ahora guardamos el URL de Cloudinary
+    } else {
+      alert("Error subiendo la imagen. Intenta de nuevo.");
+    }
   };
-   // Abrir modal (nuevo o edición)
-  const openVacancyModal = (vacancy: Vacancy | null = null) => {
+
+
+  const openVacancyModal = async (vacancy: Vacancy | null = null) => {
+    // Si aún no tenemos departamentos, los traemos
+    if (departments.length === 0) {
+      await fetchDepartments();
+    }
     setEditingVacancy(vacancy);
     setVacancyModalOpen(true);
   };
 
-    const handleSaveVacancy = (data: {
-    department_id: number;
-    role_id: number;
-    descripcion: string;
-    requerimientos: string;
-  }) => {
-    const role = roles.find(r => r.role_id === data.role_id);
-    const department = departments.find(d => d.department_id === data.department_id);
-
-    if (!role || !department) {
-      alert("Departamento o Rol inválido");
-      return;
+  const fetchGenres = async () => {
+    try {
+      setIsLoadingGenres(true);
+      const response = await fetch(`${apiRoute}genres`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+      const data = await response.json();
+      setGenres(data);
+    } catch (error) {
+      console.error("Error cargando géneros", error);
+    } finally {
+      setIsLoadingGenres(false);
     }
+  };
 
-    const transformedData: Omit<Vacancy, "id"> = {
+  const fetchFormats = async () => {
+    try {
+      setIsLoadingFormats(true);
+      const response = await fetch(`${apiRoute}projects/formats`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+      const data = await response.json();
+      setFormats(data);
+    } catch (error) {
+      console.error("Error cargando formatos", error);
+    } finally {
+      setIsLoadingFormats(false);
+    }
+  };
+
+  const fetchSubjects = async () => {
+    try {
+      setIsLoadingSubjects(true);
+      const response = await fetch(`${apiRoute}classes`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+      const data = await response.json();
+      setSubjects(data);
+    } catch (error) {
+      console.error("Error cargando materias", error);
+    } finally {
+      setIsLoadingSubjects(false);
+    }
+  };
+
+  const fetchDepartments = async () => {
+    try {
+      setIsLoadingDepartments(true);
+      const res = await fetch(`${apiRoute}departments`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+      const data: Department[] = await res.json();
+      setDepartments(data);
+    } catch (e) {
+      console.error("Error cargando departamentos:", e);
+    } finally {
+      setIsLoadingDepartments(false);
+    }
+  };
+
+  const fetchRolesByDepartment = async (department_id: string) => {
+    try {
+      setIsLoadingRoles(true);
+      const response = await fetch(`${apiRoute}departments/${department_id}/roles`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+      const data = await response.json();
+      setRoles(data);
+    } catch (error) {
+      console.error("Error cargando roles por departamento", error);
+    } finally {
+      setIsLoadingRoles(false);
+    }
+  };
+
+  const handleSaveVacancy = (data: {
+    department_id: number;
+    department_name: string;
+    role_id: number;
+    role_name: string;
+    description: string;
+    requirements: string;
+  }) => {
+    const transformed: Omit<Vacancy, "id"> = {
       department_id: data.department_id,
       role_id: data.role_id,
-      descripcion: data.descripcion,
-      requerimientos: data.requerimientos,
-      cargo: role.role_name,
-      departamento: department.department_name,
+      cargo: data.role_name,
+      departamento: data.department_name,
+      descripcion: data.description,
+      requerimientos: data.requirements,
     };
 
     if (editingVacancy) {
-      setVacancies((prev) =>
-        prev.map((v) =>
-          v.id === editingVacancy.id ? { ...v, ...transformedData } : v
+      setVacancies(prev =>
+        prev.map(v =>
+          v.id === editingVacancy.id ? { ...v, ...transformed } : v
         )
       );
     } else {
-      const newVacancy: Vacancy = {
-        id: `temp-${Date.now()}`,
-        ...transformedData,
-      };
-      setVacancies((prev) => [...prev, newVacancy]);
+      setVacancies(prev => [
+        ...prev,
+        { id: `temp-${Date.now()}`, ...transformed }
+      ]);
     }
-
     setVacancyModalOpen(false);
     setEditingVacancy(null);
   };
 
-
   const handleDeleteVacancy = (id: string) => {
     setVacancies((prev) => prev.filter((v) => v.id !== id));
-  }; 
-
-
-  // Date Formatter (simple example)
-  const formatDate = (date: string) => (date ? date : "Seleccionar");
-
-  // Form Submission for the project (for demonstration)
-  const handleSubmit = (e:any) => {
-    e.preventDefault();
-    console.log({
-      title,
-      description,
-      budget,
-      selectedFormat,
-      selectedGenres,
-      selectedSubjects,
-      startDate,
-      endDate,
-    });
   };
-    const toggleGenre = (genre: Genre) => {
+
+  const formatDate = (dateStr: string | null) => {
+    if (!dateStr) return "";
+    return dateStr;
+  };
+
+  const handleSubmit = async () => {
+    if (!decodedToken) {
+      alert("No se pudo decodificar el token. Vuelve a iniciar sesión.");
+      return;
+    }
+
+    const creatorId = decodedToken.id;
+    if (!creatorId) {
+      alert("ID de creador no encontrado en el token.");
+      return;
+    }
+
+    // Validaciones
+    if (!title || !selectedFormat || selectedGenres.length === 0 || selectedSubjects.length === 0) {
+      notification.open({
+        message: "Por favor completa todos los campos obligatorios:",
+        description: "Formato, generos, materias",
+        icon: <CloseCircleOutlined style={{ color: "#ff4d4f" }} />,
+        placement: "topRight",
+        duration: 4,
+      });
+      return;
+    }
+
+    try {
+      const projectPayload = {
+        title,
+        description,
+        creator_id: creatorId,
+        banner: bannerImage,
+        attachmenturl: attachmentsUrl,
+        budget: parseFloat(budget.replace("$", "").trim()) || 0,
+        sponsors,
+        estimated_start: startDate ? dayjs(startDate, "DD/MM/YYYY").toISOString() : null,
+        estimated_end: endDate ? dayjs(endDate, "DD/MM/YYYY").toISOString() : null,
+        is_published: false,
+        format_id: selectedFormat.format_id,
+        genre_ids: selectedGenres.map(g => g.genre_id),
+        class_ids: selectedSubjects.map(s => s.class_id),
+      };
+
+      const projectRes = await fetch(`${apiRoute}projects`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify(projectPayload),
+      });
+
+      if (!projectRes.ok) throw new Error("Error al crear el proyecto");
+      const projectData = await projectRes.json();
+      const newProjectId = projectData.project_id;
+
+      for (const vac of vacancies) {
+        const vacancyPayload = {
+          project_id: newProjectId,
+          role_id: vac.role_id,
+          description: vac.descripcion,
+          requirements: vac.requerimientos,
+          is_filled: false,
+          is_visible: true,
+        };
+
+        const vacRes = await fetch(`${apiRoute}vacancies`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          body: JSON.stringify(vacancyPayload),
+        });
+
+        if (!vacRes.ok) {
+          console.error("Error al crear vacante:", vac, await vacRes.text());
+        }
+      }
+
+      navigate("/dashboard");
+
+    } catch (err: any) {
+      setApiError(err.message);
+      notification.open({
+        message: "Error en la creación del proyecto o vacantes:",
+        description: err.message || "Hubo un error al crear el proyecto o las vacantes. Intenta de nuevo.",
+        icon: <CloseCircleOutlined style={{ color: "#ff4d4f" }} />,
+        placement: "topRight",
+        duration: 4,
+      });
+    }
+  };
+
+  const toggleGenre = (genre: Genre) => {
     setSelectedGenres(prev =>
       prev.some(g => g.genre === genre.genre)
         ? prev.filter(g => g.genre !== genre.genre)
@@ -255,31 +363,20 @@ const NewProject: React.FC = () => {
           <CustomTab label="General">
             {/* Main Content Container */}
             <div className="w-full max-w-[75rem] flex gap-10 px-8 my-8">
+
               {/* Left Column: Format, Genres, Subjects */}
               <div className="w-1/4 flex flex-col gap-[1.563rem]">
                 <InfoCard
                   title="Formato"
                   content={
-                      selectedFormat ? 
-                      [selectedFormat] :  // Envuelve en un array si es un objeto
+                    selectedFormat ?
+                      [selectedFormat.format_name] :  // Envuelve en un array si es un objeto
                       "Seleccionar formato"
-                    }                  
-                  headerButton={
-                    <button
-                      className="text-black text-[1.25rem] font-barlow font-medium leading-[1.625rem]"
-                      onClick={() => setFormatModalOpen(true)}
-                    >
-                      +
-                    </button>
                   }
-                />
-                <InfoCard
-                  title="Generos"
-                  content={selectedGenres.length ? selectedGenres : ["Seleccionar géneros"]}
                   headerButton={
                     <button
                       className="text-black text-[1.25rem] font-barlow font-medium leading-[1.625rem]"
-                      onClick={() => setGenresModalOpen(true)}
+                      onClick={() => { if (formats.length === 0) fetchFormats(); setFormatModalOpen(true) }}
                     >
                       +
                     </button>
@@ -288,12 +385,30 @@ const NewProject: React.FC = () => {
                 <InfoCard
                   title="Materias"
                   content={
-                    selectedSubjects.length ? selectedSubjects : ["Seleccionar materias"]
+                    selectedSubjects.length
+                      ? selectedSubjects.map((subject) => subject.class_name)
+                      : ["Seleccionar materias"]
                   }
                   headerButton={
                     <button
                       className="text-black text-[1.25rem] font-barlow font-medium leading-[1.625rem]"
-                      onClick={() => setSubjectsModalOpen(true)}
+                      onClick={() => { if (subjects.length === 0) fetchSubjects(); setSubjectsModalOpen(true) }}
+                    >
+                      +
+                    </button>
+                  }
+                />
+                <InfoCard
+                  title="Géneros"
+                  content={
+                    selectedGenres.length
+                      ? selectedGenres.map((genre) => genre.genre)
+                      : ["Seleccionar géneros"]
+                  }
+                  headerButton={
+                    <button
+                      className="text-black text-[1.25rem] font-barlow font-medium leading-[1.625rem]"
+                      onClick={() => { if (genres.length === 0) fetchGenres(); setGenresModalOpen(true) }}
                     >
                       +
                     </button>
@@ -317,7 +432,6 @@ const NewProject: React.FC = () => {
                   placeholder="Describe tu proyecto aquí..."
                 />
               </div>
-
               {/* Right Column: Budget, Dates, and Action Buttons */}
               <div className="w-[16.563rem] flex flex-col justify-between gap-2">
                 {/* Budget Field */}
@@ -337,7 +451,6 @@ const NewProject: React.FC = () => {
                     className="min-w-full"
                   />
                 </div>
-
                 {/* Dates Section */}
                 <div className="flex flex-col gap-4 relative">
                   {/* Start Date Field */}
@@ -369,17 +482,17 @@ const NewProject: React.FC = () => {
                     {openPicker === "start" && (
                       <div className="absolute z-10 mt-2">
                         <CustomDatePicker
-                          selectedDate={startDate ? new Date(startDate) : null}
+                          selectedDate={startDate}
                           onSelect={(date) => {
                             setStartDate(date);
                             setOpenPicker(null);
                           }}
                           onClose={() => setOpenPicker(null)}
+                          maxDate={dayjs().add(2, 'year')}
                         />
                       </div>
                     )}
                   </div>
-
                   {/* End Date Field */}
                   <div className="flex-1 relative">
                     <label
@@ -396,7 +509,7 @@ const NewProject: React.FC = () => {
                         placeholder="Seleccionar fecha de fin"
                         value={formatDate(endDate)}
                         onClick={() => setOpenPicker("end")}
-                        className="w-full p-2.5 border-2 border-black rounded-lg focus:ring-2"/>
+                        className="w-full p-2.5 border-2 border-black rounded-lg focus:ring-2" />
                       <button
                         type="button"
                         className="absolute right-3 top-1/2 -translate-y-1/2"
@@ -408,12 +521,14 @@ const NewProject: React.FC = () => {
                     {openPicker === "end" && (
                       <div className="absolute z-10 mt-2 right-0">
                         <CustomDatePicker
-                          selectedDate={endDate ? new Date(endDate) : null}
+                          selectedDate={endDate}
                           onSelect={(date) => {
                             setEndDate(date);
                             setOpenPicker(null);
                           }}
                           onClose={() => setOpenPicker(null)}
+                          minDate={parsedStartDate || dayjs()}
+                          disabled={!startDate}
                         />
                       </div>
                     )}
@@ -435,7 +550,6 @@ const NewProject: React.FC = () => {
                       className="min-w-full"
                     />
                   </div>
-
                   {/* Attachments URL Field */}
                   <div className="flex flex-col justify-start items-start gap-2.5">
                     <label
@@ -454,48 +568,42 @@ const NewProject: React.FC = () => {
                     />
                   </div>
                 </div>
-                
-                
               </div>
             </div>
           </CustomTab>
           <CustomTab label="Vacantes">
-              <>
+            <>
               {/* Tabla de Vacantes */}
-            <VacanciesTable
-              vacancies={vacancies}
-              onEdit={openVacancyModal}
-              onDelete={handleDeleteVacancy}
-            />
-
-            {/* Botón para añadir */}
-            <div className="mt-4">
-              <Button onClick={() => openVacancyModal(null)}>
-                Agregar Vacante
-              </Button>
-            </div>
-
-            {/* Modal de Formulario */}
-            <VacancyFormModal
-            isOpen={vacancyModalOpen}
-            onClose={() => setVacancyModalOpen(false)}
-            onSave={handleSaveVacancy}
-            initialData={editingVacancy ? {
-              department_id: editingVacancy.department_id,
-              role_id: editingVacancy.role_id,
-              descripcion: editingVacancy.descripcion,
-              requerimientos: editingVacancy.requerimientos
-            } : undefined}
-            departments={departments}
-            roles={roles}
-          />
-          </>           
+              <VacanciesTable
+                vacancies={vacancies}
+                onEdit={openVacancyModal}
+                onDelete={handleDeleteVacancy}
+              />
+              {/* Botón para añadir */}
+              <div className="mt-4">
+                <Button onClick={() => openVacancyModal(null)}>
+                  Agregar Vacante
+                </Button>
+              </div>
+              {/* Modal de Formulario */}
+              <VacancyFormModal
+                isOpen={vacancyModalOpen}
+                onClose={() => setVacancyModalOpen(false)}
+                onSave={handleSaveVacancy}   // ahora recibe también department_name y role_name
+                initialData={editingVacancy ? {
+                  department_id: editingVacancy.department_id,
+                  role_id: editingVacancy.role_id,
+                  // Para editar también necesitas mapear los dos nombres
+                  department_name: editingVacancy.departamento,
+                  role_name: editingVacancy.cargo,
+                  description: editingVacancy.descripcion,
+                  requirements: editingVacancy.requerimientos
+                } : undefined}
+                departments={departments}
+              />
+            </>
           </CustomTab>
-          
         </CustomTabs>
-
-        
-
         {/* Bottom Action Buttons */}
         <div className="w-full flex justify-center px-[3.375rem] mt-8 mb-8 gap-4">
           <Button
@@ -504,8 +612,7 @@ const NewProject: React.FC = () => {
           >
             Cancelar
           </Button>
-  
-            <Button onClick={(e)=> handleSubmit(e)} className="p-4 bg-rojo-intec-400 text-white">Crear Proyecto</Button>
+          <Button onClick={handleSubmit} className="p-4 bg-rojo-intec-400 text-white">Crear Proyecto</Button>
         </div>
       </div>
 
@@ -513,12 +620,9 @@ const NewProject: React.FC = () => {
       {formatModalOpen && (
         <FormatSelector
           isOpen={formatModalOpen}
-          formats={mockFormats}
+          formats={formats}
           selectedFormat={selectedFormat}
-          onSelect={(format) => {
-            setSelectedFormat(format);
-            setFormatModalOpen(false);
-          }}
+          onSelect={(format) => { setSelectedFormat(format); setFormatModalOpen(false); }}
           onClose={() => setFormatModalOpen(false)}
         />
       )}
@@ -528,8 +632,10 @@ const NewProject: React.FC = () => {
           isOpen={genresModalOpen}
           onClose={() => setGenresModalOpen(false)}
           selectedGenres={selectedGenres}
-          toggleGenre={toggleGenre}
-          genres={mockGenres}
+          toggleGenre={(genre) => {
+            setSelectedGenres(prev => prev.some(g => g.genre_id === genre.genre_id) ? prev.filter(g => g.genre_id !== genre.genre_id) : [...prev, genre]);
+          }}
+          genres={genres}
         />
       )}
 
@@ -538,20 +644,22 @@ const NewProject: React.FC = () => {
           isOpen={subjectsModalOpen}
           onClose={() => setSubjectsModalOpen(false)}
           selectedSubjects={selectedSubjects}
-          toggleSubject={toggleSubject}
-          subjects={mockSubjects}
+          toggleSubject={(subject) => {
+            setSelectedSubjects(prev => prev.some(s => s.class_id === subject.class_id) ? prev.filter(s => s.class_id !== subject.class_id) : [...prev, subject]);
+          }}
+          subjects={subjects}
         />
       )}
 
       {deleteConfirmOpen && (
-       <ConfirmCancelModal
-        isOpen={deleteConfirmOpen}
-        onCancel={() => setDeleteConfirmOpen(false)}
-        onConfirm={() => {
-          navigate("/dashboard"); // Redirigir a la página de proyectos
-          setDeleteConfirmOpen(false);
-        }}
-      />
+        <ConfirmCancelModal
+          isOpen={deleteConfirmOpen}
+          onCancel={() => setDeleteConfirmOpen(false)}
+          onConfirm={() => {
+            navigate("/dashboard"); // Redirigir al dashboard
+            setDeleteConfirmOpen(false);
+          }}
+        />
       )}
     </CreatorLayout>
   );
