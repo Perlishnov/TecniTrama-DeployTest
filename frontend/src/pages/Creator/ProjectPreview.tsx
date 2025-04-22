@@ -80,7 +80,7 @@ const ProjectPreview: React.FC = () => {
         const crew = crewRes.ok ? await crewRes.json() : [];
 
         const requestsRes = await fetch(`${apiRoute}applications/project/${projectId}`, { headers });
-        const requests = requestsRes.ok ? await requestsRes.json() : [];
+        const applications = requestsRes.ok ? await requestsRes.json() : [];
 
 
         //const requestsRes = await fetch(`${apiRoute}projects/${projectId}`, { headers });
@@ -104,9 +104,17 @@ const ProjectPreview: React.FC = () => {
           };
         });
 
+        const mappedRequests = applications.map((app: any) => ({
+          id: app.app_id,
+          applicant: `${app.users.first_name} ${app.users.last_name}`,  
+          position: app.vacancies?.description || "Cargo desconocido",
+          date: dayjs(app.applied_at).format("DD/MM/YYYY"),  
+          reasons: app.motivation_letter, 
+        }));
+
+        setSolicitudesData(mappedRequests);
         setCurrentVacancies(mappedVacancies);
         setCurrentAssignedCrew(crew);
-        setSolicitudesData(requests);
 
         setProjectDetails({
           ...data,
@@ -256,9 +264,35 @@ const ProjectPreview: React.FC = () => {
             vacancy={vacancyToApply}
             open={applyModalVisible}
             onClose={() => setApplyModalVisible(false)}
-            onSubmit={(message) => {
-              console.log("Solicitud enviada:", message);
-              setApplyModalVisible(false);
+            onSubmit={async (_vacancy, motivationLetter) => {
+              if (!vacancyToApply) return;
+
+              try {
+                const token = localStorage.getItem("token");
+                const res = await fetch(`${apiRoute}applications/`, {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                  },
+                  body: JSON.stringify({
+                    postulant_id: decodedToken?.id,
+                    vacancy_id: vacancyToApply.id,
+                    app_status_id: 1,
+                    motivation_letter: motivationLetter, // <-- AHORA sí el texto real
+                  }),
+                });
+
+                if (!res.ok) {
+                  throw new Error("Error al enviar la solicitud");
+                }
+
+                console.log("Solicitud enviada correctamente");
+                setApplyModalVisible(false);
+              } catch (error) {
+                console.error(error);
+                alert("Hubo un error al enviar tu solicitud. Intenta nuevamente.");
+              }
             }}
           />
         )}
