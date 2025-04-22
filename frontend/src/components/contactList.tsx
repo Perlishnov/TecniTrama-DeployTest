@@ -85,7 +85,7 @@ const ContactList: React.FC<Props> = ({ users, currentUserId, onSelectUser }) =>
           <input
             type="text"
             placeholder="Buscar contacto..."
-            className="w-full pl-10 pr-10 py-2 border rounded-lg text-sm"
+            className="w-80 pl-10 pr-10 py-2 border rounded-lg text-sm"
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
           />
@@ -124,7 +124,7 @@ const ContactList: React.FC<Props> = ({ users, currentUserId, onSelectUser }) =>
             <button
               key={user.id}
               onClick={() => handleSelect(user)}
-              className="w-96 px-5 py-1.5 bg-rojo-intec-300 inline-flex justify-start items-center gap-3.5 hover:bg-rojo-intec-100 transition-colors"
+              className="w-[22rem] px-5 py-1.5 bg-rojo-intec-300 inline-flex justify-start items-center gap-3.5 hover:bg-rojo-intec-100 transition-colors"
             >
               <img
                 className="w-16 h-16 rounded-full object-cover"
