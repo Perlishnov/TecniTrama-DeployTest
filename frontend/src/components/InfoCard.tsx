@@ -9,7 +9,7 @@ export interface InfoCardProps<T = any> {
    * - an array of objects (e.g. Subject, Genre, ProjectFormat)
    * - any React node
    */
-  content: string | T[] | React.ReactNode;
+  content: string | T[] | React.ReactNode | any;
   /**
    * When `content` is an array of objects, pick which key to display on each badge
    */

@@ -1,4 +1,3 @@
-import { useNavigate } from 'react-router-dom';
 import Modal from "@/components/Modal";
 
 type NotificationsModalPageProps = {
@@ -25,7 +24,9 @@ const NotificationsModalPage = ({ onClose }: NotificationsModalPageProps) => {
   ];
 
   const handleClose = () => {
-    onClose(); // Cierra el modal correctamente
+    if (onClose) {
+      onClose(); // Cierra el modal correctamente
+    }
   };
 
   return (

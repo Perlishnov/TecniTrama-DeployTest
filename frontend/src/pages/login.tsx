@@ -5,7 +5,11 @@ import bannerImg from "../assets/loginSignupBanner.png";
 import Logo from "@/components/logo";
 import InputField from "@/components/input";
 import CustomButton from "@/components/button";
-import { jwtDecode } from "jwt-decode";
+import { jwtDecode, JwtPayload } from "jwt-decode";
+
+interface CustomJwtPayload extends JwtPayload {
+  user_type_id: number;
+}
 
 export const Login = (): JSX.Element => {
   const navigate = useNavigate();
@@ -57,7 +61,7 @@ export const Login = (): JSX.Element => {
       window.dispatchEvent(new Event('storage'));
       
       // Redirigir inmediatamente según el tipo de usuario
-      const decoded = jwtDecode(responseData.token);
+      const decoded = jwtDecode<CustomJwtPayload>(responseData.token);
       if (decoded.user_type_id === 2) {
         navigate('/admin/dashboard', { replace: true });
       } else {

@@ -199,7 +199,7 @@ const Dashboard: React.FC = () => {
               name="Engagement"
               data={engagementData}
               fill="#E4002B"
-              shape={(props) => (
+              shape={(props:any) => (
                 <circle
                   {...props}
                   r={Math.sqrt((props.payload as any).projectCount) * 2}
