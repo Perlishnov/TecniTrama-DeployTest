@@ -20,7 +20,12 @@ const getDepartmentByRoleId = async (roleId) => {
 
 // Gets all roles
 const getAllRoles = async () => {
-  return await prisma.roles.findMany();
+  return await prisma.roles.findMany({
+    select: {
+      role_id: true,
+      role_name: true
+    }
+  });
 };
 
 module.exports = {
