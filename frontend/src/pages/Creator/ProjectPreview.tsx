@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import CreatorLayout from "@/layouts/default";
+import { notification } from "antd";
 import InfoCard from "@/components/InfoCard";
 import Button from "@/components/button";
 import { Link, useParams } from "react-router-dom";
@@ -106,10 +107,10 @@ const ProjectPreview: React.FC = () => {
 
         const mappedRequests = applications.map((app: any) => ({
           id: app.app_id,
-          applicant: `${app.users.first_name} ${app.users.last_name}`,  
+          applicant: `${app.users.first_name} ${app.users.last_name}`,
           position: app.vacancies?.description || "Cargo desconocido",
-          date: dayjs(app.applied_at).format("DD/MM/YYYY"),  
-          reasons: app.motivation_letter, 
+          date: dayjs(app.applied_at).format("DD/MM/YYYY"),
+          reasons: app.motivation_letter,
         }));
 
         setSolicitudesData(mappedRequests);
@@ -163,12 +164,68 @@ const ProjectPreview: React.FC = () => {
     }
   };
 
-  const handleAcceptRequest = (request: Request) => {
-    setSolicitudesData((prev) => prev.filter((r) => r.id !== request.id));
+  const handleAcceptRequest = async (request: Request) => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${apiRoute}applications/${request.id}/status/2`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) {
+        throw new Error("Error al aceptar solicitud");
+      }
+
+      setSolicitudesData((prev) => prev.filter((r) => r.id !== request.id));
+
+      notification.success({
+        message: "Solicitud aceptada",
+        description: "La persona ha sido agregada exitosamente al proyecto.",
+        placement: "topRight",
+        duration: 3,
+      });
+
+    } catch (error) {
+      console.error(error);
+      notification.error({
+        message: "Hubo un error al aceptar la solicitud",
+      });
+    }
   };
 
-  const handleDenyRequest = (request: Request) => {
-    setSolicitudesData((prev) => prev.filter((r) => r.id !== request.id));
+  const handleDenyRequest = async (request: Request) => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${apiRoute}applications/${request.id}/status/3`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) {
+        throw new Error("Error al rechazar solicitud");
+      }
+
+      setSolicitudesData((prev) => prev.filter((r) => r.id !== request.id));
+
+      notification.success({
+        message: "Solicitud rechazada",
+        description: "La persona ha sido rechazada del proyecto.",
+        placement: "topRight",
+        duration: 3,
+      });
+
+    } catch (error) {
+      console.error(error);
+      notification.error({
+        message: "Hubo un error al rechazar la solicitud",
+      });
+    }
   };
 
   if (isLoading) return <div>Cargando...</div>;
@@ -279,7 +336,7 @@ const ProjectPreview: React.FC = () => {
                     postulant_id: decodedToken?.id,
                     vacancy_id: vacancyToApply.id,
                     app_status_id: 1,
-                    motivation_letter: motivationLetter, // <-- AHORA sí el texto real
+                    motivation_letter: motivationLetter,
                   }),
                 });
 

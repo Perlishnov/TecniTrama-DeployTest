@@ -1,4 +1,3 @@
-// src/components/RequestTable.tsx
 import React from 'react';
 import { Table, Button, Modal, Typography } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
