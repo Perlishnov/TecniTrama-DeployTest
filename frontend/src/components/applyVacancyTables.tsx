@@ -17,11 +17,6 @@ const { Text } = Typography;
 const ApplyVacanciesTable: React.FC<Props> = ({ vacancies, isOwner, onApply, onInvite }) => {
   const columns = [
     {
-      title: "Departamento",
-      dataIndex: "departamento",
-      key: "departamento",
-    },
-    {
       title: "Cargo",
       dataIndex: "cargo",
       key: "cargo",
@@ -56,7 +51,7 @@ const ApplyVacanciesTable: React.FC<Props> = ({ vacancies, isOwner, onApply, onI
               }
             }}
           >
-            {isOwner ? "Invitar" : "Aplicar"}
+            {isOwner ??  "Aplicar"}
           </Button>
         ),
     },    

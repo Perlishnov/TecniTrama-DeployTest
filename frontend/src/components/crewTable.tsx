@@ -35,7 +35,6 @@ const CrewTable: React.FC<CrewTableProps> = ({
   const columns: ColumnsType<CrewMember> = [
     { title: 'Nombre', dataIndex: 'name', key: 'name' },
     { title: 'Cargo', dataIndex: 'role_name', key: 'role_name' },
-    { title: 'Departamento', dataIndex: 'department_name', key: 'department_name' },
   ];
 
   if (isCreator) {
