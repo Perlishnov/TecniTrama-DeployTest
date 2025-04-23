@@ -422,6 +422,17 @@ const getProjectsByCrewMemberId = async (userId) => {
   return projects.filter(project => project);
 };
 
+// Add Crew Member to Project
+const addCrewMemberToProject = async (projectId, userId, roleId, client = prisma) => {
+  return await client.crew.create({
+    data: {
+      project_id: parseInt(projectId),
+      user_id: parseInt(userId),
+      role_id: parseInt(roleId)
+    }
+  });
+};
+
 module.exports = {
   createProject,
   getAllProjects,
@@ -437,5 +448,6 @@ module.exports = {
   getProjectsByCrewMemberId,
   updateProjectFormat,
   updateProjectGenres,
-  updateProjectClasses
+  updateProjectClasses,
+  addCrewMemberToProject
 };

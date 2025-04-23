@@ -2,6 +2,7 @@ const prisma = require("../models/prismaClient");
 const { createNotification } = require("./notificationService");
 const { getVacancyById } = require("./vacancyService");
 const { updateVacancyFilledStatus } = require("./vacancyService");
+const { addCrewMemberToProject } = require("./projectService");
 
 
 // Creates Application
@@ -203,9 +204,20 @@ const changeApplicationStatus = async (applicationId, newStatusId) => {
       include: { app_status: true },
     });
 
-    // Update vacancy filled status if necessary
+    // If the application is approved, update the vacancy status and add the user to the project
     if (newStatus.status === "APROBADO") {
+      // Update vacancy filled status
       await updateVacancyFilledStatus(application.vacancy_id, true, tx);
+      
+      // Add user to project
+      await addCrewMemberToProject(
+        application.vacancies.project_id,
+        application.postulant_id,
+        application.vacancies.role_id,
+        tx
+      );
+
+
     }
 
     const user = application.users;

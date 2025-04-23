@@ -12,11 +12,9 @@ import { SubjectsModal } from "@/components/modals/subjectModal";
 
 import CustomTabs, { CustomTab } from "@/components/tabs";
 import { Department, Genre, ProjectFormat, Role, Subject, Vacancy } from "@/types";
-import ConfirmCancelModal from "@/components/modals/ConfirmCancelModal";
 import VacancyFormModal  from "@/components/modals/VacantModal";
 import VacanciesTable from "@/components/VacancyTable";
 import ConfirmEditModal from "@/components/modals/confirmEditModal";
-import type { Dayjs } from "dayjs";
 import dayjs from "dayjs";
 import { useDecodeJWT } from "@/hooks/useDecodeJWT";
 import { useCloudinaryUpload } from "@/hooks/usecloudinary";
@@ -29,7 +27,7 @@ const EditProyect: React.FC = () => {
     const navigate = useNavigate();
     const decodedToken = useDecodeJWT();
     const apiRoute = import.meta.env.VITE_API_ROUTE;
-    const { isUploading, uploadFile, error: uploadError } = useCloudinaryUpload({
+    const {  uploadFile } = useCloudinaryUpload({
       uploadPreset: "tecnitrama-asset",
       cloudName: "dcrl5demd",
     });
@@ -48,7 +46,7 @@ const EditProyect: React.FC = () => {
     const [selectedGenres, setSelectedGenres] = useState<Genre[]>([]);
     const [selectedSubjects, setSelectedSubjects] = useState<Subject[]>([]);
     const [bannerImage, setBannerImage] = useState<string >(""); // URL actual
-    const [bannerFile, setBannerFile] = useState<File | null>(null); // Nuevo archivo
+    const [bannerFile] = useState<File | null>(null); // Nuevo archivo
     const [sponsors, setSponsors] = useState("");
     const [attachmentsUrl, setAttachmentsUrl] = useState("");
     const [startDate, setStartDate] = useState<string | null>(null); // Usar Date
@@ -67,15 +65,12 @@ const EditProyect: React.FC = () => {
       if (!dateStr) return "";
       return dateStr;
     };  
-    const formatForPicker = (iso: string) => dayjs(iso).format("DD/MM/YYYY");
-
     // Estados de modales (igual que antes)
     const [vacancyModalOpen, setVacancyModalOpen] = useState(false);
     const [editingVacancy, setEditingVacancy] = useState<Vacancy | null>(null);
     const [formatModalOpen, setFormatModalOpen] = useState(false);
     const [genresModalOpen, setGenresModalOpen] = useState(false);
     const [subjectsModalOpen, setSubjectsModalOpen] = useState(false);
-    const [cancelConfirmOpen, setCancelConfirmOpen] = useState(false); // Cambiado de delete a cancel
     const [deleteProjectConfirmOpen, setDeleteProjectConfirmOpen] = useState(false); // Estado para modal de eliminar proyecto
     const [confirmEditOpen, setConfirmEditOpen] = useState(false); // Para confirmar edición
     const [openPicker, setOpenPicker] = useState<"start" | "end" | null>(null); // Para el selector de fechas
@@ -221,6 +216,7 @@ const EditProyect: React.FC = () => {
       requerimientos: data.requirements,
       cargo: role.role_name,
       departamento: department.department_name,
+      is_filled: false,
     };
 
     if (editingVacancy) {
@@ -485,8 +481,36 @@ const EditProyect: React.FC = () => {
 
 
     // --- RENDERIZADO ---
-    if (isLoading) { /* ... Loading ... */ }
-    if (projectNotFound) { /* ... Not Found ... */ }
+    if (isLoading) {
+      return (
+        <CreatorLayout>
+          <div className="flex flex-col items-center justify-center h-screen">
+            <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-rojo-intec-400"></div>
+            <p className="mt-4 text-lg font-barlow">Cargando proyecto...</p>
+            {isSubmitting && <p className="text-sm text-gray-500">Guardando cambios...</p>}
+          </div>
+        </CreatorLayout>
+      );
+    }
+
+    if (projectNotFound) {
+      return (
+        <CreatorLayout>
+          <div className="flex flex-col items-center justify-center h-screen">
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded max-w-md">
+              <h2 className="text-xl font-bold mb-2">Proyecto no encontrado</h2>
+              <p>{error || "No se pudo encontrar el proyecto solicitado."}</p>
+              <Button 
+                className="mt-4 bg-rojo-intec-400 text-white"
+                onClick={() => navigate("/projects")}
+              >
+                Volver a proyectos
+              </Button>
+            </div>
+          </div>
+        </CreatorLayout>
+      );
+    }
 
 
     const toggleGenre = (genre: Genre) => {
@@ -837,11 +861,11 @@ const EditProyect: React.FC = () => {
       )}
 
       {deleteProjectConfirmOpen && (
-        <Modal title="Confirmar Eliminación Proyecto" onClose={() => setDeleteProjectConfirmOpen(false)}>
-          <p className="mb-4">¿Estás SEGURO de eliminar este proyecto? Esta acción es PERMANENTE.</p>
+        <Modal className="bg-rojo-intec-200" title="Cancelar Edicion" onClose={() => setDeleteProjectConfirmOpen(false)}>
+          <p className="mb-4">¿Estás SEGURO de que quieres salir?</p>
           <div className="flex justify-end gap-4">
             <Button className="bg-white" onClick={() => setDeleteProjectConfirmOpen(false)}>No, Conservar</Button>
-            <Button onClick={handleDeleteProject}>Sí, Eliminar Proyecto</Button>
+            <Button onClick={handleDeleteProject}>Sí, Salir</Button>
           </div>
         </Modal>
       )}

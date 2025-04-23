@@ -1,4 +1,3 @@
-// src/components/crewTable.tsx
 import React from 'react';
 import { Table, Button } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
@@ -11,12 +10,14 @@ export interface CrewMember {
   department_id: number;
   department_name: string;
   assigned_at: string;
+  user_id: number;
 }
 
 interface CrewTableProps {
   items?: CrewMember[];
   isCreator?: boolean;
   onDelete?: (ids: Key[]) => void;
+
 }
 
 const CrewTable: React.FC<CrewTableProps> = ({
@@ -24,7 +25,7 @@ const CrewTable: React.FC<CrewTableProps> = ({
   isCreator = false,
   onDelete
 }) => {
-  const [selectedRowKeys, setSelectedRowKeys] = React.useState<Key[]>([]);
+  const [, setSelectedRowKeys] = React.useState<Key[]>([]);
 
   const handleDelete = (ids: Key[]) => {
     onDelete?.(ids);
@@ -34,7 +35,6 @@ const CrewTable: React.FC<CrewTableProps> = ({
   const columns: ColumnsType<CrewMember> = [
     { title: 'Nombre', dataIndex: 'name', key: 'name' },
     { title: 'Cargo', dataIndex: 'role_name', key: 'role_name' },
-    { title: 'Departamento', dataIndex: 'department_name', key: 'department_name' },
   ];
 
   if (isCreator) {

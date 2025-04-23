@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { Link, Navigate, redirect, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import CreatorLayout from "@/layouts/default";
 import InfoCard from "@/components/InfoCard";
 import Button from "@/components/button";
@@ -18,7 +18,6 @@ import { notification } from "antd";
 import { CloseCircleOutlined } from "@ant-design/icons";
 import { useDecodeJWT } from "@/hooks/useDecodeJWT";
 import { useCloudinaryUpload } from "@/hooks/usecloudinary";
-import type { Dayjs } from "dayjs";
 import dayjs from "dayjs";
 
 
@@ -189,6 +188,7 @@ const NewProject: React.FC = () => {
       departamento: data.department_name,
       descripcion: data.description,
       requerimientos: data.requirements,
+      is_filled: false
     };
 
     if (editingVacancy) {

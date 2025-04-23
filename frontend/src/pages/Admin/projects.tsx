@@ -1,6 +1,6 @@
 // src/pages/ProyectosPage.tsx
 import React, { useEffect, useState } from 'react';
-import { Table, Tag, Typography, Spin } from 'antd';
+import { Table, Tag, Spin } from 'antd';
 import { useAuth } from '@/hooks/auth';
 
 interface Project {

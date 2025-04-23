@@ -1,9 +1,7 @@
 // src/pages/UsuariosPage.tsx
 import React, { useEffect, useState } from 'react';
-import { Table, Tag, Typography, Spin } from 'antd';
+import { Table, Tag, Spin } from 'antd';
 import { useAuth } from '@/hooks/auth';
-
-const { Title } = Typography;
 
 interface User {
   user_id: number;

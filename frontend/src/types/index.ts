@@ -11,6 +11,7 @@ export type Vacancy = {
   requerimientos: string;
   role_id: number;
   department_id: number;
+  is_filled: boolean;
 };
 export interface ProjectLink {
   id: string | number;
