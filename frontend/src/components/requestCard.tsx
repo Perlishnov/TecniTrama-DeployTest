@@ -1,5 +1,4 @@
 import React from "react";
-import Button from "@/components/button";
 
 export interface RequestCardProps {
   projectTitle: string;
@@ -7,10 +6,10 @@ export interface RequestCardProps {
   cargo: string;
   estado: string;
   fecha: string;
+  idProject?: number;
 }
 
 const RequestCard: React.FC<RequestCardProps> = ({
-  projectTitle,
   imageUrl,
   cargo,
   estado,
@@ -29,14 +28,6 @@ const RequestCard: React.FC<RequestCardProps> = ({
 
       {/* Content Section */}
       <div className="flex-1 flex flex-col p-4 gap-4">
-        {/* Header */}
-        <div className="flex flex-col gap-2.5">
-          <h2 className="text-Base-Negro text-3xl font-barlow-medium font-barlow leading-10">
-            Solicitud a: {projectTitle}
-          </h2>
-          <div className="w-full h-px bg-Gris-700"></div>
-        </div>
-        <div className="w-full h-0 outline outline-1 outline-offset-[-0.5px] outline-Gris-700"></div>
 
         {/* Content */}
         <div className="flex justify-between">
@@ -52,11 +43,6 @@ const RequestCard: React.FC<RequestCardProps> = ({
             </div>
           </div>
 
-          {/* Buttons */}
-          <div className="flex gap-3.5 mt-4">
-            <Button>Ver proyecto</Button>
-            <Button>Ver solicitud</Button>
-          </div>
         </div>
       </div>
     </div>

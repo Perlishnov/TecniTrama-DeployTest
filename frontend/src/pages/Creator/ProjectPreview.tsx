@@ -11,7 +11,6 @@ import ViewRequestModal from "@/components/modals/viewRequestModal";
 import { Department, Genre, ProjectFormat, Role, Subject, Vacancy } from "@/types";
 import ApplyVacanciesTable from "@/components/applyVacancyTables";
 import ApplyVacancyModal from "@/components/modals/applyVacancyModal";
-import InviteModal from "@/components/modals/InviteModal";
 import { useDecodeJWT } from "@/hooks/useDecodeJWT";
 import dayjs from "dayjs";
 
@@ -37,8 +36,6 @@ const ProjectPreview: React.FC = () => {
   const [solicitudesData, setSolicitudesData] = useState<Request[]>([]);
   const [applyModalVisible, setApplyModalVisible] = useState(false);
   const [vacancyToApply, setVacancyToApply] = useState<Vacancy | null>(null);
-  const [inviteModalVisible, setInviteModalVisible] = useState(false);
-  const [vacancyToInvite, setVacancyToInvite] = useState<Vacancy | null>(null);
   const [viewReqModalOpen, setViewReqModalOpen] = useState(false);
   const [selectedRequest] = useState<Request | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -143,7 +140,7 @@ const ProjectPreview: React.FC = () => {
         // --- MAPEO DE SOLICITUDES (Ajustado a tu interfaz Request) ---
         const pendingApplications = applicationsData.filter((app: any) => app.app_status_id === 1); // Filtrar pendientes
         const mappedRequests = pendingApplications.map((app: any): Request => { // Tipar retorno como Request
-          const vacancy = mappedVacancies.find(v:any => v.id === app.vacancy_id); // Buscar vacante para obtener el nombre del cargo
+            const vacancy = mappedVacancies.find((v: Vacancy) => v.id === app.vacancy_id); // Buscar vacante para obtener el nombre del cargo
           return {
             // Campos EXACTOS de tu interfaz Request
             id: app.app_id,
@@ -194,10 +191,6 @@ const ProjectPreview: React.FC = () => {
     setApplyModalVisible(true);
   };
 
-  const handleInviteToVacancy = (vacancy: Vacancy) => {
-    setVacancyToInvite(vacancy);
-    setInviteModalVisible(true);
-  };
 
 
   const handleToggleActive = async () => {
@@ -479,7 +472,6 @@ const ProjectPreview: React.FC = () => {
           vacancies={currentVacancies}
           isOwner={isOwner}
           onApply={handleApplyToVacancy}
-          onInvite={handleInviteToVacancy}
         />
       </div>
     </CustomTab>,
@@ -563,15 +555,8 @@ const ProjectPreview: React.FC = () => {
             }}
           />
         )}
-        {inviteModalVisible && vacancyToInvite && (
-          <InviteModal
-          onInvite={vacancyToInvite}
-            vacancy={vacancyToInvite}
-            onClose={() => setInviteModalVisible(false)}
-          />
-        )}
         {selectedRequest && (
-          <ViewRequestModal
+          <ViewRequestModal 
             request={selectedRequest}
             open={viewReqModalOpen}
             onClose={() => setViewReqModalOpen(false)}
