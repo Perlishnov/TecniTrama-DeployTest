@@ -1,4 +1,4 @@
-import React, { useState, Children, isValidElement, cloneElement } from 'react';
+import React, { useState, Children, isValidElement } from 'react';
 
 export interface CustomTabProps {
   label: string;

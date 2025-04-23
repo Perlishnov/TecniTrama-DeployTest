@@ -3,6 +3,7 @@ import React from "react";
 import { Table } from "antd";
 import Button from "@/components/button";
 import { Vacancy } from "@/types";
+import { Typography, Tooltip } from "antd";
 
 interface Props {
   vacancies: Vacancy[];
@@ -10,6 +11,8 @@ interface Props {
   onApply?: (vacancy: Vacancy) => void;
   onInvite?: (vacancy: Vacancy) => void;
 }
+
+const { Text } = Typography;
 
 const ApplyVacanciesTable: React.FC<Props> = ({ vacancies, isOwner, onApply, onInvite }) => {
   const columns = [
@@ -39,7 +42,11 @@ const ApplyVacanciesTable: React.FC<Props> = ({ vacancies, isOwner, onApply, onI
       title: "Estado",
       key: "estado",
       render: (_: any, record: Vacancy) =>
-        !record.is_filled ? (
+        record.is_filled ? (
+          <Tooltip title="Esta vacante ya ha sido ocupada">
+            <Text type="success" strong>Ocupado</Text>
+          </Tooltip>
+        ) : (
           <Button
             onClick={() => {
               if (isOwner) {
@@ -51,10 +58,8 @@ const ApplyVacanciesTable: React.FC<Props> = ({ vacancies, isOwner, onApply, onI
           >
             {isOwner ? "Invitar" : "Aplicar"}
           </Button>
-        ) : (
-          "Ocupado"
         ),
-    },
+    },    
   ];
 
   return (

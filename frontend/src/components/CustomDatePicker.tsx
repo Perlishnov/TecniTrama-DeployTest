@@ -2,7 +2,6 @@ import React from "react";
 import { DatePicker } from "antd";
 import type { Dayjs } from "dayjs";
 import dayjs from "dayjs";
-import { useLocale } from "@react-aria/i18n";
 
 interface CustomDatePickerProps {
   selectedDate: string | null;
@@ -21,9 +20,7 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
   maxDate,
   disabled = false,
 }) => {
-  const { locale } = useLocale();
   const parsedDate = selectedDate ? dayjs(selectedDate, "DD/MM/YYYY") : null;
-  const defaultDate = parsedDate || dayjs();
 
   const handleDateChange = (date: Dayjs | null) => {
     if (date) {

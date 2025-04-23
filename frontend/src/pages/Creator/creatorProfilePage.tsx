@@ -12,6 +12,7 @@ interface Project {
   description: string;
   imageUrl: string;
   filters: string[];
+  publicado: boolean;
   completado: boolean;
 }
 
@@ -72,7 +73,8 @@ const CreatorProfilePage: React.FC = () => {
           imageUrl: p.banner ?? "https://placehold.co/400x300",
           href: `/projects/${p.project_id}`,
           filters: Array.isArray(p.filters) ? p.filters : [],
-          completado: !!p.completado,
+          publicado: !!p.is_published,
+          completado: !p.is_active,
         }));
         setProjects(sanitizedProjects);
 
@@ -136,7 +138,7 @@ const CreatorProfilePage: React.FC = () => {
           <CustomTabs>
             <CustomTab label="Publicados">
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-                {projects.filter(p => !p.completado).map(p => (
+                {projects.filter(p => p.publicado && !p.completado).map(p => (
                   <ProjectCard key={p.id} {...p} />
                 ))}
               </div>

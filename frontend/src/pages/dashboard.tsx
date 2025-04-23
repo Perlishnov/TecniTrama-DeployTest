@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import CreatorLayout from "@/layouts/default";
 import ProjectCard, { ProjectCardProps } from "@/components/projectCard";
 import { Genre } from "@/types";
-import { Dropdown, Menu, ConfigProvider } from "antd";
+import { Dropdown, Menu } from "antd";
 import type { MenuProps } from "antd";
 
 interface ApiProject {
@@ -12,6 +12,7 @@ interface ApiProject {
   banner: string;
   estimated_end: string;
   is_active: boolean;
+  is_published: boolean;
 }
 
 const DashboardPage: React.FC = () => {
@@ -92,7 +93,7 @@ const DashboardPage: React.FC = () => {
         setProjects(projectsWithGenres);
         setAllFilters(uniqueGenres);
         setLoading(false);
-      } catch (err) {
+      } catch (err:any) {
         setError(err.message);
         setLoading(false);
       }

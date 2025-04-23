@@ -1,4 +1,3 @@
-// src/components/modals/ApplyVacancyModal.tsx
 import React, { useState } from "react";
 import Modal, { ModalProps } from "@/components/Modal";
 import Button from "@/components/button";

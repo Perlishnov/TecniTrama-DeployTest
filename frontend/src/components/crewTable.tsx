@@ -1,4 +1,3 @@
-// src/components/crewTable.tsx
 import React from 'react';
 import { Table, Button } from 'antd';
 import type { ColumnsType } from 'antd/es/table';

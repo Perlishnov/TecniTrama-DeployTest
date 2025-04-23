@@ -1,4 +1,4 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Button, Input } from "react-aria-components";
 import { useEffect, useState } from "react";
 import ProfileWidget from "./profileWidget";
@@ -13,7 +13,6 @@ import { useDecodeJWT } from "@/hooks/useDecodeJWT";
 import NotificationsModalPage from "@/pages/notificacion";
 
 function Sidebar() {
-  const location = useLocation();
   const [name, setName] = useState("Usuario");
   const [email, setEmail] = useState("correo@example.com");
   const [profile_image, setAvatarUrl] = useState<string | undefined>();
@@ -85,7 +84,7 @@ function Sidebar() {
             <Link
               key={item.label}
               to={item.href}
-              className="block px-4 py-3 rounded-lg text-neutral-700 hover:bg-rojo-intec-200 flex items-center gap-2"
+              className=" px-4 py-3 rounded-lg text-neutral-700 hover:bg-rojo-intec-200 flex items-center gap-2"
             >
               <img src={item.icon} alt={item.label} className="w-6 h-6" />
               <span className="text-neutral-500 font-barlow font-medium">{item.label}</span>

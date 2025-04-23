@@ -21,7 +21,7 @@ import AdminLayout from "./layouts/AdminLayout";
 import AdminDashboard from "./pages/Admin/dashboard";
 import AdminProjects from "./pages/Admin/projects";
 import UsersPage from "./pages/Admin/usersPage";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import ConfigProvider from "antd/es/config-provider";
 
 const App = () => {
@@ -36,17 +36,17 @@ const App = () => {
     }
   }, [isAuthenticated]);
   
-
   const rawUser = useDecodeJWT();
   const streamToken = useStreamToken();
 
-  const user = rawUser && streamToken
-    ? {
-        user_id: rawUser.id || rawUser.user_id,
-        email: rawUser.email,
-        streamToken,
-      }
-    : null;
+  const user = useMemo(() => {
+    if (!rawUser || !streamToken) return null;
+    return {
+      user_id: rawUser.id || rawUser.user_id,
+      email: rawUser.email,
+      streamToken,
+    };
+  }, [rawUser, streamToken]);
 
   const isAdmin = rawUser?.user_type_id === 2;
 
