@@ -10,7 +10,7 @@ import FormatSelector from "@/components/modals/formatModal";
 import { GenresModal } from "@/components/modals/genreModal";
 import { SubjectsModal } from "@/components/modals/subjectModal";
 import CustomTabs, { CustomTab } from "@/components/tabs";
-import { Department, Genre, ProjectFormat, Role, Subject, Vacancy } from "@/types";
+import { Department, Genre, ProjectFormat,  Subject, Vacancy } from "@/types";
 import ConfirmCancelModal from "@/components/modals/ConfirmCancelModal";
 import VacancyFormModal from "@/components/modals/VacantModal";
 import VacanciesTable from "@/components/VacancyTable";
@@ -30,7 +30,7 @@ const NewProject: React.FC = () => {
   );
   const decodedToken = useDecodeJWT();
   const apiRoute = import.meta.env.VITE_API_ROUTE;
-  const { isUploading, uploadFile, error: uploadError } = useCloudinaryUpload({
+  const { uploadFile } = useCloudinaryUpload({
     uploadPreset: "tecnitrama-asset",
     cloudName: "dcrl5demd",
   });
@@ -41,13 +41,11 @@ const NewProject: React.FC = () => {
   const [genres, setGenres] = useState<Genre[]>([]);
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
-  const [roles, setRoles] = useState<Role[]>([]);
 
   const [isLoadingFormats, setIsLoadingFormats] = useState(false);
   const [isLoadingGenres, setIsLoadingGenres] = useState(false);
   const [isLoadingSubjects, setIsLoadingSubjects] = useState(false);
   const [isLoadingDepartments, setIsLoadingDepartments] = useState(false);
-  const [isLoadingRoles, setIsLoadingRoles] = useState(false);
 
 
   const [budget, setBudget] = useState("");
@@ -158,20 +156,6 @@ const NewProject: React.FC = () => {
     }
   };
 
-  const fetchRolesByDepartment = async (department_id: string) => {
-    try {
-      setIsLoadingRoles(true);
-      const response = await fetch(`${apiRoute}departments/${department_id}/roles`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      });
-      const data = await response.json();
-      setRoles(data);
-    } catch (error) {
-      console.error("Error cargando roles por departamento", error);
-    } finally {
-      setIsLoadingRoles(false);
-    }
-  };
 
   const handleSaveVacancy = (data: {
     department_id: number;
@@ -298,6 +282,8 @@ const NewProject: React.FC = () => {
 
     } catch (err: any) {
       setApiError(err.message);
+      console.error("Error al crear el proyecto o las vacantes:", apiError);
+      console.log(isLoadingDepartments);
       notification.open({
         message: "Error en la creación del proyecto o vacantes:",
         description: err.message || "Hubo un error al crear el proyecto o las vacantes. Intenta de nuevo.",
@@ -308,21 +294,7 @@ const NewProject: React.FC = () => {
     }
   };
 
-  const toggleGenre = (genre: Genre) => {
-    setSelectedGenres(prev =>
-      prev.some(g => g.genre === genre.genre)
-        ? prev.filter(g => g.genre !== genre.genre)
-        : [...prev, genre]
-    );
-  };
-
-  const toggleSubject = (subject: Subject) => {
-    setSelectedSubjects(prev =>
-      prev.some(s => s.class_name === subject.class_name)
-        ? prev.filter(s => s.class_name !== subject.class_name)
-        : [...prev, subject]
-    );
-  };
+  
 
   return (
     <CreatorLayout>
@@ -369,14 +341,19 @@ const NewProject: React.FC = () => {
                 <InfoCard
                   title="Formato"
                   content={
-                    selectedFormat ?
-                      [selectedFormat.format_name] :  // Envuelve en un array si es un objeto
-                      "Seleccionar formato"
+                    isLoadingFormats
+                      ? ["Cargando formatos..."] // Show loading message
+                      : selectedFormat
+                      ? [selectedFormat.format_name]
+                      : ["Seleccionar formato"]
                   }
                   headerButton={
                     <button
                       className="text-black text-[1.25rem] font-barlow font-medium leading-[1.625rem]"
-                      onClick={() => { if (formats.length === 0) fetchFormats(); setFormatModalOpen(true) }}
+                      onClick={() => {
+                        if (formats.length === 0) fetchFormats();
+                        setFormatModalOpen(true);
+                      }}
                     >
                       +
                     </button>
@@ -385,35 +362,48 @@ const NewProject: React.FC = () => {
                 <InfoCard
                   title="Materias"
                   content={
-                    selectedSubjects.length
+                    isLoadingSubjects
+                      ? ["Cargando materias..."] // Show loading message
+                      : selectedSubjects.length
                       ? selectedSubjects.map((subject) => subject.class_name)
                       : ["Seleccionar materias"]
                   }
                   headerButton={
                     <button
                       className="text-black text-[1.25rem] font-barlow font-medium leading-[1.625rem]"
-                      onClick={() => { if (subjects.length === 0) fetchSubjects(); setSubjectsModalOpen(true) }}
+                      onClick={() => {
+                        if (subjects.length === 0) fetchSubjects();
+                        setSubjectsModalOpen(true);
+                      }}
                     >
                       +
                     </button>
                   }
                 />
                 <InfoCard
-                  title="Géneros"
-                  content={
-                    selectedGenres.length
-                      ? selectedGenres.map((genre) => genre.genre)
-                      : ["Seleccionar géneros"]
-                  }
-                  headerButton={
-                    <button
-                      className="text-black text-[1.25rem] font-barlow font-medium leading-[1.625rem]"
-                      onClick={() => { if (genres.length === 0) fetchGenres(); setGenresModalOpen(true) }}
-                    >
-                      +
-                    </button>
-                  }
-                />
+  title="Géneros"
+  content={
+    isLoadingGenres
+      ? ["Cargando géneros..."] // Show loading message
+      : selectedGenres.length
+      ? selectedGenres.map((genre) => genre.genre)
+      : ["Seleccionar géneros"]
+  }
+  headerButton={
+    <button
+      className="text-black text-[1.25rem] font-barlow font-medium leading-[1.625rem]"
+      onClick={() => {
+        if (genres.length === 0) fetchGenres();
+        setGenresModalOpen(true);
+      }}
+    >
+      +
+    </button>
+  }
+/>
+
+
+                
               </div>
 
               {/* Center Column: Description */}
