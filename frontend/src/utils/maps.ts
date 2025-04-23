@@ -11,6 +11,7 @@ export function mapApiVacancy(v: ApiVacancy): Vacancy {
     // if your API gives you department_id/role_id, use them; otherwise default to 0
     department_id: v.department_id ?? 0,
     role_id: v.role_id ?? 0,
+    is_filled: false
   };
 }
 
