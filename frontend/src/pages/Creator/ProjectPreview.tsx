@@ -27,6 +27,7 @@ const ProjectPreview: React.FC = () => {
 
   const [isOwner, setIsOwner] = useState(false);
   const [isActive, setIsActive] = useState(false);
+  const [isPublished, setIsPublished] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [projectNotFound, setProjectNotFound] = useState(false);
 
@@ -61,6 +62,7 @@ const ProjectPreview: React.FC = () => {
 
         setIsActive(data.is_active);
         setIsOwner(decodedToken?.id === data.creator_id);
+        setIsPublished(data.is_published);
 
         const genresRes = await fetch(`${apiRoute}projects/${projectId}/genres`, { headers });
         const genres = genresRes.ok ? await genresRes.json() : [];
@@ -105,7 +107,9 @@ const ProjectPreview: React.FC = () => {
           };
         });
 
-        const mappedRequests = applications.map((app: any) => ({
+        const pendingApplications = applications.filter((app: any) => app.app_status_id === 1);
+
+        const mappedRequests = pendingApplications.map((app: any) => ({
           id: app.app_id,
           applicant: `${app.users.first_name} ${app.users.last_name}`,
           position: app.vacancies?.description || "Cargo desconocido",
@@ -143,10 +147,12 @@ const ProjectPreview: React.FC = () => {
     setInviteModalVisible(true);
   };
 
+
   const handleToggleActive = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`${apiRoute}projects/${projectId}/toggle-activity`, {
+
+      const res = await fetch(`${apiRoute}projects/${projectId}/status`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -154,13 +160,50 @@ const ProjectPreview: React.FC = () => {
         },
       });
 
-      if (res.ok) {
-        setIsActive(!isActive);
-      } else {
-        alert("Error al cambiar el estado del proyecto");
+      if (!res.ok) {
+        throw new Error("Error al cambiar el estado del proyecto");
       }
-    } catch (err) {
-      console.error(err);
+
+      // Invertimos el estado localmente
+      setIsActive(prev => !prev);
+
+      notification.success({
+        message: isActive ? "Proyecto terminado" : "Proyecto activado",
+      });
+
+    } catch (error) {
+      console.error(error);
+      notification.error({
+        message: "Hubo un error al cambiar el estado del proyecto",
+      });
+    }
+  };
+
+  const handlePublishProject = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${apiRoute}projects/${projectId}/publish`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) {
+        throw new Error("Error al publicar el proyecto");
+      }
+
+      notification.success({
+        message: "Proyecto publicado exitosamente",
+      });
+
+      setIsPublished(true);
+    } catch (error) {
+      console.error(error);
+      notification.error({
+        message: "Hubo un error al publicar el proyecto"
+      });
     }
   };
 
@@ -257,9 +300,24 @@ const ProjectPreview: React.FC = () => {
               <Button className="p-4 bg-gray-200">
                 <Link to={`/projects/${projectId}/edit`}>Editar proyecto</Link>
               </Button>
-              <Button className="p-4" onClick={handleToggleActive}>
-                {isActive ? "Terminar" : "Publicar"}
-              </Button>
+
+              {!isPublished ? (
+                <Button
+                  className="p-4 bg-rojo-intec-200 text-white hover:bg-red-300"
+                  onClick={handlePublishProject}
+                >
+                  Publicar
+                </Button>
+              ) : (
+                isActive && (
+                  <Button
+                    className="p-4 bg-gray-300 text-black hover:bg-gray-400"
+                    onClick={handleToggleActive}
+                  >
+                    Terminar
+                  </Button>
+                )
+              )}
             </>
           )}
         </div>
