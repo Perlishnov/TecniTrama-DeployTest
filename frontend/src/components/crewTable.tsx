@@ -10,12 +10,14 @@ export interface CrewMember {
   department_id: number;
   department_name: string;
   assigned_at: string;
+  user_id: number;
 }
 
 interface CrewTableProps {
   items?: CrewMember[];
   isCreator?: boolean;
   onDelete?: (ids: Key[]) => void;
+
 }
 
 const CrewTable: React.FC<CrewTableProps> = ({
@@ -23,7 +25,7 @@ const CrewTable: React.FC<CrewTableProps> = ({
   isCreator = false,
   onDelete
 }) => {
-  const [selectedRowKeys, setSelectedRowKeys] = React.useState<Key[]>([]);
+  const [, setSelectedRowKeys] = React.useState<Key[]>([]);
 
   const handleDelete = (ids: Key[]) => {
     onDelete?.(ids);
